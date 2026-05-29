@@ -1,0 +1,381 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>לוח הוועד הדיגיטלי · עפרוני 18, מודיעין</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+  tailwind.config = {
+    theme: { extend: {
+      fontFamily: { sans: ['Heebo','system-ui','sans-serif'] },
+      colors: {
+        brand: { 50:'#eef2ff',100:'#e0e7ff',200:'#c7d2fe',500:'#6366f1',600:'#4f46e5',700:'#4338ca' },
+        accent:{ 400:'#c084fc',500:'#a855f7',600:'#9333ea' },
+      },
+    } },
+  };
+</script>
+<style>
+  html,body{height:100%}
+  body{
+    font-family:'Heebo',system-ui,sans-serif;color:#0f172a;background-color:#f3f4fb;
+    background-image:
+      radial-gradient(900px 620px at 112% -8%, rgba(168,85,247,.22), transparent 60%),
+      radial-gradient(820px 620px at -12% 2%, rgba(79,70,229,.18), transparent 55%),
+      radial-gradient(760px 520px at 50% 118%, rgba(56,189,248,.16), transparent 60%);
+    background-attachment:fixed;
+  }
+  .glass{background:rgba(255,255,255,.72);backdrop-filter:blur(12px) saturate(140%);-webkit-backdrop-filter:blur(12px) saturate(140%)}
+  @keyframes gradient-pan{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+  .gradient-pan{background-size:220% 220%;animation:gradient-pan 9s ease infinite}
+  @keyframes float-slow{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
+  .float-slow{animation:float-slow 5s ease-in-out infinite}
+  @keyframes marquee-x{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  .marquee-x{animation:marquee-x linear infinite}
+  @keyframes scroll-up{from{transform:translateY(0)}to{transform:translateY(-50%)}}
+  .scroll-up{animation:scroll-up linear infinite}
+  .no-scrollbar::-webkit-scrollbar{display:none}
+  .clamp2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+  .clamp-bio{display:-webkit-box;-webkit-line-clamp:7;-webkit-box-orient:vertical;overflow:hidden}
+  @media (prefers-reduced-motion: reduce){.gradient-pan,.float-slow,.marquee-x,.scroll-up{animation:none}}
+</style>
+</head>
+<body class="h-full">
+<div class="flex h-screen flex-col gap-3 overflow-hidden p-3">
+
+  <!-- TOP BAR -->
+  <header class="gradient-pan flex shrink-0 items-center justify-between gap-4 rounded-3xl bg-gradient-to-l from-indigo-700 via-violet-600 to-fuchsia-600 px-5 py-3 text-white shadow-lg">
+    <div class="flex items-center gap-3">
+      <div class="flex size-11 items-center justify-center rounded-2xl border border-white/30 bg-white/15">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="size-6"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4M9 6h.01M15 6h.01M9 10h.01M15 10h.01M9 14h.01M15 14h.01"/></svg>
+      </div>
+      <div class="leading-tight">
+        <div class="text-base font-extrabold sm:text-lg">עפרוני 18, מודיעין</div>
+        <div class="text-xs text-white/75">לוח הוועד הדיגיטלי · ועד הבית</div>
+      </div>
+    </div>
+    <div class="text-center">
+      <div id="clock" class="text-3xl font-black tabular-nums sm:text-4xl">--:--:--</div>
+      <div id="date" class="text-xs font-medium text-white/80 sm:text-sm"></div>
+    </div>
+    <!-- music -->
+    <div class="flex items-center gap-2 rounded-2xl bg-white/15 px-2.5 py-1.5">
+      <button id="musicBtn" class="flex size-9 items-center justify-center rounded-full bg-white/90 text-indigo-700" title="נגן/השהה מוזיקה">
+        <svg id="playIcon" viewBox="0 0 24 24" fill="currentColor" class="size-4"><path d="M7 5.5v13a1 1 0 0 0 1.5.87l11-6.5a1 1 0 0 0 0-1.74l-11-6.5A1 1 0 0 0 7 5.5z"/></svg>
+        <svg id="pauseIcon" viewBox="0 0 24 24" fill="currentColor" class="hidden size-4"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
+      </button>
+      <select id="musicSel" class="hidden cursor-pointer rounded-lg bg-white/10 px-1.5 py-1 text-xs font-bold text-white outline-none sm:block"></select>
+    </div>
+  </header>
+
+  <!-- MAIN GRID -->
+  <div class="grid min-h-0 flex-1 grid-cols-1 gap-3 lg:grid-cols-12">
+
+    <!-- RIGHT: house rules (vertical scroll) -->
+    <section class="flex min-h-0 flex-col overflow-hidden rounded-3xl border border-slate-200 bg-white p-4 shadow-sm lg:col-span-3">
+      <h2 class="mb-2 flex shrink-0 items-center gap-2 text-base font-bold text-slate-800">
+        <span class="flex size-8 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-violet-500 text-white">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="size-5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/></svg>
+        </span>
+        כללי הבית
+      </h2>
+      <div class="relative min-h-0 flex-1 overflow-hidden">
+        <div id="rulesScroll" class="scroll-up flex flex-col gap-2"></div>
+        <div class="pointer-events-none absolute inset-x-0 top-0 h-6 bg-gradient-to-b from-white to-transparent"></div>
+        <div class="pointer-events-none absolute inset-x-0 bottom-0 h-6 bg-gradient-to-t from-white to-transparent"></div>
+      </div>
+    </section>
+
+    <!-- CENTER: daily figure (Wikipedia) -->
+    <section class="flex min-h-0 flex-col overflow-hidden rounded-3xl border border-violet-200 bg-gradient-to-b from-violet-50 to-white p-5 shadow-sm lg:col-span-6">
+      <div class="mb-3 flex items-center justify-between">
+        <h2 class="flex items-center gap-2 text-lg font-bold text-violet-700">
+          <span class="flex size-9 items-center justify-center rounded-xl bg-gradient-to-br from-violet-500 to-fuchsia-500 text-white">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="size-5"><path d="M12 7v14M3 18a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3H3z"/></svg>
+          </span>
+          לימוד יומי · דמות מההיסטוריה
+        </h2>
+        <span class="rounded-full bg-violet-100 px-3 py-1 text-xs font-bold text-violet-700">הדמות של היום</span>
+      </div>
+      <div class="flex shrink-0 items-center gap-4">
+        <div id="figAvatar" class="flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 text-4xl font-black text-white shadow-lg"></div>
+        <div class="min-w-0">
+          <h3 id="figName" class="text-2xl font-black leading-tight text-slate-800"></h3>
+          <div class="mt-1.5 flex flex-wrap gap-2">
+            <span id="figField" class="rounded-full bg-violet-600 px-3 py-0.5 text-sm font-bold text-white"></span>
+            <span id="figYears" class="rounded-full bg-slate-200 px-3 py-0.5 text-sm font-bold text-slate-700"></span>
+          </div>
+        </div>
+      </div>
+      <div class="mt-3 flex min-h-0 flex-1 items-center overflow-hidden">
+        <p id="figBio" class="text-[15px] leading-relaxed text-slate-700"></p>
+      </div>
+      <div class="mt-2 shrink-0 border-t border-violet-100 pt-2">
+        <ul id="figFacts" class="flex flex-wrap items-center gap-1.5"></ul>
+      </div>
+      <blockquote id="figQuote" class="mt-3 hidden rounded-2xl bg-gradient-to-l from-violet-600 to-fuchsia-600 px-4 py-2.5 text-center font-bold text-white shadow"></blockquote>
+    </section>
+
+    <!-- LEFT: weather + zmanim -->
+    <div class="flex min-h-0 flex-col gap-3 lg:col-span-3">
+      <!-- weather -->
+      <section class="flex flex-1 flex-col justify-between rounded-3xl bg-gradient-to-br from-sky-500 to-cyan-600 p-4 text-white shadow-lg">
+        <div class="mb-2 flex items-center justify-between">
+          <span class="text-sm font-bold text-white/90">מזג אוויר</span>
+          <span class="text-xs text-white/75">מודיעין</span>
+        </div>
+        <div id="weatherCur" class="flex items-center justify-between"><div class="py-3 text-sm text-white/80">טוען…</div></div>
+        <div id="weatherDays" class="mt-3 grid grid-cols-4 gap-1 border-t border-white/20 pt-2"></div>
+      </section>
+      <!-- zmanim -->
+      <section class="flex flex-1 flex-col justify-between rounded-3xl border border-amber-200 bg-gradient-to-br from-amber-50 to-white p-4 shadow-sm">
+        <span class="mb-2 text-sm font-bold text-amber-700">זמני היום</span>
+        <div class="grid grid-cols-2 gap-2">
+          <div class="flex items-center gap-2 rounded-2xl bg-white/70 p-2">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="size-5 text-amber-500"><path d="M12 2v4M4.9 8.9l1.4 1.4M2 16h2M20 16h2M17.7 10.3l1.4-1.4M22 22H2M8 16a4 4 0 0 1 8 0"/></svg>
+            <div class="leading-tight"><div class="text-xs text-slate-500">זריחה</div><div id="zSunrise" class="font-bold tabular-nums text-slate-800">—</div></div>
+          </div>
+          <div class="flex items-center gap-2 rounded-2xl bg-white/70 p-2">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="size-5 text-orange-500"><path d="M12 6V2M4.9 8.9l1.4 1.4M2 16h2M20 16h2M17.7 10.3l1.4-1.4M22 22H2M8 16a4 4 0 0 1 8 0"/></svg>
+            <div class="leading-tight"><div class="text-xs text-slate-500">שקיעה</div><div id="zSunset" class="font-bold tabular-nums text-slate-800">—</div></div>
+          </div>
+        </div>
+        <div id="shabbatBox" class="mt-3"></div>
+      </section>
+    </div>
+  </div>
+
+  <!-- NEWS TICKER -->
+  <div class="flex shrink-0 items-center gap-3 overflow-hidden rounded-3xl bg-gradient-to-l from-rose-600 via-red-600 to-orange-600 py-2.5 pr-4 text-white shadow-lg">
+    <span class="z-10 flex shrink-0 items-center gap-1.5 rounded-full bg-white/20 px-3 py-1 text-sm font-extrabold">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="size-4"><path d="M4 22h16a2 2 0 0 0 2-2V4a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v16a2 2 0 0 1-2 2 2 2 0 0 1-2-2V9a1 1 0 0 1 1-1h2"/><path d="M18 14h-8M15 18h-5M10 6h8v4h-8V6z"/></svg>
+      מבזקים
+    </span>
+    <div class="relative flex-1 overflow-hidden" dir="ltr">
+      <div id="ticker" class="marquee-x flex w-max items-center gap-6 whitespace-nowrap"></div>
+    </div>
+  </div>
+</div>
+
+<!-- hidden YouTube audio player -->
+<div style="position:fixed;left:-9999px;top:0"><div id="yt-player"></div></div>
+
+<script>
+/* ====================== DATA ====================== */
+var MODIIN = { lat:31.8969, lon:35.0104, tz:'Asia/Jerusalem' };
+
+/* ----- בית: כללי התנהגות והתנהלות (ברירת מחדל — ניתן להחליף בשלך) ----- */
+var HOUSE_RULES = [
+  "שעות מנוחה: 14:00–16:00 ו-22:00–07:00 — נא להימנע מרעש.",
+  "אין להשאיר חפצים, עגלות או נעליים בחדר המדרגות — זו דרך מילוט.",
+  "פינוי אשפה לפחים בלבד; קרטונים יש לקפל לפני ההשלכה.",
+  "שמירה על ניקיון המעלית, הלובי והחצר המשותפת.",
+  "בעלי כלבים — להחזיק ברצועה בשטח המשותף ולאסוף לכלוכים.",
+  "חניה רק במקומות המסומנים; לא לחסום שכנים או יציאות חירום.",
+  "אסור לעשן בשטחים המשותפים הסגורים (לובי, מעלית, מסדרון).",
+  "דיווח על תקלות ברכוש המשותף ליו\"ר הוועד בהקדם.",
+  "אירועים ומסיבות — להודיע מראש לשכנים ולסיים עד 23:00.",
+  "תשלום דמי ועד עד ה-10 בכל חודש.",
+  "אופניים וקורקינטים בעמדה הייעודית — לא בחדר המדרגות.",
+  "נא להקפיד שדלת הכניסה סגורה — למניעת כניסת זרים.",
+  "עבודות שיפוץ — בתיאום מראש עם הוועד ובשעות המותרות בלבד.",
+  "שמירה על עצים וצמחייה בגינה המשותפת — נכס של כולנו.",
+];
+
+/* ----- דמויות מההיסטוריה (לימוד יומי) ----- */
+var FIGURES = [
+  {name:"אלברט איינשטיין",initial:"א",years:"1879–1955",field:"פיזיקה",grad:"from-indigo-500 to-violet-600",bio:"מגדולי המדענים בכל הזמנים; תורת היחסות שלו שינתה את ההבנה על זמן, מרחב וכבידה.",facts:["המשוואה המפורסמת: E=mc².","זכה בפרס נובל לפיזיקה (1921).","הוצע לו לכהן כנשיא ישראל — וסירב."],quote:"הדמיון חשוב יותר מן הידע.",wiki:"אלברט איינשטיין"},
+  {name:"מארי קירי",initial:"מ",years:"1867–1934",field:"מדע",grad:"from-emerald-500 to-teal-600",bio:"חלוצת חקר הרדיואקטיביות, והאדם הראשון שזכה בשני פרסי נובל.",facts:["האישה הראשונה שזכתה בנובל.","גילתה רדיום ופולוניום.","נובל בפיזיקה ובכימיה."],quote:"בחיים אין דברים שצריך לפחד מהם — רק להבין.",wiki:"מארי קירי"},
+  {name:"דוד בן-גוריון",initial:"ד",years:"1886–1973",field:"מנהיגות",grad:"from-amber-500 to-orange-600",bio:"ראש הממשלה הראשון של ישראל; הכריז על הקמת המדינה והוביל את צעדיה הראשונים.",facts:["הכריז על המדינה ב-1948.","הקים את צה\"ל.","עבר לחיות בשדה בוקר."],wiki:"דוד בן-גוריון"},
+  {name:"גולדה מאיר",initial:"ג",years:"1898–1978",field:"מנהיגות",grad:"from-rose-500 to-pink-600",bio:"האישה הראשונה שכיהנה כראש ממשלת ישראל; נודעה בנחישותה ובסגנונה הישיר.",facts:["חתומה על מגילת העצמאות.","שגרירת ישראל הראשונה בבריה\"מ.","ראש הממשלה הרביעית."],wiki:"גולדה מאיר"},
+  {name:"לאונרדו דה וינצ'י",initial:"ל",years:"1452–1519",field:"אמנות ומדע",grad:"from-fuchsia-500 to-pink-600",bio:"אמן, ממציא ומדען מהרנסאנס — סמל לסקרנות ולגאונות רב-תחומית.",facts:["צייר את 'המונה ליזה'.","תכנן מכונת תעופה.","כתב בכתב ראי הפוך."],wiki:"לאונרדו דה וינצ'י"},
+  {name:"אייזק ניוטון",initial:"א",years:"1643–1727",field:"פיזיקה",grad:"from-indigo-500 to-blue-600",bio:"ניסח את חוקי התנועה והכבידה והניח את היסודות לפיזיקה הקלאסית.",facts:["שלושת חוקי התנועה.","אור לבן = כל צבעי הקשת.","פיתח את החשבון האינפיניטסימלי."],wiki:"אייזק ניוטון"},
+  {name:"נלסון מנדלה",initial:"נ",years:"1918–2013",field:"זכויות אדם",grad:"from-emerald-500 to-green-600",bio:"מנהיג שנלחם נגד האפרטהייד; ישב 27 שנים בכלא והפך לנשיא הנבחר הראשון של דרום אפריקה.",facts:["27 שנים בכלא.","נובל לשלום 1993.","סמל לפיוס."],quote:"זה תמיד נראה בלתי אפשרי — עד שזה נעשה.",wiki:"נלסון מנדלה"},
+  {name:"תאודור הרצל",initial:"ת",years:"1860–1904",field:"חזון מדיני",grad:"from-sky-500 to-cyan-600",bio:"חוזה המדינה; ייסד את התנועה הציונית המדינית והניע את החזון למדינה יהודית.",facts:["כינס את הקונגרס הציוני (1897).","כתב 'מדינת היהודים'.","על שטר 100 השקלים."],quote:"אם תרצו — אין זו אגדה.",wiki:"בנימין זאב הרצל"},
+  {name:"אנה פרנק",initial:"א",years:"1929–1945",field:"היסטוריה",grad:"from-slate-500 to-slate-700",bio:"נערה יהודייה שכתבה יומן בעת מסתור מהנאצים; יומנה הפך לאחד הספרים המשפיעים בעולם.",facts:["קיבלה את היומן בגיל 13.","הסתתרה כשנתיים באמסטרדם.","תורגם ליותר מ-70 שפות."],wiki:"אנה פרנק"},
+  {name:"תומאס אדיסון",initial:"ת",years:"1847–1931",field:"המצאות",grad:"from-yellow-500 to-amber-600",bio:"ממציא פורה ששכלל את הנורה החשמלית והקים מעבדת מחקר תעשייתית פורצת דרך.",facts:["יותר מ-1,000 פטנטים.","המציא את הפונוגרף.","מחלוצי תעשיית החשמל."],quote:"גאונות היא 1% השראה ו-99% יזע.",wiki:"תומאס אלווה אדיסון"},
+  {name:"אלן טיורינג",initial:"א",years:"1912–1954",field:"מדעי המחשב",grad:"from-cyan-500 to-blue-600",bio:"אבי מדעי המחשב; פיצח את צופן האניגמה הנאצי וקיצר את מלחמת העולם השנייה.",facts:["הגה את 'מכונת טיורינג'.","פיצח את האניגמה.","פיתח את 'מבחן טיורינג'."],wiki:"אלן טיורינג"},
+  {name:"רוזלינד פרנקלין",initial:"ר",years:"1920–1958",field:"מדע",grad:"from-teal-500 to-emerald-600",bio:"כימאית שתצלומי הרנטגן שלה היו מפתח לגילוי מבנה הסליל הכפול של ה-DNA.",facts:["'תצלום 51' חשף את ה-DNA.","הוכרה במלואה רק אחרי מותה.","חקרה גם נגיפים ופחם."],wiki:"רוזלינד פרנקלין"},
+];
+
+var MUSIC = [
+  {id:"gYlLvL60Ev4",name:"ג׳אז מלון יוקרה"},
+  {id:"lkEcIFJizio",name:"לובי מלון · לו-פיי"},
+  {id:"Y1_oaTfzqg0",name:"לאונג׳ יוקרתי"},
+  {id:"DcNqURGqu-0",name:"פסנתר מלון"},
+  {id:"4EF516jG9VA",name:"ספא מרגיע"},
+];
+
+var LOCAL_NEWS = [
+  "עבודות סלילה ברחוב עפרוני — 1 עד 3 ביוני (עיריית מודיעין).",
+  "פינוי גזם וגרוטאות מוגבר — יום ראשון, נא להוציא עד 07:00.",
+  "תזכורת: בדיקת גלאי עשן בשטח המשותף בחודש הבא.",
+  "שינוי זמני במסלול קו אוטובוס 7 עקב עבודות.",
+];
+
+/* ====================== HELPERS ====================== */
+function dayOfYear(d){var s=new Date(d.getFullYear(),0,0);return Math.floor((d-s)/86400000);}
+function hhmm(iso){return new Date(iso).toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit'});}
+var HEB_DAY=['א׳','ב׳','ג׳','ד׳','ה׳','ו׳','שבת'];
+function wcode(c){
+  if(c===0)return['בהיר','sun'];if(c===1)return['בהיר ברובו','sun'];if(c===2)return['מעונן חלקית','cloudsun'];
+  if(c===3)return['מעונן','cloud'];if(c===45||c===48)return['ערפל','cloud'];
+  if(c>=51&&c<=67)return['גשם','rain'];if(c>=71&&c<=77)return['שלג','rain'];
+  if(c>=80&&c<=82)return['ממטרים','rain'];if(c>=95)return['סופת רעמים','rain'];return['—','cloud'];
+}
+function wsvg(kind){
+  var s='viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"';
+  if(kind==='sun')return '<svg '+s+'><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M6.3 17.7l-1.4 1.4M19.1 4.9l-1.4 1.4"/></svg>';
+  if(kind==='cloudsun')return '<svg '+s+'><path d="M15.9 8.1A4 4 0 1 0 8.5 10"/><path d="M7 18a4 4 0 0 1 .5-7.97A5 5 0 0 1 17 11a3.5 3.5 0 0 1-.5 7H7z"/></svg>';
+  if(kind==='rain')return '<svg '+s+'><path d="M16 13a4.5 4.5 0 0 0 .5-9A6 6 0 0 0 5 5.5 4 4 0 0 0 6 13h10z"/><path d="M8 16v4M12 16v4M16 16v4"/></svg>';
+  return '<svg '+s+'><path d="M17.5 19a4.5 4.5 0 1 0 0-9 6 6 0 0 0-11.5 1.5A4 4 0 0 0 6 19h11.5z"/></svg>';
+}
+
+/* ====================== CLOCK ====================== */
+function tickClock(){
+  var n=new Date();
+  document.getElementById('clock').textContent=n.toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  document.getElementById('date').textContent=n.toLocaleDateString('he-IL',{weekday:'long',day:'2-digit',month:'2-digit',year:'numeric'});
+}
+setInterval(tickClock,1000);tickClock();
+
+/* ====================== HOUSE RULES (vertical scroll) ====================== */
+(function(){
+  var box=document.getElementById('rulesScroll');
+  function row(t){return '<div class="rounded-2xl border border-slate-100 bg-slate-50/60 px-3 py-2.5 text-sm font-medium leading-snug text-slate-700">'+t+'</div>';}
+  var html=HOUSE_RULES.map(row).join('');
+  box.innerHTML=html+html; // duplicate for seamless loop
+  // calm speed ~22px/s
+  requestAnimationFrame(function(){
+    var h=box.scrollHeight/2;
+    box.style.animationDuration=Math.max(25,Math.round(h/22))+'s';
+  });
+})();
+
+/* ====================== DAILY FIGURE (Wikipedia) ====================== */
+(function(){
+  var f=FIGURES[dayOfYear(new Date())%FIGURES.length];
+  document.getElementById('figAvatar').textContent=f.initial;
+  document.getElementById('figAvatar').className='flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br '+f.grad+' text-4xl font-black text-white shadow-lg';
+  document.getElementById('figName').textContent=f.name;
+  document.getElementById('figField').textContent=f.field;
+  document.getElementById('figYears').textContent=f.years;
+  document.getElementById('figBio').textContent=f.bio;
+  document.getElementById('figFacts').innerHTML=
+    '<li class="rounded-full bg-violet-600 px-2.5 py-0.5 text-[11px] font-extrabold text-white">הידעת?</li>'+
+    f.facts.map(function(x){return '<li class="rounded-full bg-violet-100 px-2.5 py-0.5 text-[11px] font-medium text-violet-800">'+x+'</li>';}).join('');
+  if(f.quote){var q=document.getElementById('figQuote');q.textContent='״'+f.quote+'״';q.classList.remove('hidden');}
+  // live Wikipedia extract + portrait
+  var url='https://he.wikipedia.org/w/api.php?action=query&prop=extracts|pageimages&exintro&explaintext&piprop=thumbnail&pithumbsize=400&redirects=1&format=json&origin=*&titles='+encodeURIComponent(f.wiki);
+  fetch(url).then(function(r){return r.json()}).then(function(d){
+    var pages=d&&d.query&&d.query.pages;if(!pages)return;var p=pages[Object.keys(pages)[0]]||{};
+    if(p.extract){
+      var ex=p.extract.trim();
+      if(ex.length>900){
+        var cut=ex.slice(0,900);
+        var lastDot=cut.lastIndexOf('. ');
+        ex = lastDot>500 ? cut.slice(0,lastDot+1) : cut.replace(/\s+\S*$/,'')+'…';
+      }
+      document.getElementById('figBio').textContent=ex;
+    }
+    if(p.thumbnail&&p.thumbnail.source){
+      var a=document.getElementById('figAvatar');a.textContent='';
+      a.innerHTML='<img src="'+p.thumbnail.source+'" referrerpolicy="no-referrer" class="size-full object-cover" alt="">';
+    }
+  }).catch(function(){});
+})();
+
+/* ====================== WEATHER (Open-Meteo) ====================== */
+fetch('https://api.open-meteo.com/v1/forecast?latitude='+MODIIN.lat+'&longitude='+MODIIN.lon+'&current=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=4')
+.then(function(r){return r.json()}).then(function(j){
+  var w=wcode(j.current.weather_code);
+  document.getElementById('weatherCur').innerHTML=
+    '<div><div class="text-4xl font-black leading-none">'+Math.round(j.current.temperature_2m)+'°</div><div class="mt-1 text-sm text-white/90">'+w[0]+'</div></div>'+
+    '<div class="size-16">'+wsvg(w[1])+'</div>';
+  var days='';
+  for(var i=0;i<j.daily.time.length;i++){
+    var di=wcode(j.daily.weather_code[i]);
+    var name=i===0?'היום':HEB_DAY[new Date(j.daily.time[i]).getDay()];
+    days+='<div class="text-center"><div class="text-[11px] font-semibold text-white/80">'+name+'</div><div class="mx-auto my-0.5 size-6">'+wsvg(di[1])+'</div><div class="text-xs font-bold">'+Math.round(j.daily.temperature_2m_max[i])+'°</div><div class="text-[10px] text-white/70">'+Math.round(j.daily.temperature_2m_min[i])+'°</div></div>';
+  }
+  document.getElementById('weatherDays').innerHTML=days;
+}).catch(function(){});
+
+/* ====================== ZMANIM + SHABBAT (Open-Meteo + Hebcal) ====================== */
+fetch('https://api.open-meteo.com/v1/forecast?latitude='+MODIIN.lat+'&longitude='+MODIIN.lon+'&daily=sunrise,sunset&timezone=auto&forecast_days=1')
+.then(function(r){return r.json()}).then(function(j){
+  document.getElementById('zSunrise').textContent=hhmm(j.daily.sunrise[0]);
+  document.getElementById('zSunset').textContent=hhmm(j.daily.sunset[0]);
+}).catch(function(){});
+
+fetch('https://www.hebcal.com/shabbat?cfg=json&latitude='+MODIIN.lat+'&longitude='+MODIIN.lon+'&tzid='+MODIIN.tz+'&b=18&M=on')
+.then(function(r){return r.json()}).then(function(j){
+  var items=j.items||[],c,h,p;
+  items.forEach(function(it){if(it.category==='candles')c=hhmm(it.date);if(it.category==='havdalah')h=hhmm(it.date);if(it.category==='parashat')p=it.hebrew;});
+  var dow=new Date().getDay(), box=document.getElementById('shabbatBox');
+  if(dow===5||dow===6){
+    box.innerHTML='<div class="gradient-pan overflow-hidden rounded-2xl bg-gradient-to-bl from-violet-600 via-indigo-600 to-blue-600 p-3.5 text-white shadow-lg">'+
+      '<div class="flex items-center justify-between"><span class="text-lg font-black">שבת שלום</span>'+(p?'<span class="rounded-full bg-white/20 px-2.5 py-0.5 text-sm font-bold">'+p+'</span>':'')+'</div>'+
+      '<div class="mt-3 grid grid-cols-2 gap-2"><div class="rounded-xl bg-white/15 px-2 py-1.5 text-center"><div class="text-[11px] text-white/85">כניסת שבת</div><div class="text-lg font-black tabular-nums">'+(c||'—')+'</div></div>'+
+      '<div class="rounded-xl bg-white/15 px-2 py-1.5 text-center"><div class="text-[11px] text-white/85">צאת שבת</div><div class="text-lg font-black tabular-nums">'+(h||'—')+'</div></div></div></div>';
+  } else {
+    box.innerHTML='<div class="flex items-center justify-between rounded-2xl bg-violet-50/70 px-3 py-2"><span class="text-sm font-bold text-violet-700">השבת הקרובה'+(p?' · '+p:'')+'</span>'+(c?'<span class="text-xs font-semibold text-violet-600">כניסה '+c+'</span>':'')+'</div>';
+  }
+}).catch(function(){});
+
+/* ====================== NEWS TICKER (client-side via CORS proxy) ====================== */
+(function(){
+  var ticker=document.getElementById('ticker');
+  function badge(t,cls){return '<span class="rounded-full px-2 py-0.5 text-[11px] font-extrabold '+cls+'">'+t+'</span>';}
+  function render(titles){
+    if(!titles.length)return;
+    var loop=titles.concat(titles);
+    ticker.innerHTML=loop.map(function(t){
+      return '<span class="flex items-center gap-2 text-sm font-semibold" dir="rtl"><span class="size-1.5 shrink-0 rounded-full bg-white/70"></span><span class="text-white/95">'+t+'</span><span class="px-2 text-white/40">•</span></span>';
+    }).join('');
+    requestAnimationFrame(function(){
+      var one=ticker.scrollWidth/2;ticker.style.animationDuration=Math.max(60,Math.round(one/20))+'s';
+    });
+  }
+  function fetchTitles(feed,n){
+    var u='https://api.rss2json.com/v1/api.json?rss_url='+encodeURIComponent(feed);
+    return fetch(u).then(function(r){return r.json()}).then(function(d){
+      if(!d||d.status!=='ok'||!d.items)return[];
+      return d.items.slice(0,n).map(function(it){return (it.title||'').trim()}).filter(Boolean);
+    }).catch(function(){return[]});
+  }
+  function loadNews(){
+    fetchTitles('https://www.ynet.co.il/Integration/StoryRss2.xml',14).then(function(titles){
+      if(titles.length)render(titles);
+    });
+  }
+  render(['מתעדכן…']);
+  loadNews();
+  setInterval(loadNews,600000);
+})();
+
+/* ====================== MUSIC (YouTube hotel/lounge) ====================== */
+(function(){
+  var sel=document.getElementById('musicSel');
+  MUSIC.forEach(function(t){var o=document.createElement('option');o.value=t.id;o.textContent=t.name;sel.appendChild(o);});
+  var saved=localStorage.getItem('vaad-music')||MUSIC[0].id;sel.value=saved;
+  var player=null,ready=false,playing=false;
+  var btn=document.getElementById('musicBtn'),pi=document.getElementById('playIcon'),pa=document.getElementById('pauseIcon');
+  function setIcon(){pi.classList.toggle('hidden',playing);pa.classList.toggle('hidden',!playing);}
+  window.onYouTubeIframeAPIReady=function(){
+    player=new YT.Player('yt-player',{height:'150',width:'240',videoId:saved,
+      playerVars:{autoplay:0,controls:0,disablekb:1,rel:0,modestbranding:1,playsinline:1},
+      events:{onReady:function(e){e.target.setVolume(55);ready=true;},
+        onStateChange:function(e){playing=(e.data===YT.PlayerState.PLAYING);setIcon();}}});
+  };
+  var tag=document.createElement('script');tag.src='https://www.youtube.com/iframe_api';document.body.appendChild(tag);
+  btn.onclick=function(){if(!ready||!player)return;if(playing)player.pauseVideo();else player.playVideo();};
+  sel.onchange=function(){localStorage.setItem('vaad-music',sel.value);if(player)player.loadVideoById(sel.value);};
+})();
+</script>
+</body>
+</html>
