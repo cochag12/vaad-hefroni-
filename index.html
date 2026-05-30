@@ -514,8 +514,8 @@ fetch('https://api.open-meteo.com/v1/forecast?latitude='+MODIIN.lat+'&longitude=
 .then(function(r){return r.json()}).then(function(j){
   var w=wcode(j.current.weather_code);
   document.getElementById('weatherCur').innerHTML=
-    '<div><div class="text-3xl font-black leading-none">'+Math.round(j.current.temperature_2m)+'°</div><div class="mt-0.5 text-xs text-white/90">'+w[0]+'</div></div>'+
-    '<div class="size-12">'+wsvg(w[1])+'</div>';
+    '<div><div class="text-2xl font-black leading-none">'+Math.round(j.current.temperature_2m)+'°</div><div class="mt-0.5 text-[11px] text-white/90">'+w[0]+'</div></div>'+
+    '<div class="size-10">'+wsvg(w[1])+'</div>';
   var days='';
   for(var i=0;i<j.daily.time.length;i++){
     var di=wcode(j.daily.weather_code[i]);
@@ -585,11 +585,13 @@ fetch('https://www.hebcal.com/shabbat?cfg=json&latitude='+MODIIN.lat+'&longitude
   if(p || c){
     var dow=new Date().getDay();
     var label = (dow===5 || dow===6) ? 'שבת' : 'השבת הקרובה';
-    var times = c ? (h ? c+' – '+h : c) : '';
-    box.innerHTML='<div class="mt-2 flex items-center justify-between gap-2 rounded-2xl border border-brand-400/20 bg-brand-400/5 px-2.5 py-1.5">'+
-      '<span class="text-[12px] font-bold text-brand-200 truncate">'+label+(p?' · '+p:'')+'</span>'+
-      (times?'<span class="shrink-0 text-[11px] font-semibold tabular-nums text-brand-300">'+times+'</span>':'')+
-      '</div>';
+    box.innerHTML='<div class="mt-2 rounded-2xl border border-brand-400/20 bg-brand-400/5 px-2.5 py-1.5">'+
+      '<div class="text-[12px] font-bold text-brand-200 truncate">'+label+(p?' · '+p:'')+'</div>'+
+      (c||h ? '<div class="mt-1 flex items-center justify-between gap-2 text-[11px] font-semibold text-brand-300">'+
+        (c?'<span><span class="text-brand-300/70">כניסת שבת</span> <span class="tabular-nums text-brand-200">'+c+'</span></span>':'<span></span>')+
+        (h?'<span><span class="text-brand-300/70">צאת שבת</span> <span class="tabular-nums text-brand-200">'+h+'</span></span>':'<span></span>')+
+      '</div>' : '')+
+    '</div>';
   } else {
     box.innerHTML='';
   }
