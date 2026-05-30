@@ -60,6 +60,11 @@
   .scroll-up{animation:scroll-up linear infinite}
   @keyframes pulse-cyan{0%,100%{box-shadow:0 0 8px rgba(34,211,238,.6), 0 0 16px rgba(34,211,238,.3)}50%{box-shadow:0 0 14px rgba(34,211,238,.95), 0 0 32px rgba(34,211,238,.55)}}
   .pulse-cyan{animation:pulse-cyan 2.4s ease-in-out infinite}
+  /* 🚨 אזעקה - צבע אדום: רקע פועם וחזק */
+  @keyframes alert-pulse{0%,100%{background:rgba(220,38,38,0.97);box-shadow:inset 0 0 200px rgba(255,255,255,.15)}50%{background:rgba(153,27,27,0.97);box-shadow:inset 0 0 280px rgba(255,255,255,.25)}}
+  .alert-pulse{animation:alert-pulse 0.85s ease-in-out infinite}
+  @keyframes alert-text-blink{0%,100%{opacity:1;text-shadow:0 0 24px rgba(255,255,255,.95)}50%{opacity:.78;text-shadow:0 0 60px rgba(255,255,255,1)}}
+  .alert-text-blink{animation:alert-text-blink 0.7s ease-in-out infinite}
   @keyframes circuit-shimmer{0%{opacity:.35}50%{opacity:.7}100%{opacity:.35}}
   .circuit-shimmer{animation:circuit-shimmer 6s ease-in-out infinite}
   .no-scrollbar::-webkit-scrollbar{display:none}
@@ -376,10 +381,15 @@ setInterval(tickClock,1000);tickClock();
     if(!items.length){ box.innerHTML=row('bg-brand-400 text-night-900','כותרות','טוען…'); return; }
     var html=items.map(function(it){return row(it.badge, it.source, it.title);}).join('');
     box.innerHTML=html+html; // duplicate for seamless loop
-    requestAnimationFrame(function(){
+    // קצב איטי וקריא: 11 px/s. כללי הבית רצים בקצב 22 px/s. מינימום 120 שניות לבטיחות.
+    function setSpeed(){
       var h=box.scrollHeight/2;
-      box.style.animationDuration=Math.max(30,Math.round(h/22))+'s';
-    });
+      var dur=Math.max(120,Math.round(h/11));
+      box.style.animationDuration=dur+'s';
+    }
+    setSpeed();
+    // גיבוי — אם החישוב הראשון רץ לפני שהדפדפן סיים פריסה
+    setTimeout(setSpeed, 200);
   }
   function fetchFeed(src){
     return fetch('https://api.rss2json.com/v1/api.json?rss_url='+encodeURIComponent(src.url))
@@ -421,10 +431,11 @@ setInterval(tickClock,1000);tickClock();
     var h = window.vaadHavdalahTime || '—';
     figSection.innerHTML =
       '<div class="flex h-full flex-col items-center justify-center gap-3 p-6 text-center" data-silent="1">'+
-        '<div class="text-xs font-bold tracking-[0.3em] text-brand-300/70">הגל השקט · לכבוד שומרי השבת</div>'+
+        '<div class="text-xs font-bold tracking-[0.3em] text-brand-300/70">🟢 הגל השקט · ניטור התרעות פעיל</div>'+
         '<div class="title-grad text-7xl font-black leading-tight">שבת שלום</div>'+
         (p?'<div class="text-2xl font-bold text-brand-200">'+p+'</div>':'')+
-        '<div class="mt-2 max-w-xl text-base leading-relaxed text-slate-300/85">לעונג ולכבוד שומרי השבת — המסך נשאר שקט, ללא תוכן מתחלף וללא מוזיקה, עד צאת השבת.</div>'+
+        '<div class="mt-2 max-w-xl text-base leading-relaxed text-slate-300/85">המסך פעיל לקליטת התרעות צבע אדום בלבד עד צאת השבת — ברוח הגל השקט של פיקוד העורף.</div>'+
+        '<div class="mt-1 max-w-xl text-[11px] text-slate-400/70 leading-relaxed">⚠️ זו תוספת — לא תחליף לרדיו (קול ברמה, קול חי, גלי ישראל) או לפורטל החירום הלאומי</div>'+
         '<div class="mt-4 grid grid-cols-2 gap-8 text-center">'+
           '<div><div class="text-xs text-brand-300/70">כניסת שבת</div><div class="text-2xl font-black text-brand-200 text-glow tabular-nums">'+c+'</div></div>'+
           '<div><div class="text-xs text-brand-300/70">צאת שבת</div><div class="text-2xl font-black text-brand-200 text-glow tabular-nums">'+h+'</div></div>'+
@@ -437,7 +448,6 @@ setInterval(tickClock,1000);tickClock();
     // בזמן השבת — מציגים "הגל השקט" במקום הדמות, ועוצרים את המוזיקה.
     if(window.vaadIsShabbatNow && window.vaadIsShabbatNow()){
       showSilentWave();
-      if(window.vaadStopMusic) window.vaadStopMusic();
       return;
     }
     // הוצאנו מהשבת — מחזירים את מבנה פאנל הדמות, ואז ממלאים אותו.
@@ -528,6 +538,22 @@ window.vaadIsShabbatNow = function(){
       && new Date() <= window.vaadShabbatEnd;
 };
 
+// 🟡 יום כיפור — תאריכי כניסה ויציאה (שעון ישראל, ~30 דק׳ לפני שקיעה ועד צאת הכוכבים +30 דק׳).
+// עדכון: כשהמועדים מתקרבים, אפשר להחליף לזמני Hebcal מדויקים יותר.
+window.vaadYomKippurWindows = [
+  ['2026-09-20T17:30:00+03:00', '2026-09-21T19:10:00+03:00'], // י כתשרי תשפ"ז
+  ['2027-10-10T17:00:00+02:00', '2027-10-11T18:30:00+02:00'],
+  ['2028-09-29T17:15:00+03:00', '2028-09-30T18:55:00+03:00'],
+  ['2029-09-18T17:50:00+03:00', '2029-09-19T19:30:00+03:00'],
+  ['2030-10-06T17:00:00+02:00', '2030-10-07T18:30:00+02:00'],
+];
+window.vaadIsYomKippurNow = function(){
+  var now = new Date();
+  return window.vaadYomKippurWindows.some(function(w){
+    return now >= new Date(w[0]) && now <= new Date(w[1]);
+  });
+};
+
 fetch('https://www.hebcal.com/shabbat?cfg=json&latitude='+MODIIN.lat+'&longitude='+MODIIN.lon+'&tzid='+MODIIN.tz+'&b=18&M=on')
 .then(function(r){return r.json()}).then(function(j){
   var items=j.items||[],c,h,p,cDate,hDate;
@@ -615,16 +641,141 @@ fetch('https://www.hebcal.com/shabbat?cfg=json&latitude='+MODIIN.lat+'&longitude
     localStorage.setItem('vaad-music-wants','0');
   }
   btn.onclick=function(){
-    // בשבת — הכפתור עוצר אם משהו מתנגן (לשומרי השבת), ולא מתחיל ניגון.
-    if(window.vaadIsShabbatNow && window.vaadIsShabbatNow()){
+    // ביום כיפור — הכפתור עוצר אם משהו מתנגן, ולא מתחיל ניגון.
+    if(window.vaadIsYomKippurNow && window.vaadIsYomKippurNow()){
       if(playing) stopMusic();
       return;
     }
     if(playing) stopMusic(); else startMusic();
   };
   sel.onchange=function(){ localStorage.setItem('vaad-music',sel.value); if(playing) startMusic(); };
-  // חשיפת stopMusic — כדי שלוגיקת "הגל השקט" תוכל לעצור מוזיקה אוטומטית בכניסת השבת.
+  // חשיפת stopMusic — כדי שלוגיקת יום כיפור תוכל לעצור אוטומטית.
   window.vaadStopMusic = stopMusic;
+  // ⏱ בדיקה דקתית: אם נכנס יום כיפור והמוזיקה רצה — עצור.
+  setInterval(function(){
+    if(playing && window.vaadIsYomKippurNow && window.vaadIsYomKippurNow()) stopMusic();
+  }, 60000);
+})();
+
+/* ====================== הגל השקט — ניטור צבע אדום (Tzevaadom) ====================== */
+(function(){
+  // ערים שמעניינות אותנו (פיקוד העורף משתמש בכמה צורות כתיב).
+  var MY_CITIES = [
+    'מודיעין-מכבים-רעות',
+    'מודיעין מכבים רעות',
+    'מודיעין',
+    'מכבים',
+    'רעות'
+  ];
+
+  function isAlertForUs(cities){
+    if(!Array.isArray(cities) || !cities.length) return false;
+    for(var i=0;i<cities.length;i++){
+      var c = (cities[i]||'').toString();
+      for(var j=0;j<MY_CITIES.length;j++){
+        if(c.indexOf(MY_CITIES[j]) !== -1 || MY_CITIES[j].indexOf(c) !== -1) return true;
+      }
+    }
+    return false;
+  }
+
+  // 🔊 סירנה גנרית באמצעות Web Audio API. צריך AudioContext פעיל (יוצרים בלחיצה הראשונה).
+  var sirenAudioCtx = null;
+  function ensureAudioCtx(){
+    if(sirenAudioCtx) return sirenAudioCtx;
+    try{
+      var AC = window.AudioContext || window.webkitAudioContext;
+      if(!AC) return null;
+      sirenAudioCtx = new AC();
+      return sirenAudioCtx;
+    }catch(e){ return null; }
+  }
+  // מאתחל AudioContext בלחיצה הראשונה של המשתמש (בלחיצה על נגן המוזיקה למשל)
+  document.addEventListener('click', function once(){
+    ensureAudioCtx();
+    try{ if(sirenAudioCtx && sirenAudioCtx.state==='suspended') sirenAudioCtx.resume(); }catch(e){}
+    document.removeEventListener('click', once);
+  }, true);
+
+  function playSiren(durationSec){
+    var ctx = ensureAudioCtx();
+    if(!ctx) return;
+    try{ if(ctx.state==='suspended') ctx.resume(); }catch(e){}
+    try{
+      var osc = ctx.createOscillator();
+      var gain = ctx.createGain();
+      osc.connect(gain); gain.connect(ctx.destination);
+      osc.type = 'sine';
+      var t = ctx.currentTime;
+      // סירנה: תדר מתנדנד 700↔1000Hz כל חצי שנייה
+      for(var i=0;i<durationSec;i+=1){
+        osc.frequency.setValueAtTime(700, t+i);
+        osc.frequency.linearRampToValueAtTime(1000, t+i+0.5);
+        osc.frequency.linearRampToValueAtTime(700, t+i+1);
+      }
+      gain.gain.setValueAtTime(0.55, t);
+      gain.gain.linearRampToValueAtTime(0.0, t+durationSec);
+      osc.start(t);
+      osc.stop(t+durationSec);
+    }catch(e){}
+  }
+
+  var alertTimeout = null;
+  function showRedAlert(cities){
+    if(alertTimeout) clearTimeout(alertTimeout);
+    var existing = document.getElementById('redAlertOverlay');
+    if(existing) existing.remove();
+    var ov = document.createElement('div');
+    ov.id = 'redAlertOverlay';
+    ov.className = 'alert-pulse fixed inset-0 z-[9999] flex flex-col items-center justify-center gap-6 p-8 text-center';
+    ov.innerHTML =
+      '<div class="alert-text-blink text-[12vw] font-black leading-none text-white">צבע אדום</div>'+
+      '<div class="text-[5vw] font-black text-white">'+(cities && cities.length ? cities.join(' · ') : 'מודיעין-מכבים-רעות')+'</div>'+
+      '<div class="text-[3vw] font-bold text-white">מיד למרחב המוגן!</div>'+
+      '<div class="text-[1.6vw] mt-4 text-white/90">חכו 10 דקות לפני יציאה מהמרחב המוגן</div>'+
+      '<div class="text-[1.2vw] mt-1 text-white/70">פיקוד העורף · 104</div>';
+    document.body.appendChild(ov);
+    playSiren(45); // 45 שניות סירנה
+    // הסרת האזעקה אחרי 3 דקות
+    alertTimeout = setTimeout(function(){
+      var o = document.getElementById('redAlertOverlay'); if(o) o.remove();
+    }, 3*60*1000);
+  }
+
+  // 🌐 חיבור WebSocket לתזיב צופר עדומ (Tzevaadom) - שירות קהילתי של התרעות
+  var ws = null, reconnectDelay = 5000;
+  function connect(){
+    try{
+      ws = new WebSocket('wss://ws.tzevaadom.co.il/socket?platform=WEB');
+      ws.onopen = function(){ reconnectDelay = 5000; };
+      ws.onmessage = function(ev){
+        try{
+          var msg = JSON.parse(ev.data);
+          // פורמטים אפשריים - אנחנו מחפשים מערך cities
+          var cities = (msg && msg.data && msg.data.cities) || msg.cities || null;
+          // type/threat לסינון, אם קיים: 0=טילים, 5=מטוס, וכו'
+          var isAlert = (msg && (msg.type === 'ALERT' || msg.type === 'alert')) || cities;
+          if(isAlert && cities && isAlertForUs(cities)){
+            showRedAlert(cities.filter(function(c){
+              return MY_CITIES.some(function(my){return c && (c.indexOf(my)!==-1 || my.indexOf(c)!==-1);});
+            }));
+          }
+        }catch(e){ /* not JSON */ }
+      };
+      ws.onclose = function(){
+        ws = null;
+        setTimeout(connect, reconnectDelay);
+        reconnectDelay = Math.min(reconnectDelay*1.5, 60000);
+      };
+      ws.onerror = function(){ try{ ws.close(); }catch(e){} };
+    }catch(e){
+      setTimeout(connect, 15000);
+    }
+  }
+  connect();
+
+  // 🧪 לבדיקה ידנית: window.vaadTestAlert() — מציג אזעקה לדוגמה.
+  window.vaadTestAlert = function(){ showRedAlert(['מודיעין-מכבים-רעות']); };
 })();
 </script>
 </body>
