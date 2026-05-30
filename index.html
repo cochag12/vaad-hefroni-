@@ -599,7 +599,7 @@ fetch('https://www.hebcal.com/shabbat?cfg=json&latitude='+MODIIN.lat+'&longitude
       return '<span class="flex items-center gap-2.5 text-base font-semibold" dir="rtl"><span class="size-2 shrink-0 rounded-full bg-brand-400 glow-cyan"></span><span class="text-slate-100">'+t+'</span><span class="px-2 text-brand-400/50">•</span></span>';
     }).join('');
     requestAnimationFrame(function(){
-      var one=ticker.scrollWidth/2;ticker.style.animationDuration=Math.max(40,Math.round(one/30))+'s';
+      var one=ticker.scrollWidth/2;ticker.style.animationDuration=Math.max(30,Math.round(one/40))+'s';
     });
   }
   function fetchTitles(feed,n){
