@@ -109,20 +109,37 @@
   <!-- MAIN GRID -->
   <div class="grid min-h-0 flex-1 grid-cols-1 gap-3 lg:grid-cols-12">
 
-    <!-- RIGHT: house rules (vertical scroll) -->
-    <section class="panel cyber-corner relative flex min-h-0 flex-col overflow-hidden rounded-3xl p-4 lg:col-span-3">
-      <h2 class="mb-2 flex shrink-0 items-center gap-2 text-base font-bold text-brand-200">
-        <span class="glow-cyan flex size-8 items-center justify-center rounded-lg bg-brand-400 text-night-900">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="size-5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/></svg>
-        </span>
-        כללי הבית
-      </h2>
-      <div class="relative min-h-0 flex-1 overflow-hidden">
-        <div id="rulesScroll" class="scroll-up flex flex-col gap-2"></div>
-        <div class="pointer-events-none absolute inset-x-0 top-0 h-6 bg-gradient-to-b from-night-900 to-transparent"></div>
-        <div class="pointer-events-none absolute inset-x-0 bottom-0 h-6 bg-gradient-to-t from-night-900 to-transparent"></div>
-      </div>
-    </section>
+    <!-- RIGHT: two stacked panels — house rules + selected headlines -->
+    <div class="flex min-h-0 flex-col gap-3 lg:col-span-3">
+      <!-- TOP: house rules (vertical scroll) -->
+      <section class="panel cyber-corner relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-3xl p-4">
+        <h2 class="mb-2 flex shrink-0 items-center gap-2 text-base font-bold text-brand-200">
+          <span class="glow-cyan flex size-8 items-center justify-center rounded-lg bg-brand-400 text-night-900">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="size-5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/></svg>
+          </span>
+          כללי הבית
+        </h2>
+        <div class="relative min-h-0 flex-1 overflow-hidden">
+          <div id="rulesScroll" class="scroll-up flex flex-col gap-2"></div>
+          <div class="pointer-events-none absolute inset-x-0 top-0 h-6 bg-gradient-to-b from-night-900 to-transparent"></div>
+          <div class="pointer-events-none absolute inset-x-0 bottom-0 h-6 bg-gradient-to-t from-night-900 to-transparent"></div>
+        </div>
+      </section>
+      <!-- BOTTOM: selected headlines (Walla / Walla Sport / Globes) -->
+      <section class="panel cyber-corner relative flex min-h-0 flex-1 flex-col overflow-hidden rounded-3xl p-4">
+        <h2 class="mb-2 flex shrink-0 items-center gap-2 text-base font-bold text-brand-200">
+          <span class="glow-cyan flex size-8 items-center justify-center rounded-lg bg-brand-400 text-night-900">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="size-5"><circle cx="12" cy="12" r="10"/><path d="M2 12h20M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10A15.3 15.3 0 0 1 8 12 15.3 15.3 0 0 1 12 2z"/></svg>
+          </span>
+          כותרות נבחרות
+        </h2>
+        <div class="relative min-h-0 flex-1 overflow-hidden">
+          <div id="headlinesScroll" class="scroll-up flex flex-col gap-2"></div>
+          <div class="pointer-events-none absolute inset-x-0 top-0 h-6 bg-gradient-to-b from-night-900 to-transparent"></div>
+          <div class="pointer-events-none absolute inset-x-0 bottom-0 h-6 bg-gradient-to-t from-night-900 to-transparent"></div>
+        </div>
+      </section>
+    </div>
 
     <!-- CENTER: daily figure (Wikipedia) -->
     <section class="panel cyber-corner relative flex min-h-0 flex-col overflow-hidden rounded-3xl p-5 lg:col-span-6">
@@ -183,14 +200,14 @@
     </div>
   </div>
 
-  <!-- NEWS TICKER -->
-  <div class="panel cyber-corner relative flex shrink-0 items-center gap-3 overflow-hidden rounded-3xl py-2.5 pr-4">
-    <span class="glow-cyan z-10 flex shrink-0 items-center gap-1.5 rounded-full bg-brand-400 px-3 py-1 text-sm font-extrabold text-night-900">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="size-4"><path d="M4 22h16a2 2 0 0 0 2-2V4a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v16a2 2 0 0 1-2 2 2 2 0 0 1-2-2V9a1 1 0 0 1 1-1h2"/><path d="M18 14h-8M15 18h-5M10 6h8v4h-8V6z"/></svg>
+  <!-- NEWS TICKER (enlarged) -->
+  <div class="panel cyber-corner relative flex shrink-0 items-center gap-4 overflow-hidden rounded-3xl py-4 pr-5">
+    <span class="glow-cyan z-10 flex shrink-0 items-center gap-2 rounded-full bg-brand-400 px-4 py-1.5 text-base font-extrabold text-night-900">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="size-5"><path d="M4 22h16a2 2 0 0 0 2-2V4a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v16a2 2 0 0 1-2 2 2 2 0 0 1-2-2V9a1 1 0 0 1 1-1h2"/><path d="M18 14h-8M15 18h-5M10 6h8v4h-8V6z"/></svg>
       מבזקים
     </span>
     <div class="relative flex-1 overflow-hidden" dir="ltr">
-      <div id="ticker" class="marquee-x flex w-max items-center gap-6 whitespace-nowrap"></div>
+      <div id="ticker" class="marquee-x flex w-max items-center gap-8 whitespace-nowrap"></div>
     </div>
   </div>
 </div>
@@ -341,14 +358,90 @@ setInterval(tickClock,1000);tickClock();
   });
 })();
 
-/* ====================== DAILY FIGURE — חילוף בחצות, רבנים בשישי-שבת ====================== */
+/* ====================== SELECTED HEADLINES (Walla / Walla Sport / Globes) ====================== */
 (function(){
+  var box=document.getElementById('headlinesScroll');
+  // מקורות: וואלה (חדשות), וואלה (ספורט), גלובס. נעדכן כל 20 דקות.
+  var SOURCES=[
+    {name:'וואלה',    badge:'bg-rose-400 text-rose-950',     url:'https://rss.walla.co.il/feed/1', take:4},
+    {name:'ספורט',    badge:'bg-emerald-400 text-emerald-950',url:'https://www.ynet.co.il/Integration/StoryRss3.xml', take:4},
+    {name:'גלובס',    badge:'bg-amber-300 text-amber-950',   url:'https://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=585', take:4},
+  ];
+  function row(badgeCls, source, title){
+    return '<div class="flex items-start gap-2 rounded-2xl border border-brand-400/15 bg-brand-400/5 px-3 py-2.5 text-xs font-medium leading-snug text-slate-100">'+
+           '<span class="shrink-0 rounded-full '+badgeCls+' px-2 py-0.5 text-[10px] font-extrabold">'+source+'</span>'+
+           '<span class="leading-snug">'+title+'</span></div>';
+  }
+  function render(items){
+    if(!items.length){ box.innerHTML=row('bg-brand-400 text-night-900','כותרות','טוען…'); return; }
+    var html=items.map(function(it){return row(it.badge, it.source, it.title);}).join('');
+    box.innerHTML=html+html; // duplicate for seamless loop
+    requestAnimationFrame(function(){
+      var h=box.scrollHeight/2;
+      box.style.animationDuration=Math.max(30,Math.round(h/22))+'s';
+    });
+  }
+  function fetchFeed(src){
+    return fetch('https://api.rss2json.com/v1/api.json?rss_url='+encodeURIComponent(src.url))
+      .then(function(r){return r.json()})
+      .then(function(d){
+        if(!d||d.status!=='ok'||!d.items) return [];
+        return d.items.slice(0,src.take).map(function(it){
+          return { source:src.name, badge:src.badge, title:(it.title||'').trim() };
+        }).filter(function(x){return x.title;});
+      })
+      .catch(function(){return [];});
+  }
+  function load(){
+    render([]); // placeholder
+    Promise.all(SOURCES.map(fetchFeed)).then(function(arrs){
+      // interleave so the sources mix vertically (round-robin)
+      var mixed=[]; var max=Math.max.apply(null, arrs.map(function(a){return a.length;}));
+      for(var i=0;i<max;i++){ arrs.forEach(function(a){ if(a[i]) mixed.push(a[i]); }); }
+      if(mixed.length) render(mixed);
+    });
+  }
+  load();
+  setInterval(load, 20*60*1000); // refresh every 20 min
+})();
+
+/* ====================== DAILY FIGURE + "הגל השקט" בשבת ====================== */
+(function(){
+  // שומרים את ה-HTML המקורי של פאנל הדמות כדי להחזיר אותו אחרי השבת.
+  var figSection = document.getElementById('figName').closest('section');
+  var figOriginalHTML = figSection.innerHTML;
   function pickFigure(){
-    var d=new Date(), dow=d.getDay(); // 5=שישי, 6=שבת
+    var d=new Date(), dow=d.getDay();
     var pool=(dow===5||dow===6) ? RABBIS : FIGURES;
     return pool[dayOfYear(d) % pool.length];
   }
+  function showSilentWave(){
+    var p = window.vaadParsha || '';
+    var c = window.vaadCandleTime || '—';
+    var h = window.vaadHavdalahTime || '—';
+    figSection.innerHTML =
+      '<div class="flex h-full flex-col items-center justify-center gap-3 p-6 text-center" data-silent="1">'+
+        '<div class="text-xs font-bold tracking-[0.3em] text-brand-300/70">הגל השקט · לכבוד שומרי השבת</div>'+
+        '<div class="title-grad text-7xl font-black leading-tight">שבת שלום</div>'+
+        (p?'<div class="text-2xl font-bold text-brand-200">'+p+'</div>':'')+
+        '<div class="mt-2 max-w-xl text-base leading-relaxed text-slate-300/85">לעונג ולכבוד שומרי השבת — המסך נשאר שקט, ללא תוכן מתחלף וללא מוזיקה, עד צאת השבת.</div>'+
+        '<div class="mt-4 grid grid-cols-2 gap-8 text-center">'+
+          '<div><div class="text-xs text-brand-300/70">כניסת שבת</div><div class="text-2xl font-black text-brand-200 text-glow tabular-nums">'+c+'</div></div>'+
+          '<div><div class="text-xs text-brand-300/70">צאת שבת</div><div class="text-2xl font-black text-brand-200 text-glow tabular-nums">'+h+'</div></div>'+
+        '</div>'+
+      '</div>';
+  }
+  function isSilentNow(){ return !!figSection.querySelector('[data-silent="1"]'); }
+  function restoreFigureHTML(){ if(isSilentNow()) figSection.innerHTML = figOriginalHTML; }
   function showFigure(){
+    // בזמן השבת — מציגים "הגל השקט" במקום הדמות, ועוצרים את המוזיקה.
+    if(window.vaadIsShabbatNow && window.vaadIsShabbatNow()){
+      showSilentWave();
+      if(window.vaadStopMusic) window.vaadStopMusic();
+      return;
+    }
+    // הוצאנו מהשבת — מחזירים את מבנה פאנל הדמות, ואז ממלאים אותו.
+    restoreFigureHTML();
     var f=pickFigure();
     var avatar=document.getElementById('figAvatar');
     avatar.textContent=f.initial;
@@ -362,7 +455,6 @@ setInterval(tickClock,1000);tickClock();
       f.facts.map(function(x){return '<li class="rounded-full border border-brand-400/30 bg-brand-400/10 px-2.5 py-0.5 text-[11px] font-medium text-brand-100">'+x+'</li>';}).join('');
     var q=document.getElementById('figQuote');
     if(f.quote){q.textContent='״'+f.quote+'״';q.classList.remove('hidden');} else {q.classList.add('hidden');}
-    // live Wikipedia extract + portrait
     var url='https://he.wikipedia.org/w/api.php?action=query&prop=extracts|pageimages&exintro&explaintext&piprop=thumbnail&pithumbsize=400&redirects=1&format=json&origin=*&titles='+encodeURIComponent(f.wiki);
     fetch(url).then(function(r){return r.json()}).then(function(d){
       var pages=d&&d.query&&d.query.pages;if(!pages)return;var p=pages[Object.keys(pages)[0]]||{};
@@ -373,16 +465,24 @@ setInterval(tickClock,1000);tickClock();
           var lastDot=cut.lastIndexOf('. ');
           ex = lastDot>500 ? cut.slice(0,lastDot+1) : cut.replace(/\s+\S*$/,'')+'…';
         }
-        document.getElementById('figBio').textContent=ex;
+        var bio=document.getElementById('figBio'); if(bio) bio.textContent=ex;
       }
       if(p.thumbnail&&p.thumbnail.source){
-        var a=document.getElementById('figAvatar');a.textContent='';
-        a.innerHTML='<img src="'+p.thumbnail.source+'" referrerpolicy="no-referrer" class="size-full object-cover" alt="">';
+        var a=document.getElementById('figAvatar'); if(!a) return;
+        a.textContent=''; a.innerHTML='<img src="'+p.thumbnail.source+'" referrerpolicy="no-referrer" class="size-full object-cover" alt="">';
       }
     }).catch(function(){});
   }
+  // חשיפה גלובלית כדי שה-Hebcal fetch יוכל לרענן מיד כשמגיעים זמני שבת.
+  window.vaadRefreshFigure = showFigure;
   showFigure();
-  // החלפה אוטומטית ב-00:00 (לפי שעון המחשב), ואז כל יום
+  // בדיקה דקתית: אם נכנסת/יצאת מהשבת — מחליפים את הפאנל.
+  setInterval(function(){
+    var silent = isSilentNow();
+    var shouldBeSilent = !!(window.vaadIsShabbatNow && window.vaadIsShabbatNow());
+    if(silent !== shouldBeSilent) showFigure();
+  }, 60000);
+  // החלפה אוטומטית ב-00:00 (לפי שעון המחשב), ואז כל יום.
   (function scheduleMidnight(){
     var now=new Date();
     var next=new Date(now.getFullYear(),now.getMonth(),now.getDate()+1,0,0,2);
@@ -416,10 +516,36 @@ fetch('https://api.open-meteo.com/v1/forecast?latitude='+MODIIN.lat+'&longitude=
   document.getElementById('zSunset').textContent=hhmm(j.daily.sunset[0]);
 }).catch(function(){});
 
+// ⏳ זמני שבת כמשתנים גלובליים — לצורך "הגל השקט" שמופעל בכניסת השבת ונכבה ביציאת השבת.
+window.vaadShabbatStart = null; // כניסת שבת (Date)
+window.vaadShabbatEnd   = null; // יציאת שבת (Date)
+window.vaadCandleTime   = null; // HH:MM
+window.vaadHavdalahTime = null; // HH:MM
+window.vaadParsha       = null; // פרשת השבוע
+window.vaadIsShabbatNow = function(){
+  return window.vaadShabbatStart && window.vaadShabbatEnd
+      && new Date() >= window.vaadShabbatStart
+      && new Date() <= window.vaadShabbatEnd;
+};
+
 fetch('https://www.hebcal.com/shabbat?cfg=json&latitude='+MODIIN.lat+'&longitude='+MODIIN.lon+'&tzid='+MODIIN.tz+'&b=18&M=on')
 .then(function(r){return r.json()}).then(function(j){
-  var items=j.items||[],c,h,p;
-  items.forEach(function(it){if(it.category==='candles')c=hhmm(it.date);if(it.category==='havdalah')h=hhmm(it.date);if(it.category==='parashat')p=it.hebrew;});
+  var items=j.items||[],c,h,p,cDate,hDate;
+  items.forEach(function(it){
+    if(it.category==='candles'){c=hhmm(it.date);cDate=new Date(it.date);}
+    if(it.category==='havdalah'){h=hhmm(it.date);hDate=new Date(it.date);}
+    if(it.category==='parashat')p=it.hebrew;
+  });
+  window.vaadShabbatStart = cDate;
+  window.vaadShabbatEnd   = hDate;
+  window.vaadCandleTime   = c;
+  window.vaadHavdalahTime = h;
+  window.vaadParsha       = p;
+  // אם זה כבר שבת — תרענן את פאנל הדמות ל"הגל השקט", ועצור מוזיקה.
+  if(window.vaadIsShabbatNow()){
+    if(window.vaadRefreshFigure) window.vaadRefreshFigure();
+    if(window.vaadStopMusic) window.vaadStopMusic();
+  }
   var dow=new Date().getDay(), box=document.getElementById('shabbatBox');
   if(dow===5||dow===6){
     box.innerHTML='<div class="gradient-pan overflow-hidden rounded-2xl border border-brand-400/40 bg-gradient-to-bl from-accent-500 via-accent-600 to-brand-600 p-3.5 text-white shadow-lg glow-cyan">'+
@@ -439,7 +565,7 @@ fetch('https://www.hebcal.com/shabbat?cfg=json&latitude='+MODIIN.lat+'&longitude
     if(!titles.length)return;
     var loop=titles.concat(titles);
     ticker.innerHTML=loop.map(function(t){
-      return '<span class="flex items-center gap-2 text-sm font-semibold" dir="rtl"><span class="size-1.5 shrink-0 rounded-full bg-brand-400 glow-cyan"></span><span class="text-slate-100">'+t+'</span><span class="px-2 text-brand-400/50">•</span></span>';
+      return '<span class="flex items-center gap-2.5 text-base font-semibold" dir="rtl"><span class="size-2 shrink-0 rounded-full bg-brand-400 glow-cyan"></span><span class="text-slate-100">'+t+'</span><span class="px-2 text-brand-400/50">•</span></span>';
     }).join('');
     requestAnimationFrame(function(){
       var one=ticker.scrollWidth/2;ticker.style.animationDuration=Math.max(60,Math.round(one/20))+'s';
@@ -488,8 +614,17 @@ fetch('https://www.hebcal.com/shabbat?cfg=json&latitude='+MODIIN.lat+'&longitude
     playing=false; setIcon();
     localStorage.setItem('vaad-music-wants','0');
   }
-  btn.onclick=function(){ if(playing) stopMusic(); else startMusic(); };
+  btn.onclick=function(){
+    // בשבת — הכפתור עוצר אם משהו מתנגן (לשומרי השבת), ולא מתחיל ניגון.
+    if(window.vaadIsShabbatNow && window.vaadIsShabbatNow()){
+      if(playing) stopMusic();
+      return;
+    }
+    if(playing) stopMusic(); else startMusic();
+  };
   sel.onchange=function(){ localStorage.setItem('vaad-music',sel.value); if(playing) startMusic(); };
+  // חשיפת stopMusic — כדי שלוגיקת "הגל השקט" תוכל לעצור מוזיקה אוטומטית בכניסת השבת.
+  window.vaadStopMusic = stopMusic;
 })();
 </script>
 </body>
