@@ -183,17 +183,17 @@
 
     <!-- LEFT: weather + zmanim — overflow-hidden מגן מ-overscan של טלוויזיות -->
     <div class="flex min-h-[420px] flex-col gap-3 overflow-hidden lg:min-h-0 lg:col-span-3">
-      <!-- weather -->
-      <section class="panel cyber-corner relative flex flex-1 flex-col justify-between rounded-3xl p-4 text-white">
-        <div class="mb-2 flex items-center justify-between">
+      <!-- weather — קומפקטי כדי לפנות מקום לתג פרשת השבוע ב"זמני היום" -->
+      <section class="panel cyber-corner relative flex flex-1 flex-col justify-between rounded-3xl p-3 text-white">
+        <div class="mb-1.5 flex items-center justify-between">
           <span class="text-sm font-bold text-brand-200">מזג אוויר</span>
           <span class="text-xs text-brand-300/80">מודיעין</span>
         </div>
-        <div id="weatherCur" class="flex items-center justify-between text-brand-100"><div class="py-3 text-sm text-brand-300/80">טוען…</div></div>
-        <div id="weatherDays" class="mt-3 grid grid-cols-4 gap-1 border-t border-brand-400/20 pt-2"></div>
+        <div id="weatherCur" class="flex items-center justify-between text-brand-100"><div class="py-2 text-sm text-brand-300/80">טוען…</div></div>
+        <div id="weatherDays" class="mt-2 grid grid-cols-4 gap-1 border-t border-brand-400/20 pt-1.5"></div>
       </section>
       <!-- zmanim — flex-none כדי שפאנל "שבת שלום" יוצג תמיד בלי חיתוך -->
-      <section class="panel cyber-corner relative flex flex-none flex-col rounded-3xl p-4">
+      <section class="panel cyber-corner relative flex flex-none flex-col rounded-3xl p-3">
         <span class="mb-2 text-sm font-bold text-brand-200">זמני היום</span>
         <div class="grid grid-cols-2 gap-2">
           <div class="flex items-center gap-2 rounded-2xl border border-brand-400/15 bg-brand-400/5 p-2">
@@ -514,13 +514,13 @@ fetch('https://api.open-meteo.com/v1/forecast?latitude='+MODIIN.lat+'&longitude=
 .then(function(r){return r.json()}).then(function(j){
   var w=wcode(j.current.weather_code);
   document.getElementById('weatherCur').innerHTML=
-    '<div><div class="text-4xl font-black leading-none">'+Math.round(j.current.temperature_2m)+'°</div><div class="mt-1 text-sm text-white/90">'+w[0]+'</div></div>'+
-    '<div class="size-16">'+wsvg(w[1])+'</div>';
+    '<div><div class="text-3xl font-black leading-none">'+Math.round(j.current.temperature_2m)+'°</div><div class="mt-0.5 text-xs text-white/90">'+w[0]+'</div></div>'+
+    '<div class="size-12">'+wsvg(w[1])+'</div>';
   var days='';
   for(var i=0;i<j.daily.time.length;i++){
     var di=wcode(j.daily.weather_code[i]);
     var name=i===0?'היום':HEB_DAY[new Date(j.daily.time[i]).getDay()];
-    days+='<div class="text-center"><div class="text-[11px] font-semibold text-white/80">'+name+'</div><div class="mx-auto my-0.5 size-6">'+wsvg(di[1])+'</div><div class="text-xs font-bold">'+Math.round(j.daily.temperature_2m_max[i])+'°</div><div class="text-[10px] text-white/70">'+Math.round(j.daily.temperature_2m_min[i])+'°</div></div>';
+    days+='<div class="text-center"><div class="text-[10px] font-semibold text-white/80">'+name+'</div><div class="mx-auto my-0.5 size-5">'+wsvg(di[1])+'</div><div class="text-[11px] font-bold">'+Math.round(j.daily.temperature_2m_max[i])+'°</div><div class="text-[9px] text-white/70">'+Math.round(j.daily.temperature_2m_min[i])+'°</div></div>';
   }
   document.getElementById('weatherDays').innerHTML=days;
 }).catch(function(){});
@@ -578,10 +578,21 @@ fetch('https://www.hebcal.com/shabbat?cfg=json&latitude='+MODIIN.lat+'&longitude
     if(window.vaadRefreshFigure) window.vaadRefreshFigure();
     if(window.vaadStopMusic) window.vaadStopMusic();
   }
-  // אין תוכן בתחתית "זמני היום" — מידע השבת מוצג במרכז המסך, כדי שהמבזקים בתחתית
-  // לא יחפפו את הפאנל בטלוויזיות עם overscan (חותכות 30-60px מהקצה).
+  // תג קומפקטי — באמצע השבוע המרכז מציג דמות יומית, ולכן פרשת השבוע + זמני שבת
+  // מוצגים כאן בשורה אחת בלבד. בשבת/ערב שבת המרכז מציג "שבת שלום" בגדול,
+  // והתג כאן נשאר כסיכום זמני (בלי כפילות).
   var box=document.getElementById('shabbatBox');
-  box.innerHTML='';
+  if(p || c){
+    var dow=new Date().getDay();
+    var label = (dow===5 || dow===6) ? 'שבת' : 'השבת הקרובה';
+    var times = c ? (h ? c+' – '+h : c) : '';
+    box.innerHTML='<div class="mt-2 flex items-center justify-between gap-2 rounded-2xl border border-brand-400/20 bg-brand-400/5 px-2.5 py-1.5">'+
+      '<span class="text-[12px] font-bold text-brand-200 truncate">'+label+(p?' · '+p:'')+'</span>'+
+      (times?'<span class="shrink-0 text-[11px] font-semibold tabular-nums text-brand-300">'+times+'</span>':'')+
+      '</div>';
+  } else {
+    box.innerHTML='';
+  }
 }).catch(function(){});
 
 /* ====================== NEWS TICKER (client-side via CORS proxy) ====================== */
