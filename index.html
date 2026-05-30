@@ -361,10 +361,10 @@ setInterval(tickClock,1000);tickClock();
   function row(t){return '<div class="flex items-start gap-2 rounded-2xl border border-brand-400/15 bg-brand-400/5 px-3 py-2.5 text-sm font-medium leading-snug text-slate-100"><span class="mt-1.5 size-1.5 shrink-0 rounded-full bg-brand-400 glow-cyan"></span><span>'+t+'</span></div>';}
   var html=HOUSE_RULES.map(row).join('');
   box.innerHTML=html+html; // duplicate for seamless loop
-  // calm speed ~22px/s
+  // calm speed ~10px/s
   requestAnimationFrame(function(){
     var h=box.scrollHeight/2;
-    box.style.animationDuration=Math.max(25,Math.round(h/22))+'s';
+    box.style.animationDuration=Math.max(60,Math.round(h/10))+'s';
   });
 })();
 
@@ -386,10 +386,10 @@ setInterval(tickClock,1000);tickClock();
     if(!items.length){ box.innerHTML=row('bg-brand-400 text-night-900','כותרות','טוען…'); return; }
     var html=items.map(function(it){return row(it.badge, it.source, it.title);}).join('');
     box.innerHTML=html+html; // duplicate for seamless loop
-    // קצב נינוח אך לא איטי מדי: 15 px/s. כללי הבית רצים בקצב 22 px/s. מינימום 90 שניות לבטיחות.
+    // קצב מהיר יחסית: 18 px/s. כללי הבית רצים בקצב 10 px/s. מינימום 75 שניות לבטיחות.
     function setSpeed(){
       var h=box.scrollHeight/2;
-      var dur=Math.max(90,Math.round(h/15));
+      var dur=Math.max(75,Math.round(h/18));
       box.style.animationDuration=dur+'s';
     }
     setSpeed();
