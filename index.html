@@ -235,8 +235,8 @@
   </div>
 </div>
 
-<!-- hidden YouTube audio player -->
-<div style="position:fixed;left:-9999px;top:0"><div id="yt-player"></div></div>
+<!-- background music — local MP3 files (zero internet usage) -->
+<audio id="bgAudio" preload="auto" loop></audio>
 
 <script>
 /* ====================== DATA ====================== */
@@ -357,12 +357,10 @@ var RABBIS = [
   {name:"הרב סולובייצ'יק",initial:"ס",years:"1903–1993",field:"הלכה ופילוסופיה",grad:"from-blue-500 to-indigo-600",bio:"מגדולי רבני ארה\"ב במאה ה-20; הוביל את היהדות האורתודוקסית-מודרנית באמריקה.",facts:["ראש ישיבת רי\"ץ.","'איש ההלכה'.","הוביל את היהדות המודרנית."],wiki:"יוסף דב סולובייצ'יק"},
 ];
 
+/* מוזיקה מקומית — קבצי MP3 בתיקיית music/ (אפס צריכת נתונים).
+   הוסיפו עוד קבצים? פשוט שמרו אותם בתיקייה והוסיפו שורה כאן עם file:'music/שם.mp3'. */
 var MUSIC = [
-  {id:"gYlLvL60Ev4",name:"ג׳אז מלון יוקרה"},
-  {id:"lkEcIFJizio",name:"לובי מלון · לו-פיי"},
-  {id:"Y1_oaTfzqg0",name:"לאונג׳ יוקרתי"},
-  {id:"DcNqURGqu-0",name:"פסנתר מלון"},
-  {id:"4EF516jG9VA",name:"ספא מרגיע"},
+  {file:"music/HotelLobby_BoutiqueJazz_2h.mp3", name:"מלון בוטיק · ג׳אז לונג׳ (1:24)"},
 ];
 
 var LOCAL_NEWS = [
@@ -642,10 +640,9 @@ fetch('https://www.hebcal.com/shabbat?cfg=json&latitude='+MODIIN.lat+'&longitude
   window.vaadCandleTime   = c;
   window.vaadHavdalahTime = h;
   window.vaadParsha       = p;
-  // אם זה כבר שבת — תרענן את פאנל הדמות ל"הגל השקט", ועצור מוזיקה.
+  // אם זה כבר שבת — תרענן את פאנל הדמות ל"הגל השקט" (המוזיקה ממשיכה — רק כיפור עוצר).
   if(window.vaadIsShabbatNow()){
     if(window.vaadRefreshFigure) window.vaadRefreshFigure();
-    if(window.vaadStopMusic) window.vaadStopMusic();
   }
   // תג קומפקטי — באמצע השבוע המרכז מציג דמות יומית, ולכן פרשת השבוע + זמני שבת
   // מוצגים כאן בשורה אחת בלבד. בשבת/ערב שבת המרכז מציג "שבת שלום" בגדול,
@@ -697,46 +694,93 @@ fetch('https://www.hebcal.com/shabbat?cfg=json&latitude='+MODIIN.lat+'&longitude
   setInterval(loadNews,600000);
 })();
 
-/* ====================== MUSIC (YouTube hotel/lounge) — iframe toggle ====================== */
-/* גישה אמינה: השמעה = ה-iframe קיים; השהיה = ה-iframe נמחק (אין מוסיקה אפשרית). */
-/* עובד בכל סביבה: file://, https, סטרימר, כל דפדפן. */
+/* ====================== MUSIC (קבצי MP3 מקומיים — אפס צריכת נתונים) ====================== */
+/* HTML5 <audio> מנגן בלולאה אינסופית. ברירת מחדל: מנגן אוטומטית.
+   נעצר רק אם המשתמש לחץ Pause במפורש, או ביום כיפור (אוטומטי).
+   ב-kiosk.bat יש פלאג --autoplay-policy=no-user-gesture-required כדי לעקוף חסימת autoplay. */
 (function(){
-  var sel=document.getElementById('musicSel');
-  MUSIC.forEach(function(t){var o=document.createElement('option');o.value=t.id;o.textContent=t.name;sel.appendChild(o);});
-  var saved=localStorage.getItem('vaad-music')||MUSIC[0].id; sel.value=saved;
-  var holder=document.getElementById('yt-player'); // ה-div שיחזיק את ה-iframe
-  var btn=document.getElementById('musicBtn');
-  var pi=document.getElementById('playIcon'), pa=document.getElementById('pauseIcon');
-  var playing=false;
-  function setIcon(){ pi.classList.toggle('hidden',playing); pa.classList.toggle('hidden',!playing); }
-  function startMusic(){
-    var id=sel.value;
-    // יצירת iframe עם autoplay + loop (loop דורש playlist=ID לאותו וידאו). הופעתו = השמעה.
-    holder.innerHTML='<iframe width="240" height="150" frameborder="0" allow="autoplay" '
-      +'src="https://www.youtube.com/embed/'+id+'?autoplay=1&controls=0&disablekb=1&rel=0&modestbranding=1&playsinline=1&loop=1&playlist='+id+'"></iframe>';
-    playing=true; setIcon();
-    localStorage.setItem('vaad-music-wants','1');
+  var sel = document.getElementById('musicSel');
+  var audio = document.getElementById('bgAudio');
+  var btn = document.getElementById('musicBtn');
+  var pi = document.getElementById('playIcon');
+  var pa = document.getElementById('pauseIcon');
+  // אם יש רק קובץ אחד — מסתירים את ה-select
+  if(MUSIC.length <= 1){ sel.style.display = 'none'; } else { sel.style.display = ''; }
+  MUSIC.forEach(function(t){ var o=document.createElement('option'); o.value=t.file; o.textContent=t.name; sel.appendChild(o); });
+  var saved = localStorage.getItem('vaad-music') || MUSIC[0].file;
+  if(!MUSIC.some(function(m){return m.file===saved;})){ saved = MUSIC[0].file; }
+  sel.value = saved;
+  audio.src = saved;
+  audio.volume = 0.55;
+  var playing = false;
+  function setIcon(){ pi.classList.toggle('hidden', playing); pa.classList.toggle('hidden', !playing); }
+  // userWants: האם המשתמש מעוניין במוזיקה? null = לא הוגדר עדיין (ברירת מחדל = כן, מנגן).
+  function userWantsMusic(){ return localStorage.getItem('vaad-music-wants') !== '0'; }
+  // ניסיון ניגון "שקט": אם הדפדפן חוסם — לא משנה את ה-state, לא רושם שגיאה.
+  function tryPlay(){
+    var p = audio.play();
+    if(p && p.then){ p.then(function(){ /* הצליח */ }).catch(function(){ /* חסום — נמתין לאינטראקציה */ }); }
   }
-  function stopMusic(){
-    // הסרת ה-iframe = השתקה מובטחת. אין דרך שתישמע מוסיקה בלי iframe.
-    holder.innerHTML='';
-    playing=false; setIcon();
-    localStorage.setItem('vaad-music-wants','0');
-  }
-  btn.onclick=function(){
+  // עצירה "מערכתית" (כיפור, החלפת קובץ) — לא משנה את העדפת המשתמש.
+  function systemPause(){ audio.pause(); }
+
+  // לחיצה על כפתור הנגן — שינוי מפורש של העדפת המשתמש.
+  btn.onclick = function(){
     // ביום כיפור — הכפתור עוצר אם משהו מתנגן, ולא מתחיל ניגון.
     if(window.vaadIsYomKippurNow && window.vaadIsYomKippurNow()){
-      if(playing) stopMusic();
+      if(playing){ localStorage.setItem('vaad-music-wants','0'); systemPause(); }
       return;
     }
-    if(playing) stopMusic(); else startMusic();
+    if(playing){
+      localStorage.setItem('vaad-music-wants','0');
+      systemPause();
+    } else {
+      localStorage.setItem('vaad-music-wants','1');
+      tryPlay();
+    }
   };
-  sel.onchange=function(){ localStorage.setItem('vaad-music',sel.value); if(playing) startMusic(); };
-  // חשיפת stopMusic — כדי שלוגיקת יום כיפור תוכל לעצור אוטומטית.
-  window.vaadStopMusic = stopMusic;
-  // ⏱ בדיקה דקתית: אם נכנס יום כיפור והמוזיקה רצה — עצור.
+  sel.onchange = function(){
+    localStorage.setItem('vaad-music', sel.value);
+    var wasPlaying = playing;
+    audio.src = sel.value;
+    if(wasPlaying) tryPlay();
+  };
+  // אייקון משקף את המצב האמיתי של ה-audio תמיד.
+  audio.addEventListener('pause', function(){ playing=false; setIcon(); });
+  audio.addEventListener('play',  function(){ playing=true;  setIcon(); });
+
+  // === אוטו-פליי בטעינה (אם המשתמש לא ביקש שקט) ===
+  var ykNow = function(){ return window.vaadIsYomKippurNow && window.vaadIsYomKippurNow(); };
+  function autoStartIfWanted(){
+    if(userWantsMusic() && !ykNow() && audio.paused){ tryPlay(); }
+  }
+  // ניסיון מיידי
+  if(audio.readyState >= 2){ autoStartIfWanted(); }
+  else { audio.addEventListener('loadedmetadata', autoStartIfWanted, {once:true}); }
+
+  // גיבוי: דפדפן חסם autoplay → נתחיל ברגע שיש אינטראקציה כלשהי.
+  function onFirstInteraction(){
+    autoStartIfWanted();
+    if(!audio.paused){
+      ['click','touchstart','keydown'].forEach(function(ev){
+        document.removeEventListener(ev, onFirstInteraction, true);
+      });
+    }
+  }
+  ['click','touchstart','keydown'].forEach(function(ev){
+    document.addEventListener(ev, onFirstInteraction, true);
+  });
+
+  // חשיפה לכיפור: עצירה אוטומטית בלי לזכור.
+  window.vaadStopMusic = systemPause;
+
+  // ⏱ בדיקה דקתית: כיפור עוצר, יציאה מכיפור מחזירה (אם המשתמש לא ביקש שקט).
   setInterval(function(){
-    if(playing && window.vaadIsYomKippurNow && window.vaadIsYomKippurNow()) stopMusic();
+    if(ykNow()){
+      if(!audio.paused) systemPause();
+    } else {
+      if(userWantsMusic() && audio.paused){ tryPlay(); }
+    }
   }, 60000);
 })();
 
