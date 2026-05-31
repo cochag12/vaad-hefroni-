@@ -85,7 +85,19 @@
   }
   .cyber-corner::before{ top:-1px; right:-1px; background-position: right top, right top; }
   .cyber-corner::after { bottom:-1px; left:-1px; background-position: left bottom, left bottom; }
-  @media (prefers-reduced-motion: reduce){.gradient-pan,.float-slow,.marquee-x,.scroll-up,.pulse-cyan,.circuit-shimmer{animation:none}}
+  @media (prefers-reduced-motion: reduce){.gradient-pan,.float-slow,.marquee-x,.scroll-up,.pulse-cyan,.circuit-shimmer,.bio-autoscroll{animation:none}}
+  /* פאנל הביוגרפיה — אין פס גלילה ויזואלי (זה מסך תצוגה ללא אינטראקציה) */
+  .figBio-wrap::-webkit-scrollbar{display:none}
+  .figBio-wrap{scrollbar-width:none}
+  /* גלילה אוטומטית של הביוגרפיה (פינג-פונג עם השהיות בקצוות) */
+  @keyframes bio-pingpong{
+    0%   { transform: translateY(0); }
+    12%  { transform: translateY(0); }
+    50%  { transform: translateY(var(--bio-max, 0px)); }
+    62%  { transform: translateY(var(--bio-max, 0px)); }
+    100% { transform: translateY(0); }
+  }
+  .bio-autoscroll{ animation: bio-pingpong linear infinite; }
 </style>
 </head>
 <body class="h-full">
@@ -172,7 +184,8 @@
           </div>
         </div>
       </div>
-      <div class="mt-3 flex min-h-0 flex-1 items-center overflow-hidden">
+      <!-- overflow-y-auto: אם הטקסט ארוך מדי יהיה גלילה פנימית רכה במקום חיתוך -->
+      <div class="figBio-wrap mt-3 min-h-0 flex-1 overflow-y-auto pl-1">
         <p id="figBio" class="text-[15px] leading-relaxed text-slate-200"></p>
       </div>
       <div class="mt-2 shrink-0 border-t border-brand-400/20 pt-2">
@@ -293,6 +306,35 @@ var FIGURES = [
   {name:"ריצ'רד פיינמן",initial:"ר",years:"1918–1988",field:"פיזיקה",grad:"from-indigo-500 to-violet-600",bio:"פיזיקאי אמריקאי-יהודי, חתן נובל בפיזיקה (1965) על אלקטרודינמיקה קוונטית.",facts:["נובל בפיזיקה 1965.","חקר את אסון צ'אלנג'ר.","מורה דגול ומוכשר."],wiki:"ריצ'רד פיינמן"},
   {name:"קרל סייגן",initial:"ק",years:"1934–1996",field:"אסטרונומיה",grad:"from-cyan-500 to-blue-600",bio:"אסטרונום אמריקאי-יהודי; ממקרבי המדע לציבור הרחב, כתב את 'קוסמוס'.",facts:["סדרת 'קוסמוס'.","ייעץ לנאס\"א.","'הנקודה הכחולה החיוורת'."],wiki:"קרל סייגן"},
   {name:"אילן רמון",initial:"א",years:"1954–2003",field:"אסטרונאוטיקה",grad:"from-blue-500 to-cyan-600",bio:"האסטרונאוט הישראלי הראשון; נספה באסון מעבורת החלל קולומביה.",facts:["טייס קרב בחיל האוויר.","האסטרונאוט הישראלי הראשון.","נספה באסון קולומביה (2003)."],wiki:"אילן רמון"},
+
+  /* === ראשי ממשלת ישראל (משלימים: בן-גוריון, גולדה, רבין, בגין, פרס כבר ברשימה) === */
+  {name:"משה שרת",initial:"מ",years:"1894–1965",field:"ראש ממשלה",grad:"from-blue-500 to-cyan-600",bio:"ראש הממשלה השני של ישראל ושר החוץ הראשון; הוביל את המדיניות הדיפלומטית של המדינה הצעירה.",facts:["ראש הממשלה השני (1954–1955).","שר החוץ הראשון של ישראל.","ניהל יומן מפורסם בן 8 כרכים."],wiki:"משה שרת"},
+  {name:"לוי אשכול",initial:"ל",years:"1895–1969",field:"ראש ממשלה",grad:"from-emerald-500 to-green-600",bio:"ראש הממשלה השלישי של ישראל; הוביל את המדינה במלחמת ששת הימים ובאיחוד ירושלים.",facts:["ראש הממשלה השלישי (1963–1969).","הוביל במלחמת ששת הימים.","ייסד את חברת מקורות."],wiki:"לוי אשכול"},
+  {name:"יצחק שמיר",initial:"י",years:"1915–2012",field:"ראש ממשלה",grad:"from-slate-500 to-slate-700",bio:"ראש הממשלה השביעי של ישראל; הוביל את גל העלייה הגדול מברית המועצות בשנות ה-90.",facts:["ראש הממשלה השביעי.","יו״ר הכנסת לשעבר.","הוביל עלייה ענקית מבריה״מ."],wiki:"יצחק שמיר"},
+  {name:"אריאל שרון",initial:"א",years:"1928–2014",field:"ראש ממשלה",grad:"from-amber-500 to-orange-600",bio:"ראש הממשלה ה-11; אלוף לגנדרי בצה״ל ויוזם תוכנית ההתנתקות מגוש קטיף.",facts:["ראש הממשלה ה-11 (2001–2006).","מקים יחידה 101.","יוזם תוכנית ההתנתקות (2005)."],wiki:"אריאל שרון"},
+
+  /* === נשיאי ישראל (משלימים: ויצמן הראשון, פרס התשיעי כבר ברשימה) === */
+  {name:"יצחק בן-צבי",initial:"י",years:"1884–1963",field:"נשיא ישראל",grad:"from-amber-500 to-orange-600",bio:"נשיא ישראל השני; היסטוריון וחוקר עדות ישראל המזרחיות.",facts:["נשיא ישראל השני (1952–1963).","היסטוריון של עדות המזרח.","חתום על מגילת העצמאות."],wiki:"יצחק בן-צבי"},
+  {name:"זלמן שזר",initial:"ז",years:"1889–1974",field:"נשיא ישראל",grad:"from-violet-500 to-purple-600",bio:"נשיא ישראל השלישי; משורר, סופר ומחנך; דמותו על שטר 200 השקלים.",facts:["נשיא ישראל השלישי (1963–1973).","דמותו על שטר 200 ש״ח.","עורך 'דבר' לשעבר."],wiki:"זלמן שזר"},
+  {name:"אפרים קציר",initial:"א",years:"1916–2009",field:"נשיא ישראל",grad:"from-emerald-500 to-teal-600",bio:"נשיא ישראל הרביעי; ביוכימאי בעל שם בינלאומי וחתן פרס ישראל.",facts:["נשיא ישראל הרביעי (1973–1978).","ביוכימאי מוביל בעולם.","חתן פרס ישראל."],wiki:"אפרים קציר"},
+  {name:"יצחק נבון",initial:"י",years:"1921–2015",field:"נשיא ישראל",grad:"from-amber-500 to-yellow-600",bio:"נשיא ישראל החמישי; מחזאי וסופר; כיהן גם כשר החינוך.",facts:["נשיא ישראל החמישי (1978–1983).","מחזאי 'בוסתן ספרדי'.","שר החינוך לשעבר."],wiki:"יצחק נבון"},
+  {name:"חיים הרצוג",initial:"ח",years:"1918–1997",field:"נשיא ישראל",grad:"from-blue-500 to-indigo-600",bio:"נשיא ישראל השישי; ראש אמ״ן לשעבר ושגריר באו״ם.",facts:["נשיא ישראל השישי (1983–1993).","ראש אמ״ן לשעבר.","אביו של הנשיא יצחק הרצוג."],wiki:"חיים הרצוג"},
+  {name:"עזר ויצמן",initial:"ע",years:"1924–2005",field:"נשיא ישראל",grad:"from-sky-500 to-cyan-600",bio:"נשיא ישראל השביעי; ממקימי חיל האוויר ושר ביטחון לשעבר.",facts:["נשיא ישראל השביעי (1993–2000).","ממקימי חיל האוויר.","אחיינו של חיים ויצמן."],wiki:"עזר ויצמן"},
+
+  /* === רמטכ״לי צה״ל (משלימים: רבין השביעי, ברק ה-14 כבר ברשימה) === */
+  {name:"יעקב דורי",initial:"י",years:"1899–1973",field:"רמטכ״ל",grad:"from-slate-500 to-slate-700",bio:"הרמטכ״ל הראשון של צה״ל; הוביל את המערכה במלחמת העצמאות.",facts:["הרמטכ״ל הראשון (1948–1949).","הוביל במלחמת העצמאות.","נשיא הטכניון לשעבר."],wiki:"יעקב דורי"},
+  {name:"יגאל ידין",initial:"י",years:"1917–1984",field:"רמטכ״ל וארכאולוג",grad:"from-amber-500 to-orange-600",bio:"הרמטכ״ל השני של צה״ל; ארכאולוג בעל שם, חוקר מצדה ומגילות ים המלח.",facts:["הרמטכ״ל השני (1949–1952).","חוקר מצדה ומגילות ים המלח.","ייסד את מפלגת ד״ש."],wiki:"יגאל ידין"},
+  {name:"מרדכי מקלף",initial:"מ",years:"1920–1978",field:"רמטכ״ל",grad:"from-blue-500 to-indigo-600",bio:"הרמטכ״ל השלישי של צה״ל; הצעיר ביותר שמונה לתפקיד — בגיל 32.",facts:["הרמטכ״ל השלישי (1952–1953).","הצעיר ביותר שמונה לתפקיד.","ניצול טבח חברון 1929."],wiki:"מרדכי מקלף"},
+  {name:"משה דיין",initial:"מ",years:"1915–1981",field:"רמטכ״ל ושר ביטחון",grad:"from-amber-500 to-orange-600",bio:"הרמטכ״ל הרביעי של צה״ל; שר הביטחון במלחמת ששת הימים; דמות אייקונית עם רטיית העין.",facts:["הרמטכ״ל הרביעי (1953–1958).","שר ביטחון במלחמת ששת הימים.","ארכיאולוג חובב."],wiki:"משה דיין"},
+  {name:"חיים לסקוב",initial:"ח",years:"1919–1982",field:"רמטכ״ל",grad:"from-slate-500 to-zinc-600",bio:"הרמטכ״ל החמישי של צה״ל; ממקימי חיל השריון ויו״ר רשות הנמלים לאחר מכן.",facts:["הרמטכ״ל החמישי (1958–1961).","ממקימי חיל השריון.","יו״ר רשות הנמלים."],wiki:"חיים לסקוב"},
+  {name:"צבי צור",initial:"צ",years:"1923–2004",field:"רמטכ״ל",grad:"from-blue-500 to-indigo-600",bio:"הרמטכ״ל השישי של צה״ל; הוביל את צה״ל בשנים שלפני מלחמת ששת הימים.",facts:["הרמטכ״ל השישי (1961–1964).","הוביל את צה״ל לקראת ששת הימים.","מנכ״ל משרד הביטחון לשעבר."],wiki:"צבי צור"},
+  {name:"חיים בר-לב",initial:"ח",years:"1924–1994",field:"רמטכ״ל",grad:"from-emerald-500 to-teal-600",bio:"הרמטכ״ל השמיני של צה״ל; 'קו בר-לב' לאורך תעלת סואץ על שמו. שר ביטחון פנים ושר תחבורה לאחר מכן.",facts:["הרמטכ״ל השמיני (1968–1972).","'קו בר-לב' על שמו.","שר ביטחון פנים לשעבר."],wiki:"חיים בר-לב"},
+  {name:"דוד אלעזר",initial:"ד",years:"1925–1976",field:"רמטכ״ל",grad:"from-rose-500 to-red-600",bio:"הרמטכ״ל התשיעי של צה״ל ('דדו'); כיהן במלחמת יום הכיפורים.",facts:["הרמטכ״ל התשיעי (1972–1974).","'דדו'.","סיים תפקיד אחרי יום הכיפורים."],wiki:"דוד אלעזר"},
+  {name:"מרדכי גור",initial:"מ",years:"1930–1995",field:"רמטכ״ל",grad:"from-blue-500 to-indigo-600",bio:"הרמטכ״ל העשירי של צה״ל; ידוע באמירה ההיסטורית 'הר הבית בידינו!' במלחמת ששת הימים.",facts:["הרמטכ״ל העשירי (1974–1978).","'הר הבית בידינו!' (1967).","שר הבריאות לשעבר."],wiki:"מרדכי גור"},
+  {name:"רפאל איתן",initial:"ר",years:"1929–2004",field:"רמטכ״ל",grad:"from-amber-500 to-orange-600",bio:"הרמטכ״ל ה-11 ('רפול'); הוביל את צה״ל במלחמת לבנון הראשונה (1982).",facts:["הרמטכ״ל ה-11 (1978–1983).","'רפול'.","ייסד את מפלגת 'צומת'."],wiki:"רפאל איתן"},
+  {name:"משה לוי",initial:"מ",years:"1936–2008",field:"רמטכ״ל",grad:"from-slate-500 to-slate-700",bio:"הרמטכ״ל ה-12 של צה״ל ('משה וחצי' מגובהו הרב).",facts:["הרמטכ״ל ה-12 (1983–1987).","'משה וחצי' מגובהו.","יו״ר רשות שדות התעופה לשעבר."],wiki:"משה לוי (רמטכ\"ל)"},
+  {name:"דן שומרון",initial:"ד",years:"1937–2008",field:"רמטכ״ל",grad:"from-blue-500 to-cyan-600",bio:"הרמטכ״ל ה-13 של צה״ל; הוביל את מבצע אנטבה ב-1976.",facts:["הרמטכ״ל ה-13 (1987–1991).","הוביל את מבצע אנטבה (1976).","קצין יחידה 101 לשעבר."],wiki:"דן שומרון"},
+  {name:"אמנון ליפקין-שחק",initial:"א",years:"1944–2012",field:"רמטכ״ל",grad:"from-emerald-500 to-teal-600",bio:"הרמטכ״ל ה-15 של צה״ל; פוליטיקאי שכיהן גם כשר התיירות.",facts:["הרמטכ״ל ה-15 (1995–1998).","שר התיירות לשעבר.","מפקד סיירת מטכ״ל לשעבר."],wiki:"אמנון ליפקין-שחק"},
 ];
 
 /* ----- רבנים (לימוד יומי לשישי-שבת) ----- */
@@ -426,6 +468,32 @@ setInterval(tickClock,1000);tickClock();
   // שומרים את ה-HTML המקורי של פאנל הדמות כדי להחזיר אותו אחרי השבת.
   var figSection = document.getElementById('figName').closest('section');
   var figOriginalHTML = figSection.innerHTML;
+
+  // === גלילה אוטומטית של הביוגרפיה (כמו בכותרות הנבחרות) ===
+  // אם הטקסט נכנס בקופסה — אין אנימציה. אם ארוך — פינג-פונג: גלילה למטה, השהיה, חזרה למעלה.
+  // קצב יעד ~14 px/s (קצת איטי יותר מ"כותרות נבחרות" כדי שיהיה נוח לקריאה ארוכה).
+  function setupBioAutoScroll(){
+    var bio = document.getElementById('figBio');
+    var wrap = bio && bio.parentElement;
+    if(!bio || !wrap) return;
+    // איפוס לפני חישוב מחדש
+    bio.classList.remove('bio-autoscroll');
+    bio.style.removeProperty('--bio-max');
+    bio.style.removeProperty('animation-duration');
+    // נחכה לפריסה לפני שמודדים
+    requestAnimationFrame(function(){
+      var overflow = bio.scrollHeight - wrap.clientHeight;
+      if(overflow <= 4) return; // נכנס בלי גלילה
+      // משך הסיבוב: 40% למטה + 20% השהיה + 40% למעלה. אם 40% = overflow/14 שניות,
+      // אז סיבוב מלא = overflow/(14*0.4) ≈ overflow/5.6. מינימום 28 שניות.
+      var dur = Math.max(28, Math.round(overflow / 5.6));
+      bio.style.setProperty('--bio-max', '-'+overflow+'px');
+      bio.style.animationDuration = dur + 's';
+      bio.classList.add('bio-autoscroll');
+    });
+  }
+  // חשיפה גלובלית — שגם עדכון ויקיפדיה האסינכרוני יוכל להפעיל מחדש
+  window.vaadSetupBioAutoScroll = setupBioAutoScroll;
   function pickFigure(){
     var d=new Date(), dow=d.getDay();
     var pool=(dow===5||dow===6) ? RABBIS : FIGURES;
@@ -466,6 +534,7 @@ setInterval(tickClock,1000);tickClock();
     document.getElementById('figField').textContent=f.field;
     document.getElementById('figYears').textContent=f.years;
     document.getElementById('figBio').textContent=f.bio;
+    setupBioAutoScroll();
     document.getElementById('figFacts').innerHTML=
       '<li class="glow-cyan rounded-full bg-brand-400 px-2.5 py-0.5 text-[11px] font-extrabold text-night-900">הידעת?</li>'+
       f.facts.map(function(x){return '<li class="rounded-full border border-brand-400/30 bg-brand-400/10 px-2.5 py-0.5 text-[11px] font-medium text-brand-100">'+x+'</li>';}).join('');
@@ -481,7 +550,7 @@ setInterval(tickClock,1000);tickClock();
           var lastDot=cut.lastIndexOf('. ');
           ex = lastDot>500 ? cut.slice(0,lastDot+1) : cut.replace(/\s+\S*$/,'')+'…';
         }
-        var bio=document.getElementById('figBio'); if(bio) bio.textContent=ex;
+        var bio=document.getElementById('figBio'); if(bio){ bio.textContent=ex; setupBioAutoScroll(); }
       }
       if(p.thumbnail&&p.thumbnail.source){
         var a=document.getElementById('figAvatar'); if(!a) return;
