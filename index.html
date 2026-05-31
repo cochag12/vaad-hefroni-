@@ -3,6 +3,9 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate" />
+<meta http-equiv="Pragma" content="no-cache" />
+<meta http-equiv="Expires" content="0" />
 <title>לוח הוועד הדיגיטלי · עפרוני 18, מודיעין</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -759,16 +762,20 @@ fetch('https://www.hebcal.com/shabbat?cfg=json&latitude='+MODIIN.lat+'&longitude
   else { audio.addEventListener('loadedmetadata', autoStartIfWanted, {once:true}); }
 
   // גיבוי: דפדפן חסם autoplay → נתחיל ברגע שיש אינטראקציה כלשהי.
-  function onFirstInteraction(){
+  // חשוב: bubble phase (לא capture), וגם דילוג על קליק שמקורו בכפתור המוזיקה —
+  // כדי שלעולם לא נתערב בהחלטת המשתמש ללחוץ Pause.
+  function onFirstInteraction(ev){
+    // אם הקליק היה על כפתור המוזיקה — לא נתערב, נחכה לאינטראקציה אחרת.
+    if(ev && ev.target && (ev.target===btn || (btn && btn.contains && btn.contains(ev.target)))){ return; }
     autoStartIfWanted();
     if(!audio.paused){
-      ['click','touchstart','keydown'].forEach(function(ev){
-        document.removeEventListener(ev, onFirstInteraction, true);
+      ['click','touchstart','keydown'].forEach(function(eN){
+        document.removeEventListener(eN, onFirstInteraction);
       });
     }
   }
-  ['click','touchstart','keydown'].forEach(function(ev){
-    document.addEventListener(ev, onFirstInteraction, true);
+  ['click','touchstart','keydown'].forEach(function(eN){
+    document.addEventListener(eN, onFirstInteraction);
   });
 
   // חשיפה לכיפור: עצירה אוטומטית בלי לזכור.
