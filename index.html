@@ -189,7 +189,7 @@
       </div>
       <!-- overflow-y-auto: אם הטקסט ארוך מדי יהיה גלילה פנימית רכה במקום חיתוך -->
       <div class="figBio-wrap mt-3 min-h-0 flex-1 overflow-y-auto pl-1">
-        <p id="figBio" class="text-[15px] leading-relaxed text-slate-200"></p>
+        <p id="figBio" class="text-[15px] leading-relaxed text-slate-200 text-justify [text-justify:inter-word]"></p>
       </div>
       <div class="mt-2 shrink-0 border-t border-brand-400/20 pt-2">
         <ul id="figFacts" class="flex flex-wrap items-center gap-1.5"></ul>
@@ -395,7 +395,13 @@ function wsvg(kind){
 function tickClock(){
   var n=new Date();
   document.getElementById('clock').textContent=n.toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
-  document.getElementById('date').textContent=n.toLocaleDateString('he-IL',{weekday:'long',day:'2-digit',month:'2-digit',year:'numeric'});
+  var gregorian = n.toLocaleDateString('he-IL',{weekday:'long',day:'2-digit',month:'2-digit',year:'numeric'});
+  var hebrew = '';
+  try {
+    // לוח עברי דרך Intl — נותן "כ״ב באייר תשפ״ו" וכדומה.
+    hebrew = n.toLocaleDateString('he-IL-u-ca-hebrew', {day:'numeric', month:'long', year:'numeric'});
+  } catch(e){}
+  document.getElementById('date').textContent = hebrew ? (gregorian + ' · ' + hebrew) : gregorian;
 }
 setInterval(tickClock,1000);tickClock();
 
