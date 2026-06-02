@@ -374,6 +374,19 @@ var LOCAL_NEWS = [
 ];
 
 /* ====================== HELPERS ====================== */
+/* ====================== רענון יומי אוטומטי של הדף (בלילה) ======================
+   רענון מלא של ה-HTML פעם ביום ב-04:00 — שעת הלובי הריקה.
+   מטרה: (1) לקלוט גרסה חדשה של index.html אם עדכנתי קוד בגיטהאב,
+         (2) לאפס את ה-JavaScript ולמנוע דליפות זיכרון מצטברות,
+         (3) להבטיח שכל הרכיבים מתחילים נקיים. */
+(function(){
+  var now = new Date();
+  var next = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 4, 0, 0);
+  if(next <= now) next.setDate(next.getDate() + 1);
+  var msUntil = next - now;
+  setTimeout(function(){ location.reload(); }, msUntil);
+})();
+
 function dayOfYear(d){var s=new Date(d.getFullYear(),0,0);return Math.floor((d-s)/86400000);}
 function hhmm(iso){return new Date(iso).toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit'});}
 var HEB_DAY=['א׳','ב׳','ג׳','ד׳','ה׳','ו׳','שבת'];
