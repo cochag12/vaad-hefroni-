@@ -614,28 +614,36 @@ setInterval(tickClock,1000);tickClock();
   })();
 })();
 
-/* ====================== WEATHER (Open-Meteo) ====================== */
-fetch('https://api.open-meteo.com/v1/forecast?latitude='+MODIIN.lat+'&longitude='+MODIIN.lon+'&current=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=4')
-.then(function(r){return r.json()}).then(function(j){
-  var w=wcode(j.current.weather_code);
-  document.getElementById('weatherCur').innerHTML=
-    '<div><div class="text-2xl font-black leading-none">'+Math.round(j.current.temperature_2m)+'°</div><div class="mt-0.5 text-[11px] text-white/90">'+w[0]+'</div></div>'+
-    '<div class="size-10">'+wsvg(w[1])+'</div>';
-  var days='';
-  for(var i=0;i<j.daily.time.length;i++){
-    var di=wcode(j.daily.weather_code[i]);
-    var name=i===0?'היום':HEB_DAY[new Date(j.daily.time[i]).getDay()];
-    days+='<div class="text-center"><div class="text-[10px] font-semibold text-white/80">'+name+'</div><div class="mx-auto my-0.5 size-5">'+wsvg(di[1])+'</div><div class="text-[11px] font-bold">'+Math.round(j.daily.temperature_2m_max[i])+'°</div><div class="text-[9px] text-white/70">'+Math.round(j.daily.temperature_2m_min[i])+'°</div></div>';
-  }
-  document.getElementById('weatherDays').innerHTML=days;
-}).catch(function(){});
+/* ====================== WEATHER (Open-Meteo) — רענון כל 6 שעות ====================== */
+function loadWeather(){
+  fetch('https://api.open-meteo.com/v1/forecast?latitude='+MODIIN.lat+'&longitude='+MODIIN.lon+'&current=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=4&_='+Date.now())
+  .then(function(r){return r.json()}).then(function(j){
+    var w=wcode(j.current.weather_code);
+    document.getElementById('weatherCur').innerHTML=
+      '<div><div class="text-2xl font-black leading-none">'+Math.round(j.current.temperature_2m)+'°</div><div class="mt-0.5 text-[11px] text-white/90">'+w[0]+'</div></div>'+
+      '<div class="size-10">'+wsvg(w[1])+'</div>';
+    var days='';
+    for(var i=0;i<j.daily.time.length;i++){
+      var di=wcode(j.daily.weather_code[i]);
+      var name=i===0?'היום':HEB_DAY[new Date(j.daily.time[i]).getDay()];
+      days+='<div class="text-center"><div class="text-[10px] font-semibold text-white/80">'+name+'</div><div class="mx-auto my-0.5 size-5">'+wsvg(di[1])+'</div><div class="text-[11px] font-bold">'+Math.round(j.daily.temperature_2m_max[i])+'°</div><div class="text-[9px] text-white/70">'+Math.round(j.daily.temperature_2m_min[i])+'°</div></div>';
+    }
+    document.getElementById('weatherDays').innerHTML=days;
+  }).catch(function(){});
+}
+loadWeather();
+setInterval(loadWeather, 6*60*60*1000); // כל 6 שעות
 
-/* ====================== ZMANIM + SHABBAT (Open-Meteo + Hebcal) ====================== */
-fetch('https://api.open-meteo.com/v1/forecast?latitude='+MODIIN.lat+'&longitude='+MODIIN.lon+'&daily=sunrise,sunset&timezone=auto&forecast_days=1')
-.then(function(r){return r.json()}).then(function(j){
-  document.getElementById('zSunrise').textContent=hhmm(j.daily.sunrise[0]);
-  document.getElementById('zSunset').textContent=hhmm(j.daily.sunset[0]);
-}).catch(function(){});
+/* ====================== ZMANIM + SHABBAT (Open-Meteo + Hebcal) — רענון כל 6 שעות ====================== */
+function loadSunRiseSet(){
+  fetch('https://api.open-meteo.com/v1/forecast?latitude='+MODIIN.lat+'&longitude='+MODIIN.lon+'&daily=sunrise,sunset&timezone=auto&forecast_days=1&_='+Date.now())
+  .then(function(r){return r.json()}).then(function(j){
+    document.getElementById('zSunrise').textContent=hhmm(j.daily.sunrise[0]);
+    document.getElementById('zSunset').textContent=hhmm(j.daily.sunset[0]);
+  }).catch(function(){});
+}
+loadSunRiseSet();
+setInterval(loadSunRiseSet, 6*60*60*1000); // כל 6 שעות
 
 // ⏳ זמני שבת כמשתנים גלובליים — לצורך "הגל השקט" שמופעל בכניסת השבת ונכבה ביציאת השבת.
 window.vaadShabbatStart = null; // כניסת שבת (Date)
@@ -665,8 +673,9 @@ window.vaadIsYomKippurNow = function(){
   });
 };
 
-fetch('https://www.hebcal.com/shabbat?cfg=json&latitude='+MODIIN.lat+'&longitude='+MODIIN.lon+'&tzid='+MODIIN.tz+'&b=18&M=on')
-.then(function(r){return r.json()}).then(function(j){
+function loadShabbat(){
+  fetch('https://www.hebcal.com/shabbat?cfg=json&latitude='+MODIIN.lat+'&longitude='+MODIIN.lon+'&tzid='+MODIIN.tz+'&b=18&M=on&_='+Date.now())
+  .then(function(r){return r.json()}).then(function(j){
   var items=j.items||[],c,h,p,cDate,hDate;
   items.forEach(function(it){
     if(it.category==='candles'){c=hhmm(it.date);cDate=new Date(it.date);}
@@ -699,7 +708,10 @@ fetch('https://www.hebcal.com/shabbat?cfg=json&latitude='+MODIIN.lat+'&longitude
   } else {
     box.innerHTML='';
   }
-}).catch(function(){});
+  }).catch(function(){});
+}
+loadShabbat();
+setInterval(loadShabbat, 6*60*60*1000); // כל 6 שעות
 
 /* ====================== NEWS TICKER (client-side via CORS proxy) ====================== */
 (function(){
