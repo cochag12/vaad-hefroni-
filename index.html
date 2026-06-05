@@ -92,6 +92,8 @@
   /* פאנל הביוגרפיה — אין פס גלילה ויזואלי (זה מסך תצוגה ללא אינטראקציה) */
   .figBio-wrap::-webkit-scrollbar{display:none}
   .figBio-wrap{scrollbar-width:none}
+  .parshaSummaryWrap::-webkit-scrollbar{display:none}
+  .parshaSummaryWrap{scrollbar-width:none}
   /* יחס גובה בעמודה הימנית: 40% לכללי הבית, 60% לכותרות נבחרות */
   @media (min-width: 700px){
     .rules-panel-grow{ flex: 2 2 0% !important; }
@@ -782,20 +784,45 @@ setInterval(tickClock,1000);tickClock();
     var parshaName = p.replace(/^פרשת\s*/, '').replace(/\s+/g,' ').trim();
     var summary = (typeof PARSHIYOT !== 'undefined' && PARSHIYOT[parshaName]) || '';
     figSection.innerHTML =
-      '<div class="flex h-full flex-col items-center justify-center gap-2 p-5 text-center" data-silent="1">'+
-        '<div class="text-[10px] sm:text-xs font-bold tracking-[0.2em] sm:tracking-[0.3em] text-brand-300/70">🟢 הגל השקט · ניטור התרעות פעיל</div>'+
-        '<div class="title-grad text-3xl sm:text-4xl lg:text-5xl font-black leading-none">שבת שלום</div>'+
-        (p?'<div class="text-lg sm:text-xl font-bold text-brand-200 text-glow">'+p+'</div>':'')+
-        // === אזור תקציר הפרשה ===
-        (summary ? '<div class="mt-1 max-w-xl rounded-2xl border border-brand-400/30 bg-brand-400/5 px-4 py-3 text-right">'+
-          '<div class="mb-1 text-[10px] font-extrabold tracking-[0.2em] text-brand-300/70">📜 תקציר הפרשה</div>'+
-          '<p class="text-[12.5px] sm:text-[13px] leading-relaxed text-slate-200 text-justify [text-justify:inter-word]">'+summary+'</p>'+
-        '</div>' : '')+
-        '<div class="mt-1 grid grid-cols-2 gap-6 sm:gap-8 text-center">'+
+      '<div class="flex h-full flex-col p-4 text-center overflow-hidden" data-silent="1">'+
+        // ===== HEADER (shrink-0 — תמיד נראה) =====
+        '<div class="shrink-0 flex flex-col items-center gap-1.5">'+
+          '<div class="text-[10px] sm:text-xs font-bold tracking-[0.2em] sm:tracking-[0.3em] text-brand-300/70">🟢 הגל השקט · ניטור התרעות פעיל</div>'+
+          '<div class="title-grad text-3xl sm:text-4xl lg:text-5xl font-black leading-none">שבת שלום</div>'+
+          (p?'<div class="text-lg sm:text-xl font-bold text-brand-200 text-glow">'+p+'</div>':'')+
+        '</div>'+
+        // ===== SUMMARY (flex-1 — תופס את המרכז, גלילה אוטומטית אם ארוך) =====
+        (summary ? '<div class="min-h-0 flex-1 mt-2 mx-auto max-w-xl w-full rounded-2xl border border-brand-400/30 bg-brand-400/5 px-4 py-2.5 text-right flex flex-col overflow-hidden">'+
+          '<div class="shrink-0 mb-1 text-[10px] font-extrabold tracking-[0.2em] text-brand-300/70">📜 תקציר הפרשה</div>'+
+          '<div class="parshaSummaryWrap min-h-0 flex-1 overflow-y-auto pl-1">'+
+            '<p class="parshaSummaryText text-[12.5px] sm:text-[13px] leading-relaxed text-slate-200 text-justify [text-justify:inter-word]">'+summary+'</p>'+
+          '</div>'+
+        '</div>' : '<div class="flex-1"></div>')+
+        // ===== TIMES (shrink-0 — תמיד נראה בתחתית) =====
+        '<div class="shrink-0 mt-2 grid grid-cols-2 gap-6 sm:gap-8 text-center">'+
           '<div><div class="text-[10px] sm:text-xs text-brand-300/70">כניסת שבת</div><div class="text-xl sm:text-2xl font-black text-brand-200 text-glow tabular-nums">'+c+'</div></div>'+
           '<div><div class="text-[10px] sm:text-xs text-brand-300/70">צאת שבת</div><div class="text-xl sm:text-2xl font-black text-brand-200 text-glow tabular-nums">'+h+'</div></div>'+
         '</div>'+
       '</div>';
+    // אם התקציר ארוך מדי — מפעיל גלילה אוטומטית פינג-פונג (כמו ביוגרפיה)
+    setTimeout(setupParshaScroll, 100);
+  }
+  // גלילה אוטומטית של תקציר הפרשה אם הוא ארוך מדי לתיבה
+  function setupParshaScroll(){
+    var wrap = figSection.querySelector('.parshaSummaryWrap');
+    var text = figSection.querySelector('.parshaSummaryText');
+    if(!wrap || !text) return;
+    text.classList.remove('bio-autoscroll');
+    text.style.removeProperty('--bio-max');
+    text.style.removeProperty('animation-duration');
+    requestAnimationFrame(function(){
+      var overflow = text.scrollHeight - wrap.clientHeight;
+      if(overflow <= 4) return; // נכנס בלי גלילה
+      var dur = Math.max(28, Math.round(overflow / 4.5)); // קצב נוח של ~12 px/s
+      text.style.setProperty('--bio-max', '-'+overflow+'px');
+      text.style.animationDuration = dur + 's';
+      text.classList.add('bio-autoscroll');
+    });
   }
   function isSilentNow(){ return !!figSection.querySelector('[data-silent="1"]'); }
   function restoreFigureHTML(){ if(isSilentNow()) figSection.innerHTML = figOriginalHTML; }
