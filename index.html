@@ -95,6 +95,11 @@
   /* כללי הבית — fade בין כללים מתחלפים */
   .rule-display{ transition: opacity .7s ease-in-out, transform .7s ease-in-out; opacity:1; transform: translateY(0); }
   .rule-display.fading{ opacity:0; transform: translateY(8px); }
+  /* מצב לילה — עמעום של המסך בין 01:00 ל-05:00 (חיסכון בLED + עין נעימה בלילה).
+     מוחל רק על #appRoot — כך שאם קופצת אזעקת צבע אדום, ה-overlay (שנוסף ישירות ל-body)
+     נשאר בבהירות מלאה. */
+  #appRoot{ transition: filter 8s ease-in-out, opacity 8s ease-in-out; }
+  body.night-mode #appRoot{ filter: brightness(0.35) saturate(0.85); }
   /* גלילה אוטומטית של הביוגרפיה (פינג-פונג עם השהיות בקצוות) */
   @keyframes bio-pingpong{
     0%   { transform: translateY(0); }
@@ -107,7 +112,7 @@
 </style>
 </head>
 <body class="h-full">
-<div class="flex min-h-screen flex-col gap-3 p-3 lg:h-screen lg:overflow-hidden">
+<div id="appRoot" class="flex min-h-screen flex-col gap-3 p-3 lg:h-screen lg:overflow-hidden">
 
   <!-- TOP BAR -->
   <header class="panel cyber-corner relative flex shrink-0 items-center justify-between gap-4 rounded-3xl px-5 py-3 text-white">
@@ -517,12 +522,20 @@ function hebrewDate(d){
   } catch(e){ return ''; }
 }
 
+/* ===== מצב לילה — עמעום אוטומטי בין 01:00 ל-05:00 ===== */
+function updateNightMode(d){
+  var h = d.getHours();
+  var isNight = h >= 1 && h < 5;
+  document.body.classList.toggle('night-mode', isNight);
+}
+
 function tickClock(){
   var n=new Date();
   document.getElementById('clock').textContent=n.toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit',second:'2-digit'});
   var gregorian = n.toLocaleDateString('he-IL',{weekday:'long',day:'2-digit',month:'2-digit',year:'numeric'});
   var hebrew = hebrewDate(n);
   document.getElementById('date').textContent = hebrew ? (gregorian + ' · ' + hebrew) : gregorian;
+  updateNightMode(n);
 }
 setInterval(tickClock,1000);tickClock();
 
