@@ -651,41 +651,56 @@ setInterval(tickClock,1000);tickClock();
     {name:'גלובס',    badge:'bg-amber-300 text-amber-950',   url:'https://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=585', take:4},
   ];
   var items = [];
-  var pageIdx = 0;
-  var PAGE_SIZE = 3;
-  var SWITCH_MS = 15000; // החלפת עמוד כל 15 שניות
+  var startIdx = 0;       // אינדקס הפריט הראשון בעמוד הנוכחי
+  var shownCount = 0;     // כמה פריטים מוצגים בפועל בעמוד הנוכחי (1-3)
+  var SWITCH_MS = 15000;  // החלפת עמוד כל 15 שניות
   var FADE_MS   = 700;
 
-  function pages(){ return Math.ceil(items.length / PAGE_SIZE) || 1; }
-
-  function renderPage(){
-    var start = pageIdx * PAGE_SIZE;
-    var slice = items.slice(start, start + PAGE_SIZE);
-    pageEl.innerHTML = slice.map(function(it){
+  // לוגיקה דינמית: מנסה 3 כרטיסים בפונט הסטנדרטי, מקטין הדרגתית, ואם עדיין
+  // לא נכנס — מקטין את מספר הכרטיסים. מבטיח שאין גלישה ושלעולם לא תידלג כותרת.
+  function renderCardsHTML(start, count){
+    var slice = items.slice(start, start + count);
+    return slice.map(function(it){
       return '<div class="flex items-start gap-2 rounded-2xl border border-brand-400/15 bg-brand-400/5 px-3 py-2">'+
         '<span class="shrink-0 rounded-full '+it.badge+' px-2 py-0.5 text-[11px] font-extrabold">'+it.source+'</span>'+
         '<span class="text-[12.5px] font-medium leading-snug text-slate-100">'+it.title+'</span>'+
       '</div>';
     }).join('');
-    // הגנת fallback רב-שלבית: מקטין את הפונט בהדרגה עד שכל 3 הכרטיסים נכנסים
-    setTimeout(function(){
-      var sizes = [12, 11.5, 11, 10.5, 10];
-      for(var i=0; i<sizes.length; i++){
-        if(pageEl.scrollHeight <= pageEl.clientHeight + 2) break;
-        var spans = pageEl.querySelectorAll('span:not([class*="rounded-full"])');
-        spans.forEach(function(s){ s.style.fontSize = sizes[i] + 'px'; });
+  }
+  function applyFontSize(px){
+    var spans = pageEl.querySelectorAll('span:not([class*="rounded-full"])');
+    spans.forEach(function(s){ s.style.fontSize = px + 'px'; });
+  }
+  function fits(){ return pageEl.scrollHeight <= pageEl.clientHeight + 2; }
+
+  function renderWindow(){
+    if(!items.length) return;
+    var fontSteps = [12.5, 12, 11.5, 11, 10.5, 10];
+    var cardCounts = [3, 2, 1];
+    for(var c=0; c<cardCounts.length; c++){
+      var n = Math.min(cardCounts[c], items.length);
+      pageEl.innerHTML = renderCardsHTML(startIdx, n);
+      // מנסה כל גודל פונט עד שזה נכנס
+      for(var f=0; f<fontSteps.length; f++){
+        if(f>0) applyFontSize(fontSteps[f]);
+        // עיכוב קצר כדי שהדפדפן יחשב מחדש את scrollHeight
+        // (במציאות הקריאה הסינכרונית של scrollHeight מאלצת recalc)
+        if(fits()){ shownCount = n; return; }
       }
-    }, 30);
+    }
+    // קצה: אם גם 1 כרטיס בפונט 10 לא נכנס — לפחות הצג אותו
+    shownCount = 1;
   }
   function showNextPage(){
     if(!items.length) return;
     pageEl.classList.add('fading');
     setTimeout(function(){
-      pageIdx = (pageIdx + 1) % pages();
-      renderPage();
+      startIdx = (startIdx + (shownCount || 1)) % items.length;
+      renderWindow();
       pageEl.classList.remove('fading');
     }, FADE_MS);
   }
+  function renderPage(){ renderWindow(); } // alias תאימות
 
   function fetchFeed(src){
     return fetch('https://api.rss2json.com/v1/api.json?rss_url='+encodeURIComponent(src.url))
@@ -704,8 +719,8 @@ setInterval(tickClock,1000);tickClock();
       for(var i=0;i<max;i++){ arrs.forEach(function(a){ if(a[i]) mixed.push(a[i]); }); }
       if(mixed.length){
         items = mixed;
-        if(pageIdx >= pages()) pageIdx = 0;
-        renderPage();
+        if(startIdx >= items.length) startIdx = 0;
+        renderWindow();
       }
     });
   }
