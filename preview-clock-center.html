@@ -1,0 +1,176 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>תצוגה מקדימה — מרכוז השעון</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      fontFamily: { sans: ['Heebo','system-ui','sans-serif'] },
+      colors: {
+        brand: { 100:'#E0F7FE', 200:'#B3E9FB', 300:'#7DD3FC', 400:'#22D3EE', 500:'#06B6D4', 600:'#0891B2' },
+        night: { 800:'#0a1027', 900:'#020410' }
+      }
+    }
+  }
+}
+</script>
+<style>
+  *{font-family:'Heebo',system-ui,sans-serif}
+  body{
+    background-color:#020410;
+    background-image:
+      radial-gradient(1100px 700px at 110% -10%, rgba(34,211,238,.09), transparent 60%),
+      radial-gradient(1000px 700px at -10% 110%, rgba(99,102,241,.11), transparent 55%);
+    color:white;
+    min-height:100vh;
+  }
+  .panel{
+    background: linear-gradient(180deg, rgba(10,16,39,.92), rgba(5,8,24,.92));
+    backdrop-filter: blur(14px) saturate(120%);
+    border: 1px solid rgba(34,211,238,.22);
+  }
+  .title-grad{
+    background: linear-gradient(120deg, #B3E9FB, #7DD3FC, #A78BFA);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .text-glow{ text-shadow: 0 0 18px rgba(34,211,238,.45) }
+  .glow-cyan{ box-shadow: 0 0 22px rgba(34,211,238,.55), 0 0 44px rgba(34,211,238,.25) }
+  .cyber-corner{position:relative}
+  .cyber-corner::before, .cyber-corner::after{
+    content:''; position:absolute; width:34px; height:34px; pointer-events:none;
+    background:
+      linear-gradient(currentColor,currentColor) left top/100% 2px no-repeat,
+      linear-gradient(currentColor,currentColor) left top/2px 100% no-repeat;
+    color: rgba(34,211,238,.65);
+  }
+  .cyber-corner::before{ top:-1px; right:-1px; background-position: right top, right top; }
+  .cyber-corner::after { bottom:-1px; left:-1px; background-position: left bottom, left bottom; }
+  /* קווי עזר לקריאות (קווים אדומים = מרכז המסך) */
+  .center-line{
+    position:absolute; top:0; bottom:0; left:50%; width:1px;
+    background: rgba(248,113,113,.6);
+    pointer-events:none; z-index:50;
+  }
+  .center-label{
+    position:absolute; top:-22px; left:50%; transform:translateX(-50%);
+    color:#FCA5A5; font-size:11px; font-weight:bold; white-space:nowrap;
+  }
+</style>
+</head>
+<body class="p-6">
+
+<div class="mx-auto max-w-7xl">
+
+  <h1 class="text-2xl font-black text-brand-200 text-center mb-4">תצוגה מקדימה — איפה השעון יושב</h1>
+  <p class="text-sm text-brand-300/70 text-center mb-8">הקו האדום = המרכז האמיתי של המסך</p>
+
+  <!-- ============ אופציה א׳ — קיים (justify-between) ============ -->
+  <div class="mb-3">
+    <span class="inline-block rounded-full px-3 py-1 text-xs font-extrabold" style="background:rgba(132,204,22,.15); border:1px solid rgba(132,204,22,.45); color:#BEF264">📌 אופציה א׳ — קיים היום (השעון "במרכז של מה שנשאר")</span>
+  </div>
+  <div class="relative mb-10">
+    <header class="panel cyber-corner relative flex shrink-0 items-center justify-between gap-4 rounded-3xl px-5 py-3 text-white">
+      <div class="flex items-center gap-3">
+        <div class="flex size-11 items-center justify-center rounded-2xl border border-brand-400/40 bg-brand-400/10 text-brand-300">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="size-6"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4M9 6h.01M15 6h.01M9 10h.01M15 10h.01M9 14h.01M15 14h.01"/></svg>
+        </div>
+        <div class="leading-tight">
+          <div class="title-grad text-xl font-black sm:text-2xl">עפרוני 18, מודיעין</div>
+          <div class="text-[11px] tracking-wider text-brand-300/85">לוח הוועד הדיגיטלי · ניהול חכם בזמן אמת</div>
+          <div class="mt-0.5 text-[11px] font-semibold tracking-wider text-brand-300/80">© כל הזכויות שמורות לח. כהן</div>
+        </div>
+      </div>
+      <div class="text-center">
+        <div class="text-glow text-3xl font-black tabular-nums text-brand-200 sm:text-4xl">20:30:45</div>
+        <div class="text-xs font-medium text-brand-300/80 sm:text-sm">יום שישי, 05.06.2026 · כ׳ סיון תשפ״ו</div>
+      </div>
+      <div class="flex items-center gap-2 rounded-2xl border border-brand-400/30 bg-brand-400/5 px-2.5 py-1.5">
+        <button class="glow-cyan flex size-9 items-center justify-center rounded-full bg-brand-400 text-night-900">
+          <svg viewBox="0 0 24 24" fill="currentColor" class="size-4"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
+        </button>
+      </div>
+    </header>
+    <!-- קו מרכז המסך -->
+    <div class="center-line">
+      <span class="center-label">מרכז המסך</span>
+    </div>
+  </div>
+
+  <!-- ============ אופציה ב׳ — מרכז מוחלט (absolute centering) ============ -->
+  <div class="mb-3">
+    <span class="inline-block rounded-full px-3 py-1 text-xs font-extrabold" style="background:rgba(168,85,247,.15); border:1px solid rgba(168,85,247,.45); color:#D8B4FE">🟣 אופציה ב׳ — מרכז אמיתי של המסך (absolute positioning)</span>
+  </div>
+  <div class="relative mb-10">
+    <header class="panel cyber-corner relative flex shrink-0 items-center justify-between gap-4 rounded-3xl px-5 py-3 text-white">
+      <div class="flex items-center gap-3">
+        <div class="flex size-11 items-center justify-center rounded-2xl border border-brand-400/40 bg-brand-400/10 text-brand-300">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="size-6"><rect x="4" y="2" width="16" height="20" rx="2"/><path d="M9 22v-4h6v4M9 6h.01M15 6h.01M9 10h.01M15 10h.01M9 14h.01M15 14h.01"/></svg>
+        </div>
+        <div class="leading-tight">
+          <div class="title-grad text-xl font-black sm:text-2xl">עפרוני 18, מודיעין</div>
+          <div class="text-[11px] tracking-wider text-brand-300/85">לוח הוועד הדיגיטלי · ניהול חכם בזמן אמת</div>
+          <div class="mt-0.5 text-[11px] font-semibold tracking-wider text-brand-300/80">© כל הזכויות שמורות לח. כהן</div>
+        </div>
+      </div>
+      <!-- absolute centered -->
+      <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-center pointer-events-none">
+        <div class="text-glow text-3xl font-black tabular-nums text-brand-200 sm:text-4xl">20:30:45</div>
+        <div class="text-xs font-medium text-brand-300/80 sm:text-sm">יום שישי, 05.06.2026 · כ׳ סיון תשפ״ו</div>
+      </div>
+      <!-- spacer במקום השעון בפלקס -->
+      <div class="invisible text-center" aria-hidden="true">
+        <div class="text-3xl font-black sm:text-4xl">20:30:45</div>
+        <div class="text-xs sm:text-sm">יום שישי, 05.06.2026 · כ׳ סיון תשפ״ו</div>
+      </div>
+      <div class="flex items-center gap-2 rounded-2xl border border-brand-400/30 bg-brand-400/5 px-2.5 py-1.5">
+        <button class="glow-cyan flex size-9 items-center justify-center rounded-full bg-brand-400 text-night-900">
+          <svg viewBox="0 0 24 24" fill="currentColor" class="size-4"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
+        </button>
+      </div>
+    </header>
+    <div class="center-line">
+      <span class="center-label">מרכז המסך</span>
+    </div>
+  </div>
+
+  <!-- ===== הסבר ===== -->
+  <div class="mx-auto mt-10 max-w-3xl">
+    <div class="rounded-2xl border border-brand-400/15 bg-brand-400/5 px-5 py-4">
+      <h2 class="text-base font-bold text-brand-200 mb-3">השוואה</h2>
+      <div class="grid grid-cols-2 gap-4 text-xs">
+        <div>
+          <div class="font-bold text-emerald-300 mb-1">🟢 אופציה א׳ — קיים</div>
+          <ul class="text-slate-300 space-y-1">
+            <li>• השעון "מאוזן ויזואלית" בין הצדדים</li>
+            <li>• עוקב את הריווח, לא את המרכז</li>
+            <li>• <strong>מוזז ~100px ימינה מהמרכז האמיתי</strong></li>
+            <li>• כלום לא צריך להשתנות</li>
+          </ul>
+        </div>
+        <div>
+          <div class="font-bold text-violet-300 mb-1">🟣 אופציה ב׳ — מרכז אמיתי</div>
+          <ul class="text-slate-300 space-y-1">
+            <li>• <strong>במרכז גיאומטרי של המסך — בדיוק</strong></li>
+            <li>• השעון מקובע ב-50% של הרוחב</li>
+            <li>• ייראה "סימטרי" כלפי הטלוויזיה</li>
+            <li>• אם הצד הימני יגדל, השעון לא ינוע</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+    <p class="text-center text-sm text-brand-300/70 mt-4">תגיד לי איזו אופציה — א׳ / ב׳</p>
+  </div>
+
+</div>
+
+</body>
+</html>
