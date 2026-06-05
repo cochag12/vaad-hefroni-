@@ -930,6 +930,8 @@ function loadWeather(){
     var todayLow  = Math.round(j.daily.temperature_2m_min[0]);
     document.getElementById('weatherCur').innerHTML=
       '<div>'+
+        // תווית "כעת" קטנה מעל הטמפ׳ — מבהיר שזו הטמפרטורה הנוכחית, לא של היום בכלל
+        '<div class="text-[10px] font-semibold tracking-[0.15em] text-brand-300/70">כעת</div>'+
         '<div class="text-2xl font-black leading-none">'+Math.round(j.current.temperature_2m)+'°</div>'+
         '<div class="mt-0.5 text-[11px] text-white/90">'+w[0]+'</div>'+
         // היום ☀ + הלילה 🌙 (בהשראת Samsung Weather)
