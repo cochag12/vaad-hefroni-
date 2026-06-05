@@ -451,7 +451,8 @@ function hhmm(iso){return new Date(iso).toLocaleTimeString('he-IL',{hour:'2-digi
 var HEB_DAY=['א׳','ב׳','ג׳','ד׳','ה׳','ו׳','שבת'];
 function wcode(c){
   if(c===0)return['בהיר','sun'];if(c===1)return['בהיר ברובו','sun'];if(c===2)return['מעונן חלקית','cloudsun'];
-  if(c===3)return['מעונן','cloud'];if(c===45||c===48)return['ערפל','cloud'];
+  // בישראל גם "מעונן" (קוד 3) ברוב הימים יש שמש מאחורי הענן — לכן cloudsun (שמש+ענן)
+  if(c===3)return['מעונן','cloudsun'];if(c===45||c===48)return['ערפל','cloud'];
   if(c>=51&&c<=67)return['גשם','rain'];if(c>=71&&c<=77)return['שלג','rain'];
   if(c>=80&&c<=82)return['ממטרים','rain'];if(c>=95)return['סופת רעמים','rain'];return['—','cloud'];
 }
@@ -546,25 +547,27 @@ function wsvg(kind){
   if(kind==='sun'){
     var p = sunburstPath(12, 12, 11.7, 9.3, 32);
     return '<svg '+vb+'>'+
+      // צבעי שמש זוהרים יותר — נשארים צהובים בלי לעבור לכתום, יציבים גם על TV מכויל "Cool"
       '<defs><radialGradient id="sg" cx="40%" cy="35%" r="65%">'+
-        '<stop offset="0%" stop-color="#FEF3C7"/>'+
-        '<stop offset="55%" stop-color="#FCD34D"/>'+
-        '<stop offset="100%" stop-color="#F59E0B"/>'+
+        '<stop offset="0%" stop-color="#FFFBEB"/>'+
+        '<stop offset="45%" stop-color="#FACC15"/>'+   // yellow-400 — צהוב טהור
+        '<stop offset="100%" stop-color="#CA8A04"/>'+  // yellow-600 — צל כהה יותר ליצירת עומק
       '</radialGradient></defs>'+
       '<path d="'+p+'" fill="url(#sg)"/>'+
     '</svg>';
   }
   if(kind==='cloudsun'){
-    // שמש קטנה (16 שיני קרניים) מציצה מאחורי ענן לבן
-    var p = sunburstPath(8, 8, 5.8, 4.6, 18);
+    // שמש קטנה (18 שיני קרניים) מציצה מאחורי ענן לבן
+    var p = sunburstPath(8, 8, 6.2, 4.9, 18);  // קצת יותר גדולה מהקודם
     return '<svg '+vb+'>'+
       '<defs><radialGradient id="sgs" cx="40%" cy="35%" r="65%">'+
-        '<stop offset="0%" stop-color="#FEF3C7"/>'+
-        '<stop offset="55%" stop-color="#FCD34D"/>'+
-        '<stop offset="100%" stop-color="#F59E0B"/>'+
+        '<stop offset="0%" stop-color="#FFFBEB"/>'+
+        '<stop offset="45%" stop-color="#FACC15"/>'+
+        '<stop offset="100%" stop-color="#CA8A04"/>'+
       '</radialGradient></defs>'+
       '<path d="'+p+'" fill="url(#sgs)"/>'+
-      '<path d="M7 18a4 4 0 0 1 .5-7.97A5 5 0 0 1 17 11a3.5 3.5 0 0 1-.5 7H7z" fill="#E5E7EB" stroke="#94A3B8" stroke-width="0.8"/>'+
+      // ענן לבן יותר וברור — עם stroke מודגש יותר
+      '<path d="M7 18a4 4 0 0 1 .5-7.97A5 5 0 0 1 17 11a3.5 3.5 0 0 1-.5 7H7z" fill="#F8FAFC" stroke="#64748B" stroke-width="1"/>'+
     '</svg>';
   }
   if(kind==='rain'){
@@ -577,7 +580,8 @@ function wsvg(kind){
       '</g>'+
     '</svg>';
   }
-  return '<svg '+vb+'><path d="M17.5 19a4.5 4.5 0 1 0 0-9 6 6 0 0 0-11.5 1.5A4 4 0 0 0 6 19h11.5z" fill="#CBD5E1" stroke="#94A3B8" stroke-width="0.8"/></svg>';
+  // ענן בלבד (לערפל וכו') — לבן יותר ובהיר יותר
+  return '<svg '+vb+'><path d="M17.5 19a4.5 4.5 0 1 0 0-9 6 6 0 0 0-11.5 1.5A4 4 0 0 0 6 19h11.5z" fill="#F8FAFC" stroke="#64748B" stroke-width="1"/></svg>';
 }
 
 /* ====================== CLOCK ====================== */
