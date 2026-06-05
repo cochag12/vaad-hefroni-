@@ -100,6 +100,16 @@
   /* כללי הבית — fade בין כללים מתחלפים */
   .rule-display{ transition: opacity .7s ease-in-out, transform .7s ease-in-out; opacity:1; transform: translateY(0); }
   .rule-display.fading{ opacity:0; transform: translateY(8px); }
+  /* כותרות נבחרות — הגבלת מספר שורות לכל כרטיס + "..." בסוף לכותרות ארוכות.
+     מבטיח שתמיד 3 כרטיסים נכנסים גם בכותרות שמתפרסות על 4-5 שורות. */
+  .headline-clamp{
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+            line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
   /* מצב לילה — עמעום של המסך בין 01:00 ל-05:00 (חיסכון בLED + עין נעימה בלילה).
      מוחל רק על #appRoot — כך שאם קופצת אזעקת צבע אדום, ה-overlay (שנוסף ישירות ל-body)
      נשאר בבהירות מלאה. */
@@ -656,40 +666,39 @@ setInterval(tickClock,1000);tickClock();
   var SWITCH_MS = 15000;  // החלפת עמוד כל 15 שניות
   var FADE_MS   = 700;
 
-  // לוגיקה דינמית: מנסה 3 כרטיסים בפונט הסטנדרטי, מקטין הדרגתית, ואם עדיין
-  // לא נכנס — מקטין את מספר הכרטיסים. מבטיח שאין גלישה ושלעולם לא תידלג כותרת.
+  // לוגיקה: תמיד 3 כרטיסים. כל כרטיס מוגבל ל-3 שורות עם "..." (headline-clamp).
+  // אם עדיין יש גלישה — מקטין פונט הדרגתית. ערובה ש-3 כרטיסים תמיד יוצגו.
   function renderCardsHTML(start, count){
     var slice = items.slice(start, start + count);
     return slice.map(function(it){
       return '<div class="flex items-start gap-2 rounded-2xl border border-brand-400/15 bg-brand-400/5 px-3 py-2">'+
         '<span class="shrink-0 rounded-full '+it.badge+' px-2 py-0.5 text-[11px] font-extrabold">'+it.source+'</span>'+
-        '<span class="text-[12.5px] font-medium leading-snug text-slate-100">'+it.title+'</span>'+
+        '<span class="headline-clamp text-[12.5px] font-medium leading-snug text-slate-100">'+it.title+'</span>'+
       '</div>';
     }).join('');
   }
   function applyFontSize(px){
-    var spans = pageEl.querySelectorAll('span:not([class*="rounded-full"])');
+    var spans = pageEl.querySelectorAll('span.headline-clamp');
     spans.forEach(function(s){ s.style.fontSize = px + 'px'; });
   }
   function fits(){ return pageEl.scrollHeight <= pageEl.clientHeight + 2; }
 
   function renderWindow(){
     if(!items.length) return;
-    var fontSteps = [12.5, 12, 11.5, 11, 10.5, 10];
-    var cardCounts = [3, 2, 1];
-    for(var c=0; c<cardCounts.length; c++){
-      var n = Math.min(cardCounts[c], items.length);
-      pageEl.innerHTML = renderCardsHTML(startIdx, n);
-      // מנסה כל גודל פונט עד שזה נכנס
-      for(var f=0; f<fontSteps.length; f++){
-        if(f>0) applyFontSize(fontSteps[f]);
-        // עיכוב קצר כדי שהדפדפן יחשב מחדש את scrollHeight
-        // (במציאות הקריאה הסינכרונית של scrollHeight מאלצת recalc)
-        if(fits()){ shownCount = n; return; }
-      }
+    var n = Math.min(3, items.length);
+    pageEl.innerHTML = renderCardsHTML(startIdx, n);
+    shownCount = n;
+    // מנסה גדלי פונט שונים אם יש גלישה (גיבוי — עם line-clamp לרוב לא יקרה)
+    var fontSteps = [12, 11.5, 11, 10.5, 10];
+    for(var f=0; f<fontSteps.length; f++){
+      if(fits()) return;
+      applyFontSize(fontSteps[f]);
     }
-    // קצה: אם גם 1 כרטיס בפונט 10 לא נכנס — לפחות הצג אותו
-    shownCount = 1;
+    // אם גם 10px עם 3 שורות clamp לא נכנס — מקטין את ה-clamp ל-2 שורות
+    if(!fits()){
+      var spans = pageEl.querySelectorAll('span.headline-clamp');
+      spans.forEach(function(s){ s.style.webkitLineClamp = '2'; s.style.lineClamp = '2'; });
+    }
   }
   function showNextPage(){
     if(!items.length) return;
