@@ -172,7 +172,7 @@
         </h2>
         <div class="relative min-h-0 flex-1 flex flex-col p-1 overflow-hidden">
           <!-- 3 כותרות בעמוד אחד; העמוד מתחלף ב-fade. justify-start כדי שאם הטקסט גולש לא יחתך במרכז -->
-          <div id="headlinePage" class="rule-display flex-1 flex flex-col justify-start gap-1 px-1">
+          <div id="headlinePage" class="rule-display flex-1 flex flex-col justify-start gap-2 px-1">
             <div class="text-center text-xs text-brand-300/70">מתעדכן…</div>
           </div>
         </div>
@@ -588,16 +588,16 @@ setInterval(tickClock,1000);tickClock();
     var start = pageIdx * PAGE_SIZE;
     var slice = items.slice(start, start + PAGE_SIZE);
     pageEl.innerHTML = slice.map(function(it){
-      return '<div class="flex items-start gap-1.5 rounded-xl border border-brand-400/15 bg-brand-400/5 px-2 py-1.5">'+
-        '<span class="shrink-0 rounded-full '+it.badge+' px-1.5 py-0.5 text-[10px] font-extrabold">'+it.source+'</span>'+
-        '<span class="text-[12px] font-medium leading-snug text-slate-100">'+it.title+'</span>'+
+      return '<div class="flex items-start gap-2 rounded-2xl border border-brand-400/15 bg-brand-400/5 px-3 py-2.5">'+
+        '<span class="shrink-0 rounded-full '+it.badge+' px-2 py-0.5 text-[11px] font-extrabold">'+it.source+'</span>'+
+        '<span class="text-[13px] font-medium leading-snug text-slate-100">'+it.title+'</span>'+
       '</div>';
     }).join('');
     // הגנת fallback: אם בכל זאת גולשים — מקטינים את גודל הגופן עוד
     setTimeout(function(){
       if(pageEl.scrollHeight > pageEl.clientHeight + 2){
         var spans = pageEl.querySelectorAll('span:not([class*="rounded-full"])');
-        spans.forEach(function(s){ s.style.fontSize = '10.5px'; });
+        spans.forEach(function(s){ s.style.fontSize = '11.5px'; });
       }
     }, 30);
   }
