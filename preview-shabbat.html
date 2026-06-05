@@ -1,0 +1,141 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>תצוגה מקדימה — פאנל שבת עם תקציר פרשה</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+<script src="https://cdn.tailwindcss.com"></script>
+<script>
+tailwind.config = {
+  theme: {
+    screens: { 'sm':'480px', 'md':'600px', 'lg':'700px', 'xl':'1024px', '2xl':'1280px' },
+    extend: {
+      fontFamily: { sans: ['Heebo','system-ui','sans-serif'] },
+      colors: {
+        brand: { 100:'#E0F7FE', 200:'#B3E9FB', 300:'#7DD3FC', 400:'#22D3EE', 500:'#06B6D4', 600:'#0891B2' },
+        accent:{ 500:'#A78BFA', 600:'#8B5CF6' },
+        night: { 800:'#0a1027', 900:'#020410' }
+      }
+    }
+  }
+}
+</script>
+<style>
+  *{font-family:'Heebo',system-ui,sans-serif}
+  body{
+    background-color:#020410;
+    background-image:
+      radial-gradient(1100px 700px at 110% -10%, rgba(34,211,238,.09), transparent 60%),
+      radial-gradient(1000px 700px at -10% 110%, rgba(99,102,241,.11), transparent 55%);
+    color:white;
+    min-height:100vh;
+  }
+  .panel{
+    background: linear-gradient(180deg, rgba(10,16,39,.92), rgba(5,8,24,.92));
+    backdrop-filter: blur(14px) saturate(120%);
+    border: 1px solid rgba(34,211,238,.22);
+  }
+  .title-grad{
+    background: linear-gradient(120deg, #B3E9FB, #7DD3FC, #A78BFA);
+    -webkit-background-clip: text;
+    background-clip: text;
+    -webkit-text-fill-color: transparent;
+  }
+  .text-glow{ text-shadow: 0 0 18px rgba(34,211,238,.45) }
+  .glow-cyan{ box-shadow: 0 0 22px rgba(34,211,238,.55), 0 0 44px rgba(34,211,238,.25) }
+  @keyframes gradient-pan{0%,100%{background-position:0% 50%}50%{background-position:100% 50%}}
+  .gradient-pan{background-size:200% 200%; animation:gradient-pan 14s ease infinite}
+  /* פינות ציבר */
+  .cyber-corner{position:relative}
+  .cyber-corner::before, .cyber-corner::after{
+    content:''; position:absolute; width:34px; height:34px; pointer-events:none;
+    background:
+      linear-gradient(currentColor,currentColor) left top/100% 2px no-repeat,
+      linear-gradient(currentColor,currentColor) left top/2px 100% no-repeat;
+    color: rgba(34,211,238,.65);
+  }
+  .cyber-corner::before{ top:-1px; right:-1px; background-position: right top, right top; }
+  .cyber-corner::after { bottom:-1px; left:-1px; background-position: left bottom, left bottom; }
+</style>
+</head>
+<body class="p-6">
+
+<div class="mx-auto max-w-7xl">
+
+  <!-- כותרת המוקאפ -->
+  <div class="mb-6 text-center">
+    <h1 class="text-2xl font-black text-brand-200">תצוגה מקדימה — פאנל שבת עם תקציר פרשה</h1>
+    <p class="text-sm text-brand-300/70 mt-1">מה שתראה במרכז המסך בכל שבת (מכניסת שבת עד צאתה)</p>
+  </div>
+
+  <!-- מסגרת שמדמה את הלוח השלם — הפאנל המרכזי בלבד מוצג כדוגמא -->
+  <div class="mx-auto" style="max-width:780px">
+
+    <!-- ===== כאן הפאנל הראשי של "הגל השקט" עם תקציר הפרשה ===== -->
+    <section class="panel cyber-corner relative flex flex-col rounded-3xl p-6 text-white shadow-2xl"
+             style="aspect-ratio: 16/10">
+      <div class="flex h-full flex-col items-center justify-center gap-3 text-center">
+
+        <!-- סטטוס "הגל השקט" -->
+        <div class="text-[11px] font-bold tracking-[0.25em] text-brand-300/75">🟢 הגל השקט · ניטור התרעות פעיל</div>
+
+        <!-- שבת שלום (קטן יותר ממה שהיה כדי לפנות מקום לתקציר) -->
+        <div class="title-grad gradient-pan text-4xl sm:text-5xl font-black leading-none">שבת שלום</div>
+
+        <!-- שם הפרשה -->
+        <div class="text-xl sm:text-2xl font-bold text-brand-200 text-glow">פרשת בהעלותך</div>
+
+        <!-- תקציר הפרשה — האזור החדש -->
+        <div class="mt-2 max-w-xl rounded-2xl border border-brand-400/30 bg-brand-400/5 px-5 py-4 text-right">
+          <div class="mb-2 text-[10px] font-extrabold tracking-[0.25em] text-brand-300/70">📜 תקציר הפרשה</div>
+          <p class="text-[14px] sm:text-[15px] leading-relaxed text-slate-200">
+            הפרשה מתחילה בציווי לאהרן הכהן להדליק את שבעת נרות המנורה במשכן, וממשיכה בטקס חניכת הלויים לעבודת המקדש. נמסר דין "פסח שני" — היתר לחגוג את חג הפסח חודש מאוחר יותר למי שלא יכול היה לחגגו במועדו.
+            בני ישראל יוצאים לדרך מהר סיני, מונחים על ידי ענן ה׳ וחצוצרות הכסף. במהלך הנסיעה הם מתלוננים על המן ודורשים בשר. ה׳ שולח שליו בכמות עצומה — אך מכה את המתלוננים. שבעים זקנים מתנבאים, וכן אלדד ומידד הנביאים במחנה.
+            הפרשה מסתיימת בכך שמרים מדברת רעות על אחיה משה, נענשת בצרעת, ונרפאת אחרי שבעה ימים מחוץ למחנה.
+          </p>
+        </div>
+
+        <!-- הערת התראה לרדיו (קטנה) -->
+        <div class="max-w-xl text-[10px] text-slate-400/70 leading-relaxed px-2">
+          ⚠ זו תוספת — לא תחליף לרדיו (קול ברמה, קול חי, גלי ישראל) או לפורטל החירום
+        </div>
+
+        <!-- זמני שבת -->
+        <div class="mt-2 grid grid-cols-2 gap-8 text-center">
+          <div>
+            <div class="text-[11px] text-brand-300/70">כניסת שבת</div>
+            <div class="text-2xl font-black text-brand-200 text-glow tabular-nums">19:21</div>
+          </div>
+          <div>
+            <div class="text-[11px] text-brand-300/70">צאת שבת</div>
+            <div class="text-2xl font-black text-brand-200 text-glow tabular-nums">20:25</div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- ===== סוף הפאנל ===== -->
+
+  </div>
+
+  <!-- הסבר -->
+  <div class="mx-auto mt-8 max-w-3xl text-center">
+    <div class="rounded-2xl border border-brand-400/15 bg-brand-400/5 px-5 py-4">
+      <h2 class="text-base font-bold text-brand-200 mb-2">איך זה ייראה בלוח האמיתי</h2>
+      <p class="text-sm text-slate-300 leading-relaxed">
+        ביום שישי מכניסת שבת עד מוצאי שבת, הפאנל המרכזי (במקום הדמות היומית) יציג את התוכן הזה.
+        בכל שבת — תקציר אחר של הפרשה הנוכחית. הסטטוס "הגל השקט" נשאר למעלה. זמני שבת מוצגים למטה.
+        אזעקת "צבע אדום" עדיין מקפיצה מסך מלא אם יש התראה.
+      </p>
+      <p class="text-xs text-brand-300/70 mt-3">
+        בשאר ימי השבוע (ראשון-חמישי) — הפאנל ממשיך להציג את הדמות היומית כרגיל.
+      </p>
+    </div>
+  </div>
+
+</div>
+
+</body>
+</html>
