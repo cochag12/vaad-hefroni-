@@ -150,12 +150,11 @@
           <span class="glow-cyan flex size-8 items-center justify-center rounded-lg bg-brand-400 text-night-900">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="size-5"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/></svg>
           </span>
-          כללי הבית
+          כללי הבית המשותף
         </h2>
         <div class="relative min-h-0 flex-1 flex flex-col justify-center items-center p-2">
           <!-- כלל אחד נראה בכל פעם, מתחלף ב-fade כל 10 שניות -->
           <div id="ruleText" class="rule-display flex-1 flex items-center justify-center text-center text-base sm:text-lg font-semibold leading-relaxed text-slate-100 px-2">טוען…</div>
-          <div id="ruleProgress" class="shrink-0 mt-2 text-[10px] tabular-nums text-brand-300/60"></div>
         </div>
       </section>
       <!-- BOTTOM: selected headlines (Walla / Walla Sport / Globes) -->
@@ -171,7 +170,6 @@
           <div id="headlinePage" class="rule-display flex-1 flex flex-col justify-center gap-1.5 px-1">
             <div class="text-center text-xs text-brand-300/70">מתעדכן…</div>
           </div>
-          <div id="headlineProgress" class="shrink-0 mt-1 text-[10px] tabular-nums text-brand-300/60 text-center"></div>
         </div>
       </section>
     </div>
@@ -544,21 +542,18 @@ setInterval(tickClock,1000);tickClock();
 /* ====================== HOUSE RULES — מתחלפים כל 10 שניות בfade ====================== */
 (function(){
   var el = document.getElementById('ruleText');
-  var prog = document.getElementById('ruleProgress');
   if(!el) return;
   var idx = 0;
   var SWITCH_MS = 21000; // החלפה כל 21 שניות
   var FADE_MS = 700;     // משך הfade (חייב להתאים ל-CSS)
   function showFirst(){
     el.textContent = HOUSE_RULES[0];
-    prog.textContent = '1 / ' + HOUSE_RULES.length;
     idx = 1;
   }
   function showNext(){
     el.classList.add('fading');
     setTimeout(function(){
       el.textContent = HOUSE_RULES[idx];
-      prog.textContent = (idx+1) + ' / ' + HOUSE_RULES.length;
       idx = (idx + 1) % HOUSE_RULES.length;
       el.classList.remove('fading');
     }, FADE_MS);
@@ -570,7 +565,6 @@ setInterval(tickClock,1000);tickClock();
 /* ====================== SELECTED HEADLINES — עמוד של 3 כותרות מתחלף כל 5 שניות ====================== */
 (function(){
   var pageEl = document.getElementById('headlinePage');
-  var prog   = document.getElementById('headlineProgress');
   if(!pageEl) return;
   var SOURCES=[
     {name:'וואלה',    badge:'bg-rose-400 text-rose-950',     url:'https://rss.walla.co.il/feed/1', take:4},
@@ -594,7 +588,6 @@ setInterval(tickClock,1000);tickClock();
         '<span class="text-[12px] font-medium leading-snug text-slate-100">'+it.title+'</span>'+
       '</div>';
     }).join('');
-    if(prog) prog.textContent = 'עמוד ' + (pageIdx+1) + ' / ' + pages();
   }
   function showNextPage(){
     if(!items.length) return;
