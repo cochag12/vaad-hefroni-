@@ -668,14 +668,23 @@ setInterval(tickClock,1000);tickClock();
   var SWITCH_MS = 15000;  // החלפת עמוד כל 15 שניות
   var FADE_MS   = 700;
 
-  // לוגיקה: תמיד 3 כרטיסים. כל כרטיס מוגבל ל-3 שורות עם "..." (headline-clamp).
-  // אם עדיין יש גלישה — מקטין פונט הדרגתית. ערובה ש-3 כרטיסים תמיד יוצגו.
-  function renderCardsHTML(start, count){
+  // קיצוץ ידני בגבול מילה — בטוח על כל דפדפן.
+  function truncateTitle(text, maxChars){
+    if(text.length <= maxChars) return text;
+    var cut = text.substring(0, maxChars);
+    var lastSpace = cut.lastIndexOf(' ');
+    if(lastSpace > maxChars * 0.6) cut = cut.substring(0, lastSpace);
+    return cut + '…';
+  }
+  // לוגיקה: תמיד 3 כרטיסים. מקצץ הדרגתית עד שהכל נכנס.
+  // עובד טוב על RTL/Hebrew שבו line-clamp לעיתים בעייתי בדפדפנים שונים.
+  function renderCardsHTML(start, count, maxChars){
     var slice = items.slice(start, start + count);
     return slice.map(function(it){
+      var truncated = truncateTitle(it.title, maxChars);
       return '<div class="flex items-start gap-2 rounded-2xl border border-brand-400/15 bg-brand-400/5 px-3 py-2">'+
         '<span class="shrink-0 rounded-full '+it.badge+' px-2 py-0.5 text-[11px] font-extrabold">'+it.source+'</span>'+
-        '<span class="headline-clamp text-[12.5px] font-medium leading-snug text-slate-100">'+it.title+'</span>'+
+        '<span class="headline-clamp text-[12.5px] font-medium leading-snug text-slate-100">'+truncated+'</span>'+
       '</div>';
     }).join('');
   }
@@ -688,18 +697,19 @@ setInterval(tickClock,1000);tickClock();
   function renderWindow(){
     if(!items.length) return;
     var n = Math.min(3, items.length);
-    pageEl.innerHTML = renderCardsHTML(startIdx, n);
     shownCount = n;
-    // מנסה גדלי פונט שונים אם יש גלישה (גיבוי — עם line-clamp לרוב לא יקרה)
+    // אסטרטגיה: מתחיל מ-110 תווים, מקצץ הדרגתית עד שהכל נכנס.
+    // 3 כרטיסים תמיד יוצגו במלואם — רק התוכן בכל אחד יקצר אם צריך.
+    var truncSteps = [110, 95, 80, 65, 50, 38];
+    for(var t=0; t<truncSteps.length; t++){
+      pageEl.innerHTML = renderCardsHTML(startIdx, n, truncSteps[t]);
+      if(fits()) return;
+    }
+    // גיבוי: אם גם 38 תווים לא מספיק — מקטין פונט
     var fontSteps = [12, 11.5, 11, 10.5, 10];
     for(var f=0; f<fontSteps.length; f++){
-      if(fits()) return;
       applyFontSize(fontSteps[f]);
-    }
-    // אם גם 10px עם 3 שורות clamp לא נכנס — מקטין את ה-clamp ל-2 שורות
-    if(!fits()){
-      var spans = pageEl.querySelectorAll('span.headline-clamp');
-      spans.forEach(function(s){ s.style.webkitLineClamp = '2'; s.style.lineClamp = '2'; });
+      if(fits()) return;
     }
   }
   function showNextPage(){
