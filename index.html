@@ -636,16 +636,32 @@ function tickClock(){
 }
 setInterval(tickClock,1000);tickClock();
 
-/* ====================== HOUSE RULES — מתחלפים כל 10 שניות בfade ====================== */
+/* ====================== HOUSE RULES — מתחלפים כל 21 שניות בfade + התאמת גופן דינמית ====================== */
 (function(){
   var el = document.getElementById('ruleText');
   if(!el) return;
   var idx = 0;
   var SWITCH_MS = 21000; // החלפה כל 21 שניות
   var FADE_MS = 700;     // משך הfade (חייב להתאים ל-CSS)
+
+  // התאמה דינמית של גודל הפונט — אם הכלל ארוך מדי, מקטין הדרגתית כך שייכנס בלי גלישה.
+  // אותו עיקרון כמו ה"כותרות נבחרות" — הסטרימר לפעמים מוסיף שורות בגלל RTL/Hebrew rendering.
+  function fitRuleText(){
+    var parent = el.parentElement;
+    if(!parent) return;
+    el.style.fontSize = ''; // איפוס לגודל ברירת מחדל (מהמחלקה sm:text-lg = 18px)
+    // הקטנה הדרגתית מ-18 ל-11px עד שהכלל נכנס
+    var sizes = [18, 17, 16, 15, 14, 13, 12, 11];
+    for(var i=0; i<sizes.length; i++){
+      if(parent.scrollHeight <= parent.clientHeight + 2) return; // נכנס
+      el.style.fontSize = sizes[i] + 'px';
+    }
+  }
+
   function showFirst(){
     el.textContent = HOUSE_RULES[0];
     idx = 1;
+    setTimeout(fitRuleText, 50); // עיכוב קטן עד שהדפדפן יצייר
   }
   function showNext(){
     el.classList.add('fading');
@@ -653,6 +669,7 @@ setInterval(tickClock,1000);tickClock();
       el.textContent = HOUSE_RULES[idx];
       idx = (idx + 1) % HOUSE_RULES.length;
       el.classList.remove('fading');
+      setTimeout(fitRuleText, 50);
     }, FADE_MS);
   }
   showFirst();
