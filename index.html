@@ -547,7 +547,7 @@ setInterval(tickClock,1000);tickClock();
   var prog = document.getElementById('ruleProgress');
   if(!el) return;
   var idx = 0;
-  var SWITCH_MS = 17000; // החלפה כל 17 שניות
+  var SWITCH_MS = 21000; // החלפה כל 21 שניות
   var FADE_MS = 700;     // משך הfade (חייב להתאים ל-CSS)
   function showFirst(){
     el.textContent = HOUSE_RULES[0];
@@ -580,7 +580,7 @@ setInterval(tickClock,1000);tickClock();
   var items = [];
   var pageIdx = 0;
   var PAGE_SIZE = 3;
-  var SWITCH_MS = 10000; // החלפת עמוד כל 10 שניות
+  var SWITCH_MS = 15000; // החלפת עמוד כל 15 שניות
   var FADE_MS   = 700;
 
   function pages(){ return Math.ceil(items.length / PAGE_SIZE) || 1; }
