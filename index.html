@@ -662,16 +662,18 @@ setInterval(tickClock,1000);tickClock();
     var start = pageIdx * PAGE_SIZE;
     var slice = items.slice(start, start + PAGE_SIZE);
     pageEl.innerHTML = slice.map(function(it){
-      return '<div class="flex items-start gap-2 rounded-2xl border border-brand-400/15 bg-brand-400/5 px-3 py-2.5">'+
+      return '<div class="flex items-start gap-2 rounded-2xl border border-brand-400/15 bg-brand-400/5 px-3 py-2">'+
         '<span class="shrink-0 rounded-full '+it.badge+' px-2 py-0.5 text-[11px] font-extrabold">'+it.source+'</span>'+
-        '<span class="text-[13px] font-medium leading-snug text-slate-100">'+it.title+'</span>'+
+        '<span class="text-[12.5px] font-medium leading-snug text-slate-100">'+it.title+'</span>'+
       '</div>';
     }).join('');
-    // הגנת fallback: אם בכל זאת גולשים — מקטינים את גודל הגופן עוד
+    // הגנת fallback רב-שלבית: מקטין את הפונט בהדרגה עד שכל 3 הכרטיסים נכנסים
     setTimeout(function(){
-      if(pageEl.scrollHeight > pageEl.clientHeight + 2){
+      var sizes = [12, 11.5, 11, 10.5, 10];
+      for(var i=0; i<sizes.length; i++){
+        if(pageEl.scrollHeight <= pageEl.clientHeight + 2) break;
         var spans = pageEl.querySelectorAll('span:not([class*="rounded-full"])');
-        spans.forEach(function(s){ s.style.fontSize = '11.5px'; });
+        spans.forEach(function(s){ s.style.fontSize = sizes[i] + 'px'; });
       }
     }, 30);
   }
@@ -841,8 +843,19 @@ function loadWeather(){
   fetch('https://api.open-meteo.com/v1/forecast?latitude='+MODIIN.lat+'&longitude='+MODIIN.lon+'&current=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=5&_='+Date.now())
   .then(function(r){return r.json()}).then(function(j){
     var w=wcode(j.current.weather_code);
+    var todayHigh = Math.round(j.daily.temperature_2m_max[0]);
+    var todayLow  = Math.round(j.daily.temperature_2m_min[0]);
     document.getElementById('weatherCur').innerHTML=
-      '<div><div class="text-2xl font-black leading-none">'+Math.round(j.current.temperature_2m)+'°</div><div class="mt-0.5 text-[11px] text-white/90">'+w[0]+'</div></div>'+
+      '<div>'+
+        '<div class="text-2xl font-black leading-none">'+Math.round(j.current.temperature_2m)+'°</div>'+
+        '<div class="mt-0.5 text-[11px] text-white/90">'+w[0]+'</div>'+
+        // היום ☀ + הלילה 🌙 (בהשראת Samsung Weather)
+        '<div class="mt-1.5 flex items-center gap-2 text-[11px]">'+
+          '<span class="flex items-center gap-1"><span class="text-amber-400">☀</span><span class="font-bold tabular-nums">'+todayHigh+'°</span></span>'+
+          '<span class="text-brand-300/40">·</span>'+
+          '<span class="flex items-center gap-1"><span class="text-brand-300">🌙</span><span class="font-bold tabular-nums">'+todayLow+'°</span></span>'+
+        '</div>'+
+      '</div>'+
       '<div class="size-10">'+wsvg(w[1])+'</div>';
     var days='';
     // מתחילים מ-i=1 (מחר) ולא מהיום, כדי שלא יהיה בלבול בין "עכשיו" לסיכום היומי.
