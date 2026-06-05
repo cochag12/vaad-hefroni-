@@ -662,7 +662,9 @@ setInterval(tickClock,1000);tickClock();
       f.facts.map(function(x){return '<li class="rounded-full border border-brand-400/30 bg-brand-400/10 px-2.5 py-0.5 text-[11px] font-medium text-brand-100">'+x+'</li>';}).join('');
     var q=document.getElementById('figQuote');
     if(f.quote){q.textContent='״'+f.quote+'״';q.classList.remove('hidden');} else {q.classList.add('hidden');}
-    var url='https://he.wikipedia.org/w/api.php?action=query&prop=extracts|pageimages&exintro&explaintext&piprop=thumbnail&pithumbsize=400&redirects=1&format=json&origin=*&titles='+encodeURIComponent(f.wiki);
+    // explaintext=טקסט נקי. exchars=2000 מבטיח טקסט עשיר גם לדמויות שהפתיחה שלהן בויקיפדיה קצרה
+    // (כמו רמב״ן — exintro לבד היה מחזיר 139 תווים בלבד).
+    var url='https://he.wikipedia.org/w/api.php?action=query&prop=extracts|pageimages&exchars=2000&explaintext&piprop=thumbnail&pithumbsize=400&redirects=1&format=json&origin=*&titles='+encodeURIComponent(f.wiki);
     fetch(url).then(function(r){return r.json()}).then(function(d){
       var pages=d&&d.query&&d.query.pages;if(!pages)return;var p=pages[Object.keys(pages)[0]]||{};
       if(p.extract){
