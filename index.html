@@ -166,10 +166,13 @@
           </span>
           כותרות נבחרות
         </h2>
-        <div class="relative min-h-0 flex-1 overflow-hidden">
-          <div id="headlinesScroll" class="scroll-up flex flex-col gap-2"></div>
-          <div class="pointer-events-none absolute inset-x-0 top-0 h-6 bg-gradient-to-b from-night-900 to-transparent"></div>
-          <div class="pointer-events-none absolute inset-x-0 bottom-0 h-6 bg-gradient-to-t from-night-900 to-transparent"></div>
+        <div class="relative min-h-0 flex-1 flex flex-col justify-center items-center p-2">
+          <!-- כותרת אחת מתחלפת ב-fade כל 10 שניות -->
+          <div id="headlineCard" class="rule-display flex-1 w-full flex flex-col items-center justify-center text-center px-2 gap-2">
+            <span id="headlineBadge" class="rounded-full bg-brand-400 text-night-900 px-3 py-0.5 text-[11px] font-extrabold">טוען…</span>
+            <span id="headlineText" class="text-sm sm:text-base font-semibold leading-snug text-slate-100">מתעדכן…</span>
+          </div>
+          <div id="headlineProgress" class="shrink-0 mt-2 text-[10px] tabular-nums text-brand-300/60"></div>
         </div>
       </section>
     </div>
@@ -565,34 +568,44 @@ setInterval(tickClock,1000);tickClock();
   setInterval(showNext, SWITCH_MS);
 })();
 
-/* ====================== SELECTED HEADLINES (Walla / Walla Sport / Globes) ====================== */
+/* ====================== SELECTED HEADLINES — מתחלפים כל 10 שניות בfade ====================== */
 (function(){
-  var box=document.getElementById('headlinesScroll');
-  // מקורות: וואלה (חדשות), וואלה (ספורט), גלובס. נעדכן כל 20 דקות.
+  var card  = document.getElementById('headlineCard');
+  var badge = document.getElementById('headlineBadge');
+  var text  = document.getElementById('headlineText');
+  var prog  = document.getElementById('headlineProgress');
+  if(!card) return;
   var SOURCES=[
     {name:'וואלה',    badge:'bg-rose-400 text-rose-950',     url:'https://rss.walla.co.il/feed/1', take:4},
     {name:'ספורט',    badge:'bg-emerald-400 text-emerald-950',url:'https://www.ynet.co.il/Integration/StoryRss3.xml', take:4},
     {name:'גלובס',    badge:'bg-amber-300 text-amber-950',   url:'https://www.globes.co.il/webservice/rss/rssfeeder.asmx/FeederNode?iID=585', take:4},
   ];
-  function row(badgeCls, source, title){
-    return '<div class="flex items-start gap-2 rounded-2xl border border-brand-400/15 bg-brand-400/5 px-3 py-2.5 text-xs font-medium leading-snug text-slate-100">'+
-           '<span class="shrink-0 rounded-full '+badgeCls+' px-2 py-0.5 text-[10px] font-extrabold">'+source+'</span>'+
-           '<span class="leading-snug">'+title+'</span></div>';
+  var items = [];
+  var idx = 0;
+  var SWITCH_MS = 10000; // החלפה כל 10 שניות (כמו כללי הבית)
+  var FADE_MS = 700;
+
+  function applyItem(it){
+    badge.className = 'shrink-0 rounded-full px-3 py-0.5 text-[11px] font-extrabold ' + it.badge;
+    badge.textContent = it.source;
+    text.textContent = it.title;
+    if(prog) prog.textContent = (idx+1) + ' / ' + items.length;
   }
-  function render(items){
-    if(!items.length){ box.innerHTML=row('bg-brand-400 text-night-900','כותרות','טוען…'); return; }
-    var html=items.map(function(it){return row(it.badge, it.source, it.title);}).join('');
-    box.innerHTML=html+html; // duplicate for seamless loop
-    // קצב מהיר יחסית: 18 px/s. כללי הבית רצים בקצב 10 px/s. מינימום 75 שניות לבטיחות.
-    function setSpeed(){
-      var h=box.scrollHeight/2;
-      var dur=Math.max(75,Math.round(h/18));
-      box.style.animationDuration=dur+'s';
-    }
-    setSpeed();
-    // גיבוי — אם החישוב הראשון רץ לפני שהדפדפן סיים פריסה
-    setTimeout(setSpeed, 200);
+  function showNext(){
+    if(!items.length) return;
+    card.classList.add('fading');
+    setTimeout(function(){
+      applyItem(items[idx]);
+      idx = (idx + 1) % items.length;
+      card.classList.remove('fading');
+    }, FADE_MS);
   }
+  function showFirst(){
+    if(!items.length) return;
+    applyItem(items[0]);
+    idx = 1 % items.length;
+  }
+
   function fetchFeed(src){
     return fetch('https://api.rss2json.com/v1/api.json?rss_url='+encodeURIComponent(src.url))
       .then(function(r){return r.json()})
@@ -605,16 +618,19 @@ setInterval(tickClock,1000);tickClock();
       .catch(function(){return [];});
   }
   function load(){
-    render([]); // placeholder
     Promise.all(SOURCES.map(fetchFeed)).then(function(arrs){
-      // interleave so the sources mix vertically (round-robin)
       var mixed=[]; var max=Math.max.apply(null, arrs.map(function(a){return a.length;}));
       for(var i=0;i<max;i++){ arrs.forEach(function(a){ if(a[i]) mixed.push(a[i]); }); }
-      if(mixed.length) render(mixed);
+      if(mixed.length){
+        items = mixed;
+        if(idx >= items.length) idx = 0;
+        showFirst();
+      }
     });
   }
   load();
-  setInterval(load, 20*60*1000); // refresh every 20 min
+  setInterval(load, 20*60*1000);     // ריענון מקורות כל 20 דקות
+  setInterval(showNext, SWITCH_MS);   // החלפת כותרת כל 10 שניות
 })();
 
 /* ====================== DAILY FIGURE + "הגל השקט" בשבת ====================== */
