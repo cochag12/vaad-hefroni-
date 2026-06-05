@@ -790,31 +790,30 @@ setInterval(tickClock,1000);tickClock();
     var p = window.vaadParsha || '';
     var c = window.vaadCandleTime || '—';
     var h = window.vaadHavdalahTime || '—';
-    // התאמת שם הפרשה לחיפוש בתקצירים (Hebcal מחזיר "פרשת X")
     var parshaName = p.replace(/^פרשת\s*/, '').replace(/\s+/g,' ').trim();
     var summary = (typeof PARSHIYOT !== 'undefined' && PARSHIYOT[parshaName]) || '';
     figSection.innerHTML =
-      '<div class="flex h-full flex-col p-4 text-center overflow-hidden" data-silent="1">'+
-        // ===== HEADER (shrink-0 — תמיד נראה) =====
-        '<div class="shrink-0 flex flex-col items-center gap-1.5">'+
-          '<div class="text-[10px] sm:text-xs font-bold tracking-[0.2em] sm:tracking-[0.3em] text-brand-300/70">🟢 הגל השקט · ניטור התרעות פעיל</div>'+
-          '<div class="title-grad text-3xl sm:text-4xl lg:text-5xl font-black leading-none">שבת שלום</div>'+
-          (p?'<div class="text-lg sm:text-xl font-bold text-brand-200 text-glow">'+p+'</div>':'')+
+      '<div class="flex h-full flex-col p-3 text-center overflow-hidden" data-silent="1">'+
+        // ===== TOP: שבת שלום + פרשה (shrink-0) =====
+        '<div class="shrink-0 flex flex-col items-center gap-0.5">'+
+          '<div class="title-grad text-2xl sm:text-3xl lg:text-4xl font-black leading-none">שבת שלום</div>'+
+          (p?'<div class="text-sm sm:text-base font-bold text-brand-200 text-glow">'+p+'</div>':'')+
         '</div>'+
-        // ===== SUMMARY (flex-1 — תופס את המרכז, גלילה אוטומטית אם ארוך) =====
-        (summary ? '<div class="min-h-0 flex-1 mt-2 mx-auto max-w-xl w-full rounded-2xl border border-brand-400/30 bg-brand-400/5 px-4 py-2.5 text-right flex flex-col overflow-hidden">'+
-          '<div class="shrink-0 mb-1 text-[10px] font-extrabold tracking-[0.2em] text-brand-300/70">📜 תקציר הפרשה</div>'+
+        // ===== MIDDLE: תקציר הפרשה (flex-1) =====
+        (summary ? '<div class="min-h-0 flex-1 mt-1.5 mx-auto max-w-xl w-full rounded-2xl border border-brand-400/30 bg-brand-400/5 px-3 py-2 text-right flex flex-col overflow-hidden">'+
+          '<div class="shrink-0 mb-0.5 text-[9px] font-extrabold tracking-[0.2em] text-brand-300/70">📜 תקציר הפרשה</div>'+
           '<div class="parshaSummaryWrap min-h-0 flex-1 overflow-y-auto pl-1">'+
-            '<p class="parshaSummaryText text-[12.5px] sm:text-[13px] leading-relaxed text-slate-200 text-justify [text-justify:inter-word]">'+summary+'</p>'+
+            '<p class="parshaSummaryText text-[11.5px] sm:text-[12px] leading-snug text-slate-200 text-justify [text-justify:inter-word]">'+summary+'</p>'+
           '</div>'+
         '</div>' : '<div class="flex-1"></div>')+
-        // ===== TIMES (shrink-0 — תמיד נראה בתחתית) =====
-        '<div class="shrink-0 mt-2 grid grid-cols-2 gap-6 sm:gap-8 text-center">'+
-          '<div><div class="text-[10px] sm:text-xs text-brand-300/70">כניסת שבת</div><div class="text-xl sm:text-2xl font-black text-brand-200 text-glow tabular-nums">'+c+'</div></div>'+
-          '<div><div class="text-[10px] sm:text-xs text-brand-300/70">צאת שבת</div><div class="text-xl sm:text-2xl font-black text-brand-200 text-glow tabular-nums">'+h+'</div></div>'+
+        // ===== TIMES (shrink-0) =====
+        '<div class="shrink-0 mt-1.5 grid grid-cols-2 gap-4 sm:gap-6 text-center">'+
+          '<div><div class="text-[9px] sm:text-[10px] text-brand-300/70">כניסת שבת</div><div class="text-base sm:text-lg font-black text-brand-200 text-glow tabular-nums">'+c+'</div></div>'+
+          '<div><div class="text-[9px] sm:text-[10px] text-brand-300/70">צאת שבת</div><div class="text-base sm:text-lg font-black text-brand-200 text-glow tabular-nums">'+h+'</div></div>'+
         '</div>'+
+        // ===== BOTTOM: הגל השקט (קטן, בתחתית) =====
+        '<div class="shrink-0 mt-1.5 text-[9px] font-semibold tracking-[0.15em] text-brand-300/55">🟢 הגל השקט · ניטור התרעות פעיל</div>'+
       '</div>';
-    // אם התקציר ארוך מדי — מפעיל גלילה אוטומטית פינג-פונג (כמו ביוגרפיה)
     setTimeout(setupParshaScroll, 100);
   }
   // גלילה אוטומטית של תקציר הפרשה אם הוא ארוך מדי לתיבה
