@@ -806,13 +806,13 @@ setInterval(tickClock,1000);tickClock();
             '<p class="parshaSummaryText text-[11.5px] sm:text-[12px] leading-snug text-slate-200 text-justify [text-justify:inter-word]">'+summary+'</p>'+
           '</div>'+
         '</div>' : '<div class="flex-1"></div>')+
-        // ===== TIMES (shrink-0) =====
-        '<div class="shrink-0 mt-1.5 grid grid-cols-2 gap-4 sm:gap-6 text-center">'+
-          '<div><div class="text-[9px] sm:text-[10px] text-brand-300/70">כניסת שבת</div><div class="text-base sm:text-lg font-black text-brand-200 text-glow tabular-nums">'+c+'</div></div>'+
-          '<div><div class="text-[9px] sm:text-[10px] text-brand-300/70">צאת שבת</div><div class="text-base sm:text-lg font-black text-brand-200 text-glow tabular-nums">'+h+'</div></div>'+
+        // ===== TIMES (shrink-0, קטן יותר כדי לפנות מקום לתקציר) =====
+        '<div class="shrink-0 mt-1 grid grid-cols-2 gap-3 sm:gap-4 text-center">'+
+          '<div><div class="text-[8px] sm:text-[9px] text-brand-300/65">כניסת שבת</div><div class="text-sm sm:text-base font-black text-brand-200 text-glow tabular-nums">'+c+'</div></div>'+
+          '<div><div class="text-[8px] sm:text-[9px] text-brand-300/65">צאת שבת</div><div class="text-sm sm:text-base font-black text-brand-200 text-glow tabular-nums">'+h+'</div></div>'+
         '</div>'+
-        // ===== BOTTOM: הגל השקט (קטן, בתחתית) =====
-        '<div class="shrink-0 mt-1.5 text-[9px] font-semibold tracking-[0.15em] text-brand-300/55">🟢 הגל השקט · ניטור התרעות פעיל</div>'+
+        // ===== BOTTOM: הגל השקט (זעיר, דהוי, בתחתית) =====
+        '<div class="shrink-0 mt-0.5 text-[8px] font-semibold tracking-[0.12em] text-brand-300/40">🟢 הגל השקט · ניטור התרעות פעיל</div>'+
       '</div>';
     setTimeout(setupParshaScroll, 100);
   }
