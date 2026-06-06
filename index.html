@@ -834,15 +834,15 @@ setInterval(tickClock,1000);tickClock();
             '<p class="parshaSummaryText leading-relaxed text-slate-200 text-justify [text-justify:inter-word]" style="font-size:15px">'+summary+'</p>'+
           '</div>'+
         '</div>' : '<div class="flex-1"></div>')+
-        // ===== BOTTOM ROW: הגל השקט (משמאל) + זמני שבת (מימין) — בקצה התחתון של הריבוע =====
-        '<div class="shrink-0 mt-auto pt-1 flex items-end justify-between gap-3">'+
-          // משמאל: הגל השקט
-          '<div class="text-[8px] sm:text-[9px] font-semibold tracking-[0.12em] text-brand-300/45 pb-1">🟢 הגל השקט · ניטור פעיל</div>'+
-          // מימין: זמני שבת
-          '<div class="grid grid-cols-2 gap-3 sm:gap-4 text-center">'+
-            '<div><div class="text-[8px] sm:text-[9px] text-brand-300/65">כניסת שבת</div><div class="text-sm sm:text-base font-black text-brand-200 text-glow tabular-nums">'+c+'</div></div>'+
-            '<div><div class="text-[8px] sm:text-[9px] text-brand-300/65">צאת שבת</div><div class="text-sm sm:text-base font-black text-brand-200 text-glow tabular-nums">'+h+'</div></div>'+
+        // ===== BOTTOM: זמני שבת (ממורכז, 2 עמודות) + הגל השקט מתחתיהם — בקצה התחתון =====
+        '<div class="shrink-0 mt-auto pt-1 flex flex-col items-center gap-1">'+
+          // זמני שבת — 2 עמודות: כניסה מימין, יציאה משמאל
+          '<div class="grid grid-cols-2 gap-6 sm:gap-10 text-center">'+
+            '<div><div class="text-[8px] sm:text-[9px] text-brand-300/65">כניסת שבת</div><div class="text-base sm:text-lg font-black text-brand-200 text-glow tabular-nums">'+c+'</div></div>'+
+            '<div><div class="text-[8px] sm:text-[9px] text-brand-300/65">צאת שבת</div><div class="text-base sm:text-lg font-black text-brand-200 text-glow tabular-nums">'+h+'</div></div>'+
           '</div>'+
+          // הגל השקט — מתחתיהם, ממורכז
+          '<div class="text-[8px] sm:text-[9px] font-semibold tracking-[0.12em] text-brand-300/45">🟢 הגל השקט · ניטור התרעות פעיל</div>'+
         '</div>'+
       '</div>';
     setTimeout(setupParshaScroll, 100);
