@@ -827,15 +827,15 @@ setInterval(tickClock,1000);tickClock();
           '<div class="title-grad text-2xl sm:text-3xl lg:text-4xl font-black leading-none">שבת שלום</div>'+
           (p?'<div class="text-sm sm:text-base font-bold text-brand-200 text-glow">'+p+'</div>':'')+
         '</div>'+
-        // ===== MIDDLE: תקציר הפרשה (flex-1) =====
-        (summary ? '<div class="min-h-0 flex-1 mt-1.5 mx-auto max-w-xl w-full rounded-2xl border border-brand-400/30 bg-brand-400/5 px-3 py-2 text-right flex flex-col overflow-hidden">'+
-          '<div class="shrink-0 mb-0.5 text-[9px] font-extrabold tracking-[0.2em] text-brand-300/70">📜 תקציר הפרשה</div>'+
-          '<div class="parshaSummaryWrap min-h-0 flex-1 overflow-y-auto pl-1">'+
-            '<p class="parshaSummaryText text-[11.5px] sm:text-[12px] leading-snug text-slate-200 text-justify [text-justify:inter-word]">'+summary+'</p>'+
+        // ===== MIDDLE: תקציר הפרשה (flex-1, ממלא את כל מה שנשאר) =====
+        (summary ? '<div class="min-h-0 flex-1 mt-1 mx-auto max-w-2xl w-full rounded-2xl border border-brand-400/30 bg-brand-400/5 px-4 py-2.5 text-right flex flex-col overflow-hidden">'+
+          '<div class="shrink-0 mb-1 text-[10px] font-extrabold tracking-[0.2em] text-brand-300/70">📜 תקציר הפרשה</div>'+
+          '<div class="parshaSummaryWrap min-h-0 flex-1 overflow-hidden">'+
+            '<p class="parshaSummaryText leading-relaxed text-slate-200 text-justify [text-justify:inter-word]" style="font-size:15px">'+summary+'</p>'+
           '</div>'+
         '</div>' : '<div class="flex-1"></div>')+
-        // ===== BOTTOM ROW: הגל השקט (משמאל) + זמני שבת (מימין) — באותה שורה בתחתית =====
-        '<div class="shrink-0 mt-1 flex items-end justify-between gap-3">'+
+        // ===== BOTTOM ROW: הגל השקט (משמאל) + זמני שבת (מימין) — בקצה התחתון של הריבוע =====
+        '<div class="shrink-0 mt-auto pt-1 flex items-end justify-between gap-3">'+
           // משמאל: הגל השקט
           '<div class="text-[8px] sm:text-[9px] font-semibold tracking-[0.12em] text-brand-300/45 pb-1">🟢 הגל השקט · ניטור פעיל</div>'+
           // מימין: זמני שבת
@@ -847,7 +847,8 @@ setInterval(tickClock,1000);tickClock();
       '</div>';
     setTimeout(setupParshaScroll, 100);
   }
-  // גלילה אוטומטית של תקציר הפרשה אם הוא ארוך מדי לתיבה
+  // התאמת גופן דינמית של תקציר הפרשה — מקטין הדרגתית מ-15px עד שייכנס.
+  // לעומת הגרסה הקודמת: בלי גלילה, רק שינוי גודל פונט.
   function setupParshaScroll(){
     var wrap = figSection.querySelector('.parshaSummaryWrap');
     var text = figSection.querySelector('.parshaSummaryText');
@@ -855,13 +856,14 @@ setInterval(tickClock,1000);tickClock();
     text.classList.remove('bio-autoscroll');
     text.style.removeProperty('--bio-max');
     text.style.removeProperty('animation-duration');
+    // נסה גדלי פונט מ-15 ל-9.5 עד שיכנס — בלי גלילה
+    var sizes = [15, 14, 13, 12.5, 12, 11.5, 11, 10.5, 10, 9.5];
     requestAnimationFrame(function(){
-      var overflow = text.scrollHeight - wrap.clientHeight;
-      if(overflow <= 4) return; // נכנס בלי גלילה
-      var dur = Math.max(28, Math.round(overflow / 4.5)); // קצב נוח של ~12 px/s
-      text.style.setProperty('--bio-max', '-'+overflow+'px');
-      text.style.animationDuration = dur + 's';
-      text.classList.add('bio-autoscroll');
+      for(var i=0; i<sizes.length; i++){
+        text.style.fontSize = sizes[i] + 'px';
+        if(text.scrollHeight <= wrap.clientHeight + 2) return; // נכנס ✓
+      }
+      // אם אפילו 9.5px לא מספיק (כמעט בלתי אפשרי) — נשאר 9.5
     });
   }
   function isSilentNow(){ return !!figSection.querySelector('[data-silent="1"]'); }
