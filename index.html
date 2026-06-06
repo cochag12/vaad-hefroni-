@@ -651,18 +651,34 @@ setInterval(tickClock,1000);tickClock();
   var SWITCH_MS = 21000; // החלפה כל 21 שניות
   var FADE_MS = 700;     // משך הfade (חייב להתאים ל-CSS)
 
-  // התאמה דינמית של גודל הפונט — אם הכלל ארוך מדי, מקטין הדרגתית כך שייכנס בלי גלישה.
-  // אותו עיקרון כמו ה"כותרות נבחרות" — הסטרימר לפעמים מוסיף שורות בגלל RTL/Hebrew rendering.
-  function fitRuleText(){
+  // גופן קבוע לכל הכללים — בודק על הכלל הארוך ביותר ומשתמש באותו גודל לכולם.
+  // ככה אין "קופצים" בין כלל בגדול לכלל בקטן.
+  var consistentFontSize = null;
+  function findConsistentFontSize(){
     var parent = el.parentElement;
-    if(!parent) return;
-    el.style.fontSize = ''; // איפוס לגודל ברירת מחדל (מהמחלקה sm:text-lg = 18px)
-    // הקטנה הדרגתית מ-18 ל-11px עד שהכלל נכנס
+    if(!parent) return 16; // ברירת מחדל בטוחה
     var sizes = [18, 17, 16, 15, 14, 13, 12, 11];
-    for(var i=0; i<sizes.length; i++){
-      if(parent.scrollHeight <= parent.clientHeight + 2) return; // נכנס
-      el.style.fontSize = sizes[i] + 'px';
+    var minSafeSize = 18;
+    // עבור על כל הכללים — מצא הגדול ביותר שעדיין מתאים לכל אחד
+    for(var r=0; r<HOUSE_RULES.length; r++){
+      el.textContent = HOUSE_RULES[r];
+      el.style.fontSize = '';
+      // מצא את הגודל שמתאים לכלל הזה
+      for(var s=0; s<sizes.length; s++){
+        el.style.fontSize = sizes[s] + 'px';
+        if(parent.scrollHeight <= parent.clientHeight + 2){
+          if(sizes[s] < minSafeSize) minSafeSize = sizes[s];
+          break;
+        }
+      }
     }
+    return minSafeSize;
+  }
+  function fitRuleText(){
+    if(consistentFontSize === null){
+      consistentFontSize = findConsistentFontSize();
+    }
+    el.style.fontSize = consistentFontSize + 'px';
   }
 
   function showFirst(){
@@ -731,7 +747,17 @@ setInterval(tickClock,1000);tickClock();
     var spans = pageEl.querySelectorAll('span.headline-clamp');
     spans.forEach(function(s){ s.style.fontSize = px + 'px'; });
   }
-  function fits(){ return pageEl.scrollHeight <= pageEl.clientHeight + 2; }
+  // fits() משופר: בודק גם שאף כרטיס לא נחתך ע"י CSS line-clamp/max-height.
+  // אם CSS מסתיר תוכן בתוך כרטיס — לא נחשב "נכנס" כי הטקסט קצוץ.
+  function fits(){
+    if(pageEl.scrollHeight > pageEl.clientHeight + 2) return false;
+    var cards = pageEl.querySelectorAll('div[class*="rounded-2xl"]');
+    for(var i=0; i<cards.length; i++){
+      var textSpan = cards[i].querySelector('span.headline-clamp');
+      if(textSpan && textSpan.scrollHeight > textSpan.clientHeight + 2) return false;
+    }
+    return true;
+  }
 
   function renderWindow(){
     if(!items.length) return;
@@ -957,11 +983,12 @@ setInterval(tickClock,1000);tickClock();
 
 /* ====================== WEATHER (Open-Meteo) — רענון כל 6 שעות ====================== */
 function loadWeather(){
-  // current + daily לימים הקרובים (חזרה לתצוגה יומית — קומפקטית יותר על הסטרימר)
+  // current + daily + hourly — תחזית 8 שעות עם sparkline (לפי בקשת המשתמש)
   fetch('https://api.open-meteo.com/v1/forecast?latitude='+MODIIN.lat+'&longitude='+MODIIN.lon+
         '&current=temperature_2m,weather_code'+
-        '&daily=weather_code,temperature_2m_max,temperature_2m_min'+
-        '&timezone=auto&forecast_days=5&_='+Date.now())
+        '&hourly=temperature_2m,weather_code'+
+        '&daily=temperature_2m_max,temperature_2m_min'+
+        '&timezone=auto&forecast_days=2&_='+Date.now())
   .then(function(r){return r.json()}).then(function(j){
     var w=wcode(j.current.weather_code);
     var todayHigh = Math.round(j.daily.temperature_2m_max[0]);
@@ -980,20 +1007,8 @@ function loadWeather(){
         '</div>'+
       '</div>'+
       '<div class="size-9">'+wsvg(w[1])+'</div>';
-    // === תחזית 4 ימים — מחר ו-3 ימים הבאים ===
-    var days='';
-    for(var i=1;i<j.daily.time.length;i++){
-      var di=wcode(j.daily.weather_code[i]);
-      var name=i===1?'מחר':HEB_DAY[new Date(j.daily.time[i]).getDay()];
-      days+='<div class="text-center">'+
-        '<div class="text-[9px] font-semibold text-white/80">'+name+'</div>'+
-        '<div class="mx-auto my-0.5 size-4">'+wsvg(di[1])+'</div>'+
-        '<div class="text-[10px] font-bold tabular-nums">'+Math.round(j.daily.temperature_2m_max[i])+'°</div>'+
-        '<div class="text-[8px] text-white/70 tabular-nums">'+Math.round(j.daily.temperature_2m_min[i])+'°</div>'+
-      '</div>';
-    }
-    var hourlyEl = document.getElementById('weatherHourly');
-    if(hourlyEl) hourlyEl.innerHTML = '<div class="grid grid-cols-4 gap-1 text-center">'+days+'</div>';
+    // === תחזית שעתית — 8 שעות + sparkline ===
+    renderHourlyForecast(j);
   }).catch(function(){});
 }
 
@@ -1040,22 +1055,33 @@ function renderHourlyForecast(j){
   } else {
     trendLabel = '~ יציב סביב ' + peak.temp + '°';
   }
-  // רינדור 6 שעות (במקום 8) — חוסך מקום משמעותי על הסטרימר
-  var hours6 = hours.slice(0, 6);
-  var peakIdx6 = 0;
-  for(var p2=1; p2<hours6.length; p2++){
-    if(hours6[p2].temp > hours6[peakIdx6].temp) peakIdx6 = p2;
-  }
-  var cardsHTML = hours6.map(function(h, i){
-    var isPeak = (i === peakIdx6);
+  // רינדור 8 שעות + sparkline (כפי שביקש המשתמש)
+  var cardsHTML = hours.map(function(h, i){
+    var isPeak = (i === peakIdx);
     return '<div class="rounded'+(isPeak ? ' peak-hour-cell' : '')+'">'+
       '<div class="text-[8px] '+(isPeak ? 'text-white/95 font-bold' : 'text-white/65')+'">'+String(h.hour).padStart(2,'0')+'</div>'+
-      '<div class="text-[11px] font-bold '+(isPeak ? 'text-amber-300' : '')+' tabular-nums leading-tight">'+h.temp+'°</div>'+
+      '<div class="text-[10px] font-bold '+(isPeak ? 'text-amber-300' : '')+' tabular-nums leading-tight">'+h.temp+'°</div>'+
     '</div>';
   }).join('');
-  // ללא sparkline וללא תווית — מינימליסטי, רק 6 שעות
+  // sparkline
+  var minT = Math.min.apply(null, hours.map(function(x){return x.temp;}));
+  var maxT = Math.max.apply(null, hours.map(function(x){return x.temp;}));
+  var range = Math.max(1, maxT - minT);
+  var step = 100 / (hours.length - 1);
+  var points = hours.map(function(h, i){
+    var x = (i * step).toFixed(1);
+    var y = (16 - ((h.temp - minT) / range) * 14).toFixed(1);
+    return x + ',' + y;
+  }).join(' ');
+  var peakX = (peakIdx * step).toFixed(1);
+  var peakY = (16 - ((peak.temp - minT) / range) * 14).toFixed(1);
   el.innerHTML =
-    '<div class="grid grid-cols-6 gap-1 text-center">'+cardsHTML+'</div>';
+    '<div class="text-[8px] font-semibold text-brand-300/75 text-right mb-0.5">'+trendLabel+'</div>'+
+    '<div class="grid grid-cols-8 gap-0.5 text-center">'+cardsHTML+'</div>'+
+    '<svg class="mt-0.5 w-full" height="16" viewBox="0 0 100 16" preserveAspectRatio="none">'+
+      '<polyline points="'+points+'" fill="none" stroke="#22D3EE" stroke-width="1.2" stroke-linejoin="round"/>'+
+      '<circle cx="'+peakX+'" cy="'+peakY+'" r="1.8" fill="#FACC15"/>'+
+    '</svg>';
 }
 loadWeather();
 setInterval(loadWeather, 30*60*1000); // כל 30 דקות — הטמפ׳ הנוכחית משתנה במהלך היום
