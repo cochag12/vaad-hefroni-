@@ -691,10 +691,18 @@ setInterval(tickClock,1000);tickClock();
   var SWITCH_MS = 15000;  // החלפת עמוד כל 15 שניות
   var FADE_MS   = 700;
 
-  // קיצוץ ידני בגבול מילה — בטוח על כל דפדפן.
+  // קיצוץ חכם — מנסה לעצור בסימן פיסוק (./,/:/!/?/-) או בגבול מילה.
+  // מבטיח שהכותרת לא נחתכת באמצע משפט.
   function truncateTitle(text, maxChars){
     if(text.length <= maxChars) return text;
     var cut = text.substring(0, maxChars);
+    // עדיפות 1: סימן פיסוק "סוף משפט" — . ! ? בסוף מילה
+    var sentenceEnd = Math.max(cut.lastIndexOf('. '), cut.lastIndexOf('! '), cut.lastIndexOf('? '));
+    if(sentenceEnd > maxChars * 0.5) return cut.substring(0, sentenceEnd + 1);
+    // עדיפות 2: נקודתיים, מקף, פסיק — סימני "המתנה"
+    var pause = Math.max(cut.lastIndexOf(':'), cut.lastIndexOf(' - '), cut.lastIndexOf(' – '), cut.lastIndexOf(','));
+    if(pause > maxChars * 0.5) return cut.substring(0, pause + 1) + '…';
+    // עדיפות 3: גבול מילה (רווח)
     var lastSpace = cut.lastIndexOf(' ');
     if(lastSpace > maxChars * 0.6) cut = cut.substring(0, lastSpace);
     return cut + '…';
@@ -820,8 +828,11 @@ setInterval(tickClock,1000);tickClock();
     var h = window.vaadHavdalahTime || '—';
     var parshaName = p.replace(/^פרשת\s*/, '').replace(/\s+/g,' ').trim();
     var summary = (typeof PARSHIYOT !== 'undefined' && PARSHIYOT[parshaName]) || '';
+    // מסיר את ה-padding של ה-section כדי שהפאנל יתמתח לקצוות (יוחזר ב-restoreFigureHTML)
+    figSection.classList.remove('p-5');
+    figSection.classList.add('p-0');
     figSection.innerHTML =
-      '<div class="flex h-full flex-col p-3 text-center overflow-hidden" data-silent="1">'+
+      '<div class="flex h-full flex-col px-5 pt-4 pb-2 text-center overflow-hidden" data-silent="1">'+
         // ===== TOP: שבת שלום + פרשה (shrink-0) =====
         '<div class="shrink-0 flex flex-col items-center gap-0.5">'+
           '<div class="title-grad text-2xl sm:text-3xl lg:text-4xl font-black leading-none">שבת שלום</div>'+
@@ -867,7 +878,7 @@ setInterval(tickClock,1000);tickClock();
     });
   }
   function isSilentNow(){ return !!figSection.querySelector('[data-silent="1"]'); }
-  function restoreFigureHTML(){ if(isSilentNow()) figSection.innerHTML = figOriginalHTML; }
+  function restoreFigureHTML(){ if(isSilentNow()){ figSection.innerHTML = figOriginalHTML; figSection.classList.remove('p-0'); figSection.classList.add('p-5'); } }
   function showFigure(){
     // בזמן השבת — מציגים "הגל השקט" במקום הדמות, ועוצרים את המוזיקה.
     if(window.vaadIsShabbatNow && window.vaadIsShabbatNow()){
