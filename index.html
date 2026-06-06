@@ -102,6 +102,12 @@
   /* כללי הבית — fade בין כללים מתחלפים */
   .rule-display{ transition: opacity .7s ease-in-out, transform .7s ease-in-out; opacity:1; transform: translateY(0); }
   .rule-display.fading{ opacity:0; transform: translateY(8px); }
+  /* תחזית שעתית — הדגשת שעת השיא */
+  .peak-hour-cell{
+    background: linear-gradient(180deg, rgba(250,204,21,.18), rgba(202,138,4,.08));
+    border-radius: 6px;
+    padding: 1px 2px;
+  }
   /* כותרות נבחרות — הגבלת מספר שורות לכל כרטיס + "..." בסוף לכותרות ארוכות.
      מבטיח שתמיד 3 כרטיסים נכנסים גם בכותרות שמתפרסות על 4-5 שורות. */
   .headline-clamp{
@@ -233,7 +239,8 @@
           <span class="text-xs text-brand-300/80">מודיעין</span>
         </div>
         <div id="weatherCur" class="flex items-center justify-between text-brand-100"><div class="py-2 text-sm text-brand-300/80">טוען…</div></div>
-        <div id="weatherDays" class="mt-2 grid grid-cols-4 gap-1 border-t border-brand-400/20 pt-1.5"></div>
+        <!-- אזור תחזית שעתית — 8 שעות + sparkline -->
+        <div id="weatherHourly" class="mt-2 border-t border-brand-400/20 pt-1.5"></div>
       </section>
       <!-- zmanim — flex-none כדי שפאנל "שבת שלום" יוצג תמיד בלי חיתוך -->
       <section class="panel cyber-corner relative flex flex-none flex-col rounded-3xl p-3">
@@ -943,21 +950,23 @@ setInterval(tickClock,1000);tickClock();
 
 /* ====================== WEATHER (Open-Meteo) — רענון כל 6 שעות ====================== */
 function loadWeather(){
-  // forecast_days=5 כדי שיהיו 4 ימים קדימה (i=1..4) — מדלגים על i=0 שזה היום (כבר מוצג למעלה כ"עכשיו").
-  fetch('https://api.open-meteo.com/v1/forecast?latitude='+MODIIN.lat+'&longitude='+MODIIN.lon+'&current=temperature_2m,weather_code&daily=weather_code,temperature_2m_max,temperature_2m_min&timezone=auto&forecast_days=5&_='+Date.now())
+  // current + daily לימים הקרובים + hourly לשעות הקרובות (24 שעות)
+  fetch('https://api.open-meteo.com/v1/forecast?latitude='+MODIIN.lat+'&longitude='+MODIIN.lon+
+        '&current=temperature_2m,weather_code'+
+        '&hourly=temperature_2m,weather_code'+
+        '&daily=temperature_2m_max,temperature_2m_min'+
+        '&timezone=auto&forecast_days=2&_='+Date.now())
   .then(function(r){return r.json()}).then(function(j){
     var w=wcode(j.current.weather_code);
     var todayHigh = Math.round(j.daily.temperature_2m_max[0]);
     var todayLow  = Math.round(j.daily.temperature_2m_min[0]);
     document.getElementById('weatherCur').innerHTML=
       '<div>'+
-        // טמפ׳ נוכחית + "(כעת)" משמאל-תחתון ביישור לבסיס המספר
         '<div class="flex items-end gap-1.5">'+
           '<span class="text-2xl font-black leading-none">'+Math.round(j.current.temperature_2m)+'°</span>'+
           '<span class="text-[9px] font-semibold text-brand-300/75 pb-0.5">(כעת)</span>'+
         '</div>'+
         '<div class="mt-0.5 text-[11px] text-white/90">'+w[0]+'</div>'+
-        // היום ☀ + הלילה 🌙 (בהשראת Samsung Weather)
         '<div class="mt-1.5 flex items-center gap-2 text-[11px]">'+
           '<span class="flex items-center gap-1"><span class="text-amber-400">☀</span><span class="font-bold tabular-nums">'+todayHigh+'°</span></span>'+
           '<span class="text-brand-300/40">·</span>'+
@@ -965,15 +974,83 @@ function loadWeather(){
         '</div>'+
       '</div>'+
       '<div class="size-10">'+wsvg(w[1])+'</div>';
-    var days='';
-    // מתחילים מ-i=1 (מחר) ולא מהיום, כדי שלא יהיה בלבול בין "עכשיו" לסיכום היומי.
-    for(var i=1;i<j.daily.time.length;i++){
-      var di=wcode(j.daily.weather_code[i]);
-      var name=i===1?'מחר':HEB_DAY[new Date(j.daily.time[i]).getDay()];
-      days+='<div class="text-center"><div class="text-[10px] font-semibold text-white/80">'+name+'</div><div class="mx-auto my-0.5 size-5">'+wsvg(di[1])+'</div><div class="text-[11px] font-bold">'+Math.round(j.daily.temperature_2m_max[i])+'°</div><div class="text-[9px] text-white/70">'+Math.round(j.daily.temperature_2m_min[i])+'°</div></div>';
-    }
-    document.getElementById('weatherDays').innerHTML=days;
+    // === תחזית שעתית — 8 שעות החל מהשעה הבאה ===
+    renderHourlyForecast(j);
   }).catch(function(){});
+}
+
+function renderHourlyForecast(j){
+  if(!j.hourly || !j.hourly.time) return;
+  var el = document.getElementById('weatherHourly');
+  if(!el) return;
+  // מצא את האינדקס של השעה הנוכחית בנתוני hourly
+  var now = new Date();
+  var currentHour = now.getHours();
+  var startIdx = -1;
+  for(var i=0; i<j.hourly.time.length; i++){
+    var t = new Date(j.hourly.time[i]);
+    if(t.getHours() === currentHour && t.getDate() === now.getDate()){
+      startIdx = i + 1; // השעה הבאה
+      break;
+    }
+  }
+  if(startIdx < 0) startIdx = 0;
+  // 8 שעות קדימה
+  var hours = [];
+  for(var k=0; k<8 && (startIdx + k) < j.hourly.time.length; k++){
+    var idx = startIdx + k;
+    var d = new Date(j.hourly.time[idx]);
+    hours.push({
+      hour: d.getHours(),
+      temp: Math.round(j.hourly.temperature_2m[idx]),
+      wcode: j.hourly.weather_code[idx]
+    });
+  }
+  if(!hours.length) return;
+  // מצא את שעת השיא בטווח שמוצג
+  var peakIdx = 0;
+  for(var p=1; p<hours.length; p++){
+    if(hours[p].temp > hours[peakIdx].temp) peakIdx = p;
+  }
+  var peak = hours[peakIdx];
+  var firstTemp = hours[0].temp;
+  var trendLabel = '';
+  if(peak.temp > firstTemp + 1){
+    trendLabel = '↗ עולה לשיא ' + peak.temp + '° ב-' + String(peak.hour).padStart(2,'0') + ':00';
+  } else if(peak.temp < firstTemp - 1){
+    trendLabel = '↘ יורד מ-' + firstTemp + '° ל-' + hours[hours.length-1].temp + '°';
+  } else {
+    trendLabel = '~ יציב סביב ' + peak.temp + '°';
+  }
+  // רינדור הכרטיסים
+  var cardsHTML = hours.map(function(h, i){
+    var isPeak = (i === peakIdx);
+    var wkind = wcode(h.wcode)[1];
+    return '<div class="rounded'+(isPeak ? ' peak-hour-cell' : '')+'">'+
+      '<div class="text-[8px] '+(isPeak ? 'text-white/90 font-bold' : 'text-white/65')+'">'+String(h.hour).padStart(2,'0')+'</div>'+
+      '<div class="mx-auto size-3.5">'+wsvg(wkind)+'</div>'+
+      '<div class="text-[10px] font-bold '+(isPeak ? 'text-amber-300' : '')+' tabular-nums">'+h.temp+'°</div>'+
+    '</div>';
+  }).join('');
+  // sparkline — קו הטמפ׳
+  var minT = Math.min.apply(null, hours.map(function(x){return x.temp;}));
+  var maxT = Math.max.apply(null, hours.map(function(x){return x.temp;}));
+  var range = Math.max(1, maxT - minT);
+  var step = 100 / (hours.length - 1);
+  var points = hours.map(function(h, i){
+    var x = (i * step).toFixed(1);
+    var y = (22 - ((h.temp - minT) / range) * 18).toFixed(1); // 22-4 ערכי Y הפוכים
+    return x + ',' + y;
+  }).join(' ');
+  var peakX = (peakIdx * step).toFixed(1);
+  var peakY = (22 - ((peak.temp - minT) / range) * 18).toFixed(1);
+  el.innerHTML =
+    '<div class="text-[8px] font-semibold text-brand-300/75 text-right mb-1">'+trendLabel+'</div>'+
+    '<div class="grid grid-cols-8 gap-0.5 text-center">'+cardsHTML+'</div>'+
+    '<svg class="mt-1 w-full" height="22" viewBox="0 0 100 22" preserveAspectRatio="none">'+
+      '<polyline points="'+points+'" fill="none" stroke="#22D3EE" stroke-width="1.5" stroke-linejoin="round"/>'+
+      '<circle cx="'+peakX+'" cy="'+peakY+'" r="2" fill="#FACC15"/>'+
+    '</svg>';
 }
 loadWeather();
 setInterval(loadWeather, 30*60*1000); // כל 30 דקות — הטמפ׳ הנוכחית משתנה במהלך היום
