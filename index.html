@@ -736,30 +736,26 @@ setInterval(tickClock,1000);tickClock();
   function renderWindow(){
     if(!items.length) return;
     var maxN = Math.min(3, items.length);
-    // אסטרטגיה חדשה: עדיפות לכותרות מלאות > מספר כרטיסים.
-    // 1. נסה 3 כרטיסים עם כותרת ארוכה (140 תווים — רוב הכותרות כבר ייכנסו במלואן)
-    // 2. אם לא נכנס → רד ל-2 כרטיסים עם 250 תווים (כמעט כל כותרת מלאה)
-    // 3. אם לא → 1 כרטיס מלא לחלוטין
-    var combinations = [
-      {count: maxN,        maxChars: 140}, // 3 כרטיסים, כותרות סבירות
-      {count: maxN,        maxChars: 110},
-      {count: maxN,        maxChars: 90},
-      {count: Math.min(2,maxN), maxChars: 250}, // 2 כרטיסים מלאים
-      {count: Math.min(2,maxN), maxChars: 180},
-      {count: 1,           maxChars: 400}  // 1 כרטיס שמכיל את כל הכותרת
+    // אסטרטגיה: עדיף להציג פחות כותרות, אבל כל אחת **מלאה**.
+    // לא משתמשים ב-maxChars (לא מקצצים) — רק קובעים כמה כרטיסים להציג.
+    var FULL = 9999; // אינסוף — לא לקצץ
+    var attempts = [
+      {count: maxN, maxChars: FULL},        // 3 כותרות מלאות
+      {count: Math.min(2,maxN), maxChars: FULL}, // 2 כותרות מלאות
+      {count: 1, maxChars: FULL}            // כותרת אחת מלאה
     ];
-    for(var c=0; c<combinations.length; c++){
-      var combo = combinations[c];
-      var n = combo.count;
+    for(var c=0; c<attempts.length; c++){
+      var a = attempts[c];
+      var n = a.count;
       var panelH = pageEl.clientHeight;
       var gapTotal = (n-1) * 8;
       var maxCardH = Math.max(40, Math.floor((panelH - gapTotal) / n) - 2);
-      pageEl.innerHTML = renderCardsHTML(startIdx, n, combo.maxChars, maxCardH);
+      pageEl.innerHTML = renderCardsHTML(startIdx, n, a.maxChars, maxCardH);
       if(fits()){ shownCount = n; return; }
     }
-    // קצה אחרון: כותרת אחת + הקטנת פונט
+    // קצה אחרון: כותרת אחת + הקטנת פונט (במציאות לעולם לא יגיע לכאן)
     shownCount = 1;
-    pageEl.innerHTML = renderCardsHTML(startIdx, 1, 400, null);
+    pageEl.innerHTML = renderCardsHTML(startIdx, 1, FULL, null);
     var fontSteps = [12, 11.5, 11, 10.5, 10];
     for(var f=0; f<fontSteps.length; f++){
       if(fits()) return;
@@ -961,12 +957,11 @@ setInterval(tickClock,1000);tickClock();
 
 /* ====================== WEATHER (Open-Meteo) — רענון כל 6 שעות ====================== */
 function loadWeather(){
-  // current + daily לימים הקרובים + hourly לשעות הקרובות (24 שעות)
+  // current + daily לימים הקרובים (חזרה לתצוגה יומית — קומפקטית יותר על הסטרימר)
   fetch('https://api.open-meteo.com/v1/forecast?latitude='+MODIIN.lat+'&longitude='+MODIIN.lon+
         '&current=temperature_2m,weather_code'+
-        '&hourly=temperature_2m,weather_code'+
-        '&daily=temperature_2m_max,temperature_2m_min'+
-        '&timezone=auto&forecast_days=2&_='+Date.now())
+        '&daily=weather_code,temperature_2m_max,temperature_2m_min'+
+        '&timezone=auto&forecast_days=5&_='+Date.now())
   .then(function(r){return r.json()}).then(function(j){
     var w=wcode(j.current.weather_code);
     var todayHigh = Math.round(j.daily.temperature_2m_max[0]);
@@ -977,16 +972,28 @@ function loadWeather(){
           '<span class="text-2xl font-black leading-none">'+Math.round(j.current.temperature_2m)+'°</span>'+
           '<span class="text-[9px] font-semibold text-brand-300/75 pb-0.5">(כעת)</span>'+
         '</div>'+
-        '<div class="mt-0.5 text-[11px] text-white/90">'+w[0]+'</div>'+
-        '<div class="mt-1.5 flex items-center gap-2 text-[11px]">'+
-          '<span class="flex items-center gap-1"><span class="text-amber-400">☀</span><span class="font-bold tabular-nums">'+todayHigh+'°</span></span>'+
+        '<div class="mt-0.5 text-[10px] text-white/90">'+w[0]+'</div>'+
+        '<div class="mt-1 flex items-center gap-1.5 text-[10px]">'+
+          '<span class="flex items-center gap-0.5"><span class="text-amber-400">☀</span><span class="font-bold tabular-nums">'+todayHigh+'°</span></span>'+
           '<span class="text-brand-300/40">·</span>'+
-          '<span class="flex items-center gap-1"><span class="text-brand-300">🌙</span><span class="font-bold tabular-nums">'+todayLow+'°</span></span>'+
+          '<span class="flex items-center gap-0.5"><span class="text-brand-300">🌙</span><span class="font-bold tabular-nums">'+todayLow+'°</span></span>'+
         '</div>'+
       '</div>'+
-      '<div class="size-10">'+wsvg(w[1])+'</div>';
-    // === תחזית שעתית — 8 שעות החל מהשעה הבאה ===
-    renderHourlyForecast(j);
+      '<div class="size-9">'+wsvg(w[1])+'</div>';
+    // === תחזית 4 ימים — מחר ו-3 ימים הבאים ===
+    var days='';
+    for(var i=1;i<j.daily.time.length;i++){
+      var di=wcode(j.daily.weather_code[i]);
+      var name=i===1?'מחר':HEB_DAY[new Date(j.daily.time[i]).getDay()];
+      days+='<div class="text-center">'+
+        '<div class="text-[9px] font-semibold text-white/80">'+name+'</div>'+
+        '<div class="mx-auto my-0.5 size-4">'+wsvg(di[1])+'</div>'+
+        '<div class="text-[10px] font-bold tabular-nums">'+Math.round(j.daily.temperature_2m_max[i])+'°</div>'+
+        '<div class="text-[8px] text-white/70 tabular-nums">'+Math.round(j.daily.temperature_2m_min[i])+'°</div>'+
+      '</div>';
+    }
+    var hourlyEl = document.getElementById('weatherHourly');
+    if(hourlyEl) hourlyEl.innerHTML = '<div class="grid grid-cols-4 gap-1 text-center">'+days+'</div>';
   }).catch(function(){});
 }
 
