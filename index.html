@@ -745,6 +745,23 @@ setInterval(tickClock,1000);tickClock();
     return true;
   }
 
+  // הגדלת פונט הדרגתית כדי למלא את המקום הזמין בפאנל.
+  // נקראת אחרי שכבר ברור כמה כרטיסים מציגים — מתאימה את הטקסט לגודל הקופסה.
+  function fillToFitSpace(){
+    var enlargeSteps = [13, 14, 15, 16, 18, 20, 22, 24, 26];
+    var lastGoodSize = 12.5; // ברירת מחדל
+    for(var i=0; i<enlargeSteps.length; i++){
+      applyFontSize(enlargeSteps[i]);
+      if(fits()){
+        lastGoodSize = enlargeSteps[i];
+      } else {
+        // חזור לגודל הגדול ביותר שעדיין נכנס
+        applyFontSize(lastGoodSize);
+        return;
+      }
+    }
+  }
+
   function renderWindow(){
     if(!items.length) return;
     var maxN = Math.min(3, items.length);
@@ -761,9 +778,15 @@ setInterval(tickClock,1000);tickClock();
       var n = a.count;
       var panelH = pageEl.clientHeight;
       var gapTotal = (n-1) * 8;
-      var maxCardH = Math.max(40, Math.floor((panelH - gapTotal) / n) - 2);
+      // כשיש כרטיס יחיד — נתן לו את כל גובה הפאנל; ב-3 כרטיסים — חלק שווה
+      var maxCardH = n===1 ? panelH : Math.max(40, Math.floor((panelH - gapTotal) / n) - 2);
       pageEl.innerHTML = renderCardsHTML(startIdx, n, a.maxChars, maxCardH);
-      if(fits()){ shownCount = n; return; }
+      if(fits()){
+        shownCount = n;
+        // אחרי שנקבע מספר הכרטיסים — הגדל את הפונט כך שימלא את המקום
+        fillToFitSpace();
+        return;
+      }
     }
     // קצה אחרון: כותרת אחת + הקטנת פונט (במציאות לעולם לא יגיע לכאן)
     shownCount = 1;
