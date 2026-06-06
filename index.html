@@ -1033,33 +1033,22 @@ function renderHourlyForecast(j){
   } else {
     trendLabel = '~ יציב סביב ' + peak.temp + '°';
   }
-  // רינדור הכרטיסים — קומפקטיים יותר לסטרימר
-  var cardsHTML = hours.map(function(h, i){
-    var isPeak = (i === peakIdx);
+  // רינדור 6 שעות (במקום 8) — חוסך מקום משמעותי על הסטרימר
+  var hours6 = hours.slice(0, 6);
+  var peakIdx6 = 0;
+  for(var p2=1; p2<hours6.length; p2++){
+    if(hours6[p2].temp > hours6[peakIdx6].temp) peakIdx6 = p2;
+  }
+  var cardsHTML = hours6.map(function(h, i){
+    var isPeak = (i === peakIdx6);
     return '<div class="rounded'+(isPeak ? ' peak-hour-cell' : '')+'">'+
-      '<div class="text-[7px] '+(isPeak ? 'text-white/90 font-bold' : 'text-white/60')+'">'+String(h.hour).padStart(2,'0')+'</div>'+
-      '<div class="text-[9.5px] font-bold '+(isPeak ? 'text-amber-300' : '')+' tabular-nums leading-tight">'+h.temp+'°</div>'+
+      '<div class="text-[8px] '+(isPeak ? 'text-white/95 font-bold' : 'text-white/65')+'">'+String(h.hour).padStart(2,'0')+'</div>'+
+      '<div class="text-[11px] font-bold '+(isPeak ? 'text-amber-300' : '')+' tabular-nums leading-tight">'+h.temp+'°</div>'+
     '</div>';
   }).join('');
-  // sparkline — קו הטמפ׳ (קומפקטי יותר)
-  var minT = Math.min.apply(null, hours.map(function(x){return x.temp;}));
-  var maxT = Math.max.apply(null, hours.map(function(x){return x.temp;}));
-  var range = Math.max(1, maxT - minT);
-  var step = 100 / (hours.length - 1);
-  var points = hours.map(function(h, i){
-    var x = (i * step).toFixed(1);
-    var y = (16 - ((h.temp - minT) / range) * 14).toFixed(1);
-    return x + ',' + y;
-  }).join(' ');
-  var peakX = (peakIdx * step).toFixed(1);
-  var peakY = (16 - ((peak.temp - minT) / range) * 14).toFixed(1);
+  // ללא sparkline וללא תווית — מינימליסטי, רק 6 שעות
   el.innerHTML =
-    '<div class="text-[8px] font-semibold text-brand-300/75 text-right mb-0.5">'+trendLabel+'</div>'+
-    '<div class="grid grid-cols-8 gap-0.5 text-center">'+cardsHTML+'</div>'+
-    '<svg class="mt-0.5 w-full" height="16" viewBox="0 0 100 16" preserveAspectRatio="none">'+
-      '<polyline points="'+points+'" fill="none" stroke="#22D3EE" stroke-width="1.2" stroke-linejoin="round"/>'+
-      '<circle cx="'+peakX+'" cy="'+peakY+'" r="1.8" fill="#FACC15"/>'+
-    '</svg>';
+    '<div class="grid grid-cols-6 gap-1 text-center">'+cardsHTML+'</div>';
 }
 loadWeather();
 setInterval(loadWeather, 30*60*1000); // כל 30 דקות — הטמפ׳ הנוכחית משתנה במהלך היום
