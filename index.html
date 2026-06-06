@@ -651,34 +651,20 @@ setInterval(tickClock,1000);tickClock();
   var SWITCH_MS = 21000; // החלפה כל 21 שניות
   var FADE_MS = 700;     // משך הfade (חייב להתאים ל-CSS)
 
-  // גופן קבוע לכל הכללים — בודק על הכלל הארוך ביותר ומשתמש באותו גודל לכולם.
-  // ככה אין "קופצים" בין כלל בגדול לכלל בקטן.
-  var consistentFontSize = null;
-  function findConsistentFontSize(){
-    var parent = el.parentElement;
-    if(!parent) return 16; // ברירת מחדל בטוחה
-    var sizes = [18, 17, 16, 15, 14, 13, 12, 11];
-    var minSafeSize = 18;
-    // עבור על כל הכללים — מצא הגדול ביותר שעדיין מתאים לכל אחד
-    for(var r=0; r<HOUSE_RULES.length; r++){
-      el.textContent = HOUSE_RULES[r];
-      el.style.fontSize = '';
-      // מצא את הגודל שמתאים לכלל הזה
-      for(var s=0; s<sizes.length; s++){
-        el.style.fontSize = sizes[s] + 'px';
-        if(parent.scrollHeight <= parent.clientHeight + 2){
-          if(sizes[s] < minSafeSize) minSafeSize = sizes[s];
-          break;
-        }
-      }
-    }
-    return minSafeSize;
-  }
+  // התאמת גופן דינמית בטווח צר (15-11px) — כל כלל יתאים לעצמו,
+  // אבל הפער בין כלל קצר לכלל ארוך לא יהיה דרמטי (לא 18 מול 12).
+  var MAX_RULE_FONT = 15; // תקרה — כלל קצר לא יעלה מעבר לזה
+  var MIN_RULE_FONT = 11; // רצפה
   function fitRuleText(){
-    if(consistentFontSize === null){
-      consistentFontSize = findConsistentFontSize();
+    var parent = el.parentElement;
+    if(!parent) return;
+    el.style.fontSize = MAX_RULE_FONT + 'px';
+    // אם נכנס בגודל המקסימלי — להישאר. אחרת לרדת הדרגתית.
+    if(parent.scrollHeight <= parent.clientHeight + 2) return;
+    for(var s = MAX_RULE_FONT - 1; s >= MIN_RULE_FONT; s--){
+      el.style.fontSize = s + 'px';
+      if(parent.scrollHeight <= parent.clientHeight + 2) return;
     }
-    el.style.fontSize = consistentFontSize + 'px';
   }
 
   function showFirst(){
