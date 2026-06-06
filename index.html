@@ -699,13 +699,14 @@ setInterval(tickClock,1000);tickClock();
     if(lastSpace > maxChars * 0.6) cut = cut.substring(0, lastSpace);
     return cut + '…';
   }
-  // לוגיקה: תמיד 3 כרטיסים. מקצץ הדרגתית עד שהכל נכנס.
-  // עובד טוב על RTL/Hebrew שבו line-clamp לעיתים בעייתי בדפדפנים שונים.
-  function renderCardsHTML(start, count, maxChars){
+  // לוגיקה: תמיד 3 כרטיסים, כל אחד עם max-height קבוע ע"פ גובה הפאנל.
+  // קיצוץ ידני נוסף לכותרת ארוכה. עובד גם על RTL/Hebrew בסטרימר.
+  function renderCardsHTML(start, count, maxChars, cardMaxHeight){
     var slice = items.slice(start, start + count);
+    var heightStyle = cardMaxHeight ? ' style="max-height:'+cardMaxHeight+'px;overflow:hidden;"' : '';
     return slice.map(function(it){
       var truncated = truncateTitle(it.title, maxChars);
-      return '<div class="flex items-start gap-2 rounded-2xl border border-brand-400/15 bg-brand-400/5 px-3 py-2">'+
+      return '<div class="flex items-start gap-2 rounded-2xl border border-brand-400/15 bg-brand-400/5 px-3 py-2"'+heightStyle+'>'+
         '<span class="shrink-0 rounded-full '+it.badge+' px-2 py-0.5 text-[11px] font-extrabold">'+it.source+'</span>'+
         '<span class="headline-clamp text-[12.5px] font-medium leading-snug text-slate-100">'+truncated+'</span>'+
       '</div>';
@@ -721,14 +722,18 @@ setInterval(tickClock,1000);tickClock();
     if(!items.length) return;
     var n = Math.min(3, items.length);
     shownCount = n;
-    // אסטרטגיה: מתחיל מ-110 תווים, מקצץ הדרגתית עד שהכל נכנס.
-    // 3 כרטיסים תמיד יוצגו במלואם — רק התוכן בכל אחד יקצר אם צריך.
-    var truncSteps = [110, 95, 80, 65, 50, 38];
+    // חישוב גובה מקסימלי לכל כרטיס: חלק את גובה הפאנל ב-3 + פצול של ה-gap.
+    // ככה גם אם הקיצוץ לא מספיק, ה-CSS overflow:hidden בכרטיס יחתוך.
+    var panelH = pageEl.clientHeight;
+    var gapTotal = (n-1) * 8; // gap-2 = 8px
+    var maxCardH = Math.max(40, Math.floor((panelH - gapTotal) / n) - 2);
+    // אסטרטגיה: מתחיל מ-90 תווים (אגרסיבי יותר עבור הסטרימר), מקצץ הדרגתית.
+    var truncSteps = [90, 75, 60, 48, 38, 30];
     for(var t=0; t<truncSteps.length; t++){
-      pageEl.innerHTML = renderCardsHTML(startIdx, n, truncSteps[t]);
+      pageEl.innerHTML = renderCardsHTML(startIdx, n, truncSteps[t], maxCardH);
       if(fits()) return;
     }
-    // גיבוי: אם גם 38 תווים לא מספיק — מקטין פונט
+    // גיבוי: אם גם 30 תווים לא מספיק — מקטין פונט
     var fontSteps = [12, 11.5, 11, 10.5, 10];
     for(var f=0; f<fontSteps.length; f++){
       applyFontSize(fontSteps[f]);
@@ -829,13 +834,16 @@ setInterval(tickClock,1000);tickClock();
             '<p class="parshaSummaryText text-[11.5px] sm:text-[12px] leading-snug text-slate-200 text-justify [text-justify:inter-word]">'+summary+'</p>'+
           '</div>'+
         '</div>' : '<div class="flex-1"></div>')+
-        // ===== TIMES (shrink-0, קטן יותר כדי לפנות מקום לתקציר) =====
-        '<div class="shrink-0 mt-1 grid grid-cols-2 gap-3 sm:gap-4 text-center">'+
-          '<div><div class="text-[8px] sm:text-[9px] text-brand-300/65">כניסת שבת</div><div class="text-sm sm:text-base font-black text-brand-200 text-glow tabular-nums">'+c+'</div></div>'+
-          '<div><div class="text-[8px] sm:text-[9px] text-brand-300/65">צאת שבת</div><div class="text-sm sm:text-base font-black text-brand-200 text-glow tabular-nums">'+h+'</div></div>'+
+        // ===== BOTTOM ROW: הגל השקט (משמאל) + זמני שבת (מימין) — באותה שורה בתחתית =====
+        '<div class="shrink-0 mt-1 flex items-end justify-between gap-3">'+
+          // משמאל: הגל השקט
+          '<div class="text-[8px] sm:text-[9px] font-semibold tracking-[0.12em] text-brand-300/45 pb-1">🟢 הגל השקט · ניטור פעיל</div>'+
+          // מימין: זמני שבת
+          '<div class="grid grid-cols-2 gap-3 sm:gap-4 text-center">'+
+            '<div><div class="text-[8px] sm:text-[9px] text-brand-300/65">כניסת שבת</div><div class="text-sm sm:text-base font-black text-brand-200 text-glow tabular-nums">'+c+'</div></div>'+
+            '<div><div class="text-[8px] sm:text-[9px] text-brand-300/65">צאת שבת</div><div class="text-sm sm:text-base font-black text-brand-200 text-glow tabular-nums">'+h+'</div></div>'+
+          '</div>'+
         '</div>'+
-        // ===== BOTTOM: הגל השקט (זעיר, דהוי, בתחתית) =====
-        '<div class="shrink-0 mt-0.5 text-[8px] font-semibold tracking-[0.12em] text-brand-300/40">🟢 הגל השקט · ניטור התרעות פעיל</div>'+
       '</div>';
     setTimeout(setupParshaScroll, 100);
   }
