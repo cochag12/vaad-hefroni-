@@ -735,24 +735,35 @@ setInterval(tickClock,1000);tickClock();
 
   function renderWindow(){
     if(!items.length) return;
-    var n = Math.min(3, items.length);
-    shownCount = n;
-    // חישוב גובה מקסימלי לכל כרטיס: חלק את גובה הפאנל ב-3 + פצול של ה-gap.
-    // ככה גם אם הקיצוץ לא מספיק, ה-CSS overflow:hidden בכרטיס יחתוך.
-    var panelH = pageEl.clientHeight;
-    var gapTotal = (n-1) * 8; // gap-2 = 8px
-    var maxCardH = Math.max(40, Math.floor((panelH - gapTotal) / n) - 2);
-    // אסטרטגיה: מתחיל מ-90 תווים (אגרסיבי יותר עבור הסטרימר), מקצץ הדרגתית.
-    var truncSteps = [90, 75, 60, 48, 38, 30];
-    for(var t=0; t<truncSteps.length; t++){
-      pageEl.innerHTML = renderCardsHTML(startIdx, n, truncSteps[t], maxCardH);
-      if(fits()) return;
+    var maxN = Math.min(3, items.length);
+    // אסטרטגיה חדשה: עדיפות לכותרות מלאות > מספר כרטיסים.
+    // 1. נסה 3 כרטיסים עם כותרת ארוכה (140 תווים — רוב הכותרות כבר ייכנסו במלואן)
+    // 2. אם לא נכנס → רד ל-2 כרטיסים עם 250 תווים (כמעט כל כותרת מלאה)
+    // 3. אם לא → 1 כרטיס מלא לחלוטין
+    var combinations = [
+      {count: maxN,        maxChars: 140}, // 3 כרטיסים, כותרות סבירות
+      {count: maxN,        maxChars: 110},
+      {count: maxN,        maxChars: 90},
+      {count: Math.min(2,maxN), maxChars: 250}, // 2 כרטיסים מלאים
+      {count: Math.min(2,maxN), maxChars: 180},
+      {count: 1,           maxChars: 400}  // 1 כרטיס שמכיל את כל הכותרת
+    ];
+    for(var c=0; c<combinations.length; c++){
+      var combo = combinations[c];
+      var n = combo.count;
+      var panelH = pageEl.clientHeight;
+      var gapTotal = (n-1) * 8;
+      var maxCardH = Math.max(40, Math.floor((panelH - gapTotal) / n) - 2);
+      pageEl.innerHTML = renderCardsHTML(startIdx, n, combo.maxChars, maxCardH);
+      if(fits()){ shownCount = n; return; }
     }
-    // גיבוי: אם גם 30 תווים לא מספיק — מקטין פונט
+    // קצה אחרון: כותרת אחת + הקטנת פונט
+    shownCount = 1;
+    pageEl.innerHTML = renderCardsHTML(startIdx, 1, 400, null);
     var fontSteps = [12, 11.5, 11, 10.5, 10];
     for(var f=0; f<fontSteps.length; f++){
-      applyFontSize(fontSteps[f]);
       if(fits()) return;
+      applyFontSize(fontSteps[f]);
     }
   }
   function showNextPage(){
@@ -1022,34 +1033,32 @@ function renderHourlyForecast(j){
   } else {
     trendLabel = '~ יציב סביב ' + peak.temp + '°';
   }
-  // רינדור הכרטיסים
+  // רינדור הכרטיסים — קומפקטיים יותר לסטרימר
   var cardsHTML = hours.map(function(h, i){
     var isPeak = (i === peakIdx);
-    var wkind = wcode(h.wcode)[1];
     return '<div class="rounded'+(isPeak ? ' peak-hour-cell' : '')+'">'+
-      '<div class="text-[8px] '+(isPeak ? 'text-white/90 font-bold' : 'text-white/65')+'">'+String(h.hour).padStart(2,'0')+'</div>'+
-      '<div class="mx-auto size-3.5">'+wsvg(wkind)+'</div>'+
-      '<div class="text-[10px] font-bold '+(isPeak ? 'text-amber-300' : '')+' tabular-nums">'+h.temp+'°</div>'+
+      '<div class="text-[7px] '+(isPeak ? 'text-white/90 font-bold' : 'text-white/60')+'">'+String(h.hour).padStart(2,'0')+'</div>'+
+      '<div class="text-[9.5px] font-bold '+(isPeak ? 'text-amber-300' : '')+' tabular-nums leading-tight">'+h.temp+'°</div>'+
     '</div>';
   }).join('');
-  // sparkline — קו הטמפ׳
+  // sparkline — קו הטמפ׳ (קומפקטי יותר)
   var minT = Math.min.apply(null, hours.map(function(x){return x.temp;}));
   var maxT = Math.max.apply(null, hours.map(function(x){return x.temp;}));
   var range = Math.max(1, maxT - minT);
   var step = 100 / (hours.length - 1);
   var points = hours.map(function(h, i){
     var x = (i * step).toFixed(1);
-    var y = (22 - ((h.temp - minT) / range) * 18).toFixed(1); // 22-4 ערכי Y הפוכים
+    var y = (16 - ((h.temp - minT) / range) * 14).toFixed(1);
     return x + ',' + y;
   }).join(' ');
   var peakX = (peakIdx * step).toFixed(1);
-  var peakY = (22 - ((peak.temp - minT) / range) * 18).toFixed(1);
+  var peakY = (16 - ((peak.temp - minT) / range) * 14).toFixed(1);
   el.innerHTML =
-    '<div class="text-[8px] font-semibold text-brand-300/75 text-right mb-1">'+trendLabel+'</div>'+
+    '<div class="text-[8px] font-semibold text-brand-300/75 text-right mb-0.5">'+trendLabel+'</div>'+
     '<div class="grid grid-cols-8 gap-0.5 text-center">'+cardsHTML+'</div>'+
-    '<svg class="mt-1 w-full" height="22" viewBox="0 0 100 22" preserveAspectRatio="none">'+
-      '<polyline points="'+points+'" fill="none" stroke="#22D3EE" stroke-width="1.5" stroke-linejoin="round"/>'+
-      '<circle cx="'+peakX+'" cy="'+peakY+'" r="2" fill="#FACC15"/>'+
+    '<svg class="mt-0.5 w-full" height="16" viewBox="0 0 100 16" preserveAspectRatio="none">'+
+      '<polyline points="'+points+'" fill="none" stroke="#22D3EE" stroke-width="1.2" stroke-linejoin="round"/>'+
+      '<circle cx="'+peakX+'" cy="'+peakY+'" r="1.8" fill="#FACC15"/>'+
     '</svg>';
 }
 loadWeather();
