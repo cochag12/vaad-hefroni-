@@ -108,15 +108,10 @@
     border-radius: 6px;
     padding: 1px 2px;
   }
-  /* כותרות נבחרות — הגבלת מספר שורות לכל כרטיס + "..." בסוף לכותרות ארוכות.
-     מבטיח שתמיד 3 כרטיסים נכנסים גם בכותרות שמתפרסות על 4-5 שורות. */
+  /* כותרות נבחרות — הסרנו את line-clamp של CSS כדי לאפשר ל-JS לזהות גלישה אמיתית.
+     הקיצוץ הוויזואלי נעשה ע"י max-height + overflow:hidden על הכרטיס עצמו (לא על הטקסט). */
   .headline-clamp{
-    display: -webkit-box;
-    -webkit-line-clamp: 3;
-            line-clamp: 3;
-    -webkit-box-orient: vertical;
     overflow: hidden;
-    text-overflow: ellipsis;
   }
   /* מצב לילה — עמעום של המסך בין 01:00 ל-05:00 (חיסכון בLED + עין נעימה בלילה).
      מוחל רק על #appRoot — כך שאם קופצת אזעקת צבע אדום, ה-overlay (שנוסף ישירות ל-body)
@@ -192,7 +187,7 @@
         </h2>
         <div class="relative min-h-0 flex-1 flex flex-col overflow-hidden">
           <!-- 3 כותרות בעמוד אחד; העמוד מתחלף ב-fade. justify-start כדי שאם הטקסט גולש לא יחתך במרכז -->
-          <div id="headlinePage" class="rule-display flex-1 flex flex-col justify-start gap-2">
+          <div id="headlinePage" class="rule-display flex-1 flex flex-col justify-center gap-2">
             <div class="text-center text-xs text-brand-300/70">מתעדכן…</div>
           </div>
         </div>
@@ -733,14 +728,15 @@ setInterval(tickClock,1000);tickClock();
     var spans = pageEl.querySelectorAll('span.headline-clamp');
     spans.forEach(function(s){ s.style.fontSize = px + 'px'; });
   }
-  // fits() משופר: בודק גם שאף כרטיס לא נחתך ע"י CSS line-clamp/max-height.
-  // אם CSS מסתיר תוכן בתוך כרטיס — לא נחשב "נכנס" כי הטקסט קצוץ.
+  // fits() — בודק שגם הפאנל וגם כל כרטיס נכנסים בלי גלישה.
+  // אם הטקסט בכרטיס גבוה מה-max-height של הכרטיס — לא נחשב "נכנס".
   function fits(){
     if(pageEl.scrollHeight > pageEl.clientHeight + 2) return false;
     var cards = pageEl.querySelectorAll('div[class*="rounded-2xl"]');
     for(var i=0; i<cards.length; i++){
-      var textSpan = cards[i].querySelector('span.headline-clamp');
-      if(textSpan && textSpan.scrollHeight > textSpan.clientHeight + 2) return false;
+      // scrollHeight של הכרטיס = הגובה הטבעי של התוכן בפנים
+      // clientHeight = הגובה האמיתי (מוגבל ע"י max-height)
+      if(cards[i].scrollHeight > cards[i].clientHeight + 2) return false;
     }
     return true;
   }
