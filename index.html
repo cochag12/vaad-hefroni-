@@ -623,9 +623,9 @@ function hebrewDate(d){
 
 /* ===== מצב לילה — עמעום אוטומטי בין 01:00 ל-05:00 ===== */
 function updateNightMode(d){
-  var h = d.getHours();
-  var isNight = h >= 1 && h < 5;
-  document.body.classList.toggle('night-mode', isNight);
+  // הושבת — טלוויזיית ELCO זיהתה את העמעום (35%) כתוכן "ישנוני" וכבתה.
+  // אם בעתיד יש צורך, אפשר להחזיר עם בהירות גבוהה יותר (למשל 0.7 במקום 0.35).
+  document.body.classList.remove('night-mode');
 }
 
 function tickClock(){
