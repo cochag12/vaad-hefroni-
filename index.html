@@ -1,4 +1,4 @@
-﻿<!doctype html>
+<!doctype html>
 <html lang="he" dir="rtl">
 <head>
 <meta charset="utf-8" />
@@ -627,6 +627,34 @@ function updateNightMode(d){
   // אם בעתיד יש צורך, אפשר להחזיר עם בהירות גבוהה יותר (למשל 0.7 במקום 0.35).
   document.body.classList.remove('night-mode');
 }
+
+/* ===== Wake Lock — מונע מהמסך/טלוויזיה להירדם או להיכנס לשומר מסך =====
+   משתמש ב-API מודרני (Screen Wake Lock) של הדפדפן.
+   הסטרימר ו-Chrome יודעים: "תוכן פעיל, אל תיכנס למצב חיסכון". */
+var __wakeLock = null;
+async function requestWakeLock(){
+  try{
+    if('wakeLock' in navigator){
+      __wakeLock = await navigator.wakeLock.request('screen');
+      __wakeLock.addEventListener('release', function(){
+        __wakeLock = null;
+        // נסה לחזור ולקבל כשהדפדפן מוכן (למשל אחרי שהוא בא לפוקוס)
+      });
+    }
+  }catch(e){ /* ה-API לא נתמך או נדחה — לא קריטי */ }
+}
+// בקש wake lock מיד בטעינה
+requestWakeLock();
+// אם המסך כבה ובחזרה (visibility change) — בקש שוב
+document.addEventListener('visibilitychange', function(){
+  if(document.visibilityState === 'visible' && __wakeLock === null){
+    requestWakeLock();
+  }
+});
+// גם בקליק על המסך — אם wake lock נכשל בלי אינטראקציה, נסה שוב
+document.addEventListener('click', function(){
+  if(__wakeLock === null) requestWakeLock();
+}, {once: true});
 
 function tickClock(){
   var n=new Date();
