@@ -118,12 +118,12 @@
      נשאר בבהירות מלאה. */
   #appRoot{ transition: filter 8s ease-in-out, opacity 8s ease-in-out; }
   body.night-mode #appRoot{ filter: brightness(0.35) saturate(0.85); }
-  /* גלילה אוטומטית של הביוגרפיה (פינג-פונג עם השהיות ארוכות בקצוות) */
+  /* גלילה אוטומטית של הביוגרפיה (פינג-פונג עם השהיות קצרות בקצוות) */
   @keyframes bio-pingpong{
     0%   { transform: translateY(0); }
-    22%  { transform: translateY(0); }                       /* השהיה ארוכה בתחילה */
+    10%  { transform: translateY(0); }                       /* השהיה קצרה לקריאת הראש */
     50%  { transform: translateY(var(--bio-max, 0px)); }
-    72%  { transform: translateY(var(--bio-max, 0px)); }     /* השהיה ארוכה בתחתית */
+    60%  { transform: translateY(var(--bio-max, 0px)); }     /* השהיה קצרה בתחתית */
     100% { transform: translateY(0); }
   }
   .bio-autoscroll{ animation: bio-pingpong linear infinite; }
@@ -885,10 +885,11 @@ setInterval(tickClock,1000);tickClock();
     requestAnimationFrame(function(){
       var overflow = bio.scrollHeight - wrap.clientHeight;
       if(overflow <= 4) return; // נכנס בלי גלילה
-      // משך הסיבוב: 22% השהיה בראש + 28% גלילה מטה + 22% השהיה בתחתית + 28% גלילה מעלה.
-      // האטה אגרסיבית: divisor 0.8 (פי 2.5 מהקודם) + מינימום 120 שניות.
-      // עם השהיות מורחבות (44% מהמחזור), הגלילה עצמה גם איטית יותר באופן יחסי.
-      var dur = Math.max(120, Math.round(overflow / 0.8));
+      // משך הסיבוב: 10% השהיה בראש + 40% גלילה מטה + 10% השהיה בתחתית + 40% גלילה מעלה.
+      // ההשהיה קוצרה (22% → 10%) כי הייתה ארוכה מדי לפני שהגלילה התחילה.
+      // ה-divisor הוגדל (0.8 → 1.15) כדי לשמור על אותה מהירות גלילה למרות שאחוז
+      // הגלילה גדל מ-28% ל-40%. מינימום קוצר ל-85 שניות בהתאם.
+      var dur = Math.max(85, Math.round(overflow / 1.15));
       bio.style.setProperty('--bio-max', '-'+overflow+'px');
       bio.style.animationDuration = dur + 's';
       bio.classList.add('bio-autoscroll');
