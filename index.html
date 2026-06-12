@@ -197,27 +197,27 @@
     <!-- CENTER: daily figure (Wikipedia) -->
     <section class="panel cyber-corner relative flex min-h-[560px] flex-col overflow-hidden rounded-3xl p-5 lg:min-h-0 lg:col-span-6">
       <div class="mb-3 flex items-center justify-between">
-        <h2 class="flex items-center gap-2 text-lg font-bold text-brand-200">
-          <span class="glow-cyan flex size-9 items-center justify-center rounded-xl bg-brand-400 text-night-900">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="size-5"><path d="M12 7v14M3 18a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3H3z"/></svg>
+        <h2 class="flex items-center gap-2 text-sm font-bold text-brand-200">
+          <span class="glow-cyan flex size-7 items-center justify-center rounded-lg bg-brand-400 text-night-900">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" class="size-4"><path d="M12 7v14M3 18a1 1 0 0 1-1-1V5a1 1 0 0 1 1-1h5a4 4 0 0 1 4 4 4 4 0 0 1 4-4h5a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1h-6a3 3 0 0 0-3 3 3 3 0 0 0-3-3H3z"/></svg>
           </span>
           לימוד יומי · דמות מההיסטוריה
         </h2>
-        <span class="rounded-full border border-brand-400/40 bg-brand-400/10 px-3 py-1 text-xs font-bold text-brand-200">הדמות של היום</span>
+        <span class="rounded-full border border-brand-400/40 bg-brand-400/10 px-2.5 py-0.5 text-[11px] font-bold text-brand-200">הדמות של היום</span>
       </div>
-      <div class="flex shrink-0 items-center gap-4">
-        <div id="figAvatar" class="flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 text-4xl font-black text-white shadow-lg"></div>
+      <div class="flex shrink-0 items-center gap-3">
+        <div id="figAvatar" class="flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br from-indigo-500 to-violet-600 text-2xl font-black text-white shadow-lg"></div>
         <div class="min-w-0">
-          <h3 id="figName" class="title-grad text-2xl font-black leading-tight"></h3>
-          <div class="mt-1.5 flex flex-wrap gap-2">
-            <span id="figField" class="glow-cyan rounded-full bg-brand-400 px-3 py-0.5 text-sm font-bold text-night-900"></span>
-            <span id="figYears" class="rounded-full border border-brand-400/30 bg-night-800/80 px-3 py-0.5 text-sm font-bold text-brand-200"></span>
+          <h3 id="figName" class="title-grad text-lg font-black leading-tight"></h3>
+          <div class="mt-1 flex flex-wrap gap-1.5">
+            <span id="figField" class="glow-cyan rounded-full bg-brand-400 px-2.5 py-0.5 text-[11px] font-bold text-night-900"></span>
+            <span id="figYears" class="rounded-full border border-brand-400/30 bg-night-800/80 px-2.5 py-0.5 text-[11px] font-bold text-brand-200"></span>
           </div>
         </div>
       </div>
       <!-- overflow-y-auto: אם הטקסט ארוך מדי יהיה גלילה פנימית רכה במקום חיתוך -->
-      <div class="figBio-wrap mt-3 min-h-0 flex-1 overflow-y-auto pl-1">
-        <p id="figBio" class="text-[15px] leading-relaxed text-slate-200 text-justify [text-justify:inter-word]"></p>
+      <div class="figBio-wrap mt-2 min-h-0 flex-1 overflow-y-auto pl-1">
+        <p id="figBio" class="text-[13px] leading-snug text-slate-200 text-justify [text-justify:inter-word]"></p>
       </div>
       <div class="mt-2 shrink-0 border-t border-brand-400/20 pt-2">
         <ul id="figFacts" class="flex flex-wrap items-center gap-1.5"></ul>
@@ -969,7 +969,7 @@ setInterval(tickClock,1000);tickClock();
     var f=pickFigure();
     var avatar=document.getElementById('figAvatar');
     avatar.textContent=f.initial;
-    avatar.className='flex size-20 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br '+f.grad+' text-4xl font-black text-white shadow-lg';
+    avatar.className='flex size-14 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-gradient-to-br '+f.grad+' text-2xl font-black text-white shadow-lg';
     document.getElementById('figName').textContent=f.name;
     document.getElementById('figField').textContent=f.field;
     document.getElementById('figYears').textContent=f.years;
