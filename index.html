@@ -974,9 +974,16 @@ setInterval(tickClock,1000);tickClock();
     document.getElementById('figYears').textContent=f.years;
     document.getElementById('figBio').textContent=f.bio;
     setupBioAutoScroll();
+    // הצגה קומפקטית: תווית "הידעת?" כ-pill, ולצידה כל ה-facts כטקסט רצוף עם · מפריד.
+    // הסיבה: כשה-facts ארוכים (כמו אצל הלל), pill-ים נפרדים נפלו כל אחד לשורה והכינו "ערימת באדג'ים".
+    // הפורמט החדש תופס שורה אחת/שתיים מקסימום ושומר על היררכיה ויזואלית עם הציטוט בתחתית.
+    var factsInline = f.facts.map(function(x){
+      // הסר נקודה סופית כדי למנוע "·..· " מכוער
+      return x.replace(/[.\s]+$/, '');
+    }).join(' · ');
     document.getElementById('figFacts').innerHTML=
-      '<li class="glow-cyan rounded-full bg-brand-400 px-2.5 py-0.5 text-[11px] font-extrabold text-night-900">הידעת?</li>'+
-      f.facts.map(function(x){return '<li class="rounded-full border border-brand-400/30 bg-brand-400/10 px-2.5 py-0.5 text-[11px] font-medium text-brand-100">'+x+'</li>';}).join('');
+      '<li class="glow-cyan rounded-full bg-brand-400 px-2.5 py-0.5 text-[11px] font-extrabold text-night-900 shrink-0">הידעת?</li>'+
+      '<li class="text-[12px] font-medium leading-snug text-brand-100/95 min-w-0">'+factsInline+'</li>';
     var q=document.getElementById('figQuote');
     if(f.quote){q.textContent='״'+f.quote+'״';q.classList.remove('hidden');} else {q.classList.add('hidden');}
     // explaintext=טקסט נקי. exchars=2000 מבטיח טקסט עשיר גם לדמויות שהפתיחה שלהן בויקיפדיה קצרה
