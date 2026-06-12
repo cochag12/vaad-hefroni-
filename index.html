@@ -885,9 +885,10 @@ setInterval(tickClock,1000);tickClock();
     requestAnimationFrame(function(){
       var overflow = bio.scrollHeight - wrap.clientHeight;
       if(overflow <= 4) return; // נכנס בלי גלילה
-      // משך הסיבוב: 40% למטה + 20% השהיה + 40% למעלה. אם 40% = overflow/14 שניות,
-      // אז סיבוב מלא = overflow/(14*0.4) ≈ overflow/5.6. מינימום 28 שניות.
-      var dur = Math.max(28, Math.round(overflow / 5.6));
+      // משך הסיבוב: 40% למטה + 20% השהיה + 40% למעלה.
+      // המהירות הואטה (5.6 → 4 פיקסלים לשנייה) ומינימום הוארך (28 → 38 שניות)
+      // כדי שיהיה זמן נוח לקרוא בלי תחושת ריצה.
+      var dur = Math.max(38, Math.round(overflow / 4));
       bio.style.setProperty('--bio-max', '-'+overflow+'px');
       bio.style.animationDuration = dur + 's';
       bio.classList.add('bio-autoscroll');
