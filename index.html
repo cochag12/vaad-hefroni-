@@ -436,14 +436,27 @@ var LOCAL_NEWS = [
 ];
 
 /* ====================== HELPERS ====================== */
-/* ====================== רענון יומי אוטומטי של הדף (בלילה) ======================
-   רענון מלא של ה-HTML כל 4 שעות — מונע הצטברות מצב/דליפת זיכרון בריצה רציפה.
+/* ====================== Cache-busting — מבטיח גרסה טרייה מהשרת ======================
+   הבעיה: GitHub Pages שולחים HTTP header של "Cache-Control: max-age=600" — דפדפנים
+   מצייתים לזה ולא בודקים את השרת במשך 10 דקות. ה-meta tags של no-cache בקובץ
+   נכנסים לתוקף רק אחרי שהקובץ מורד, אז הם לא יכולים למנוע מהדפדפן להגיש cache.
+   הפתרון: לטעון את הדף עם ?v=<timestamp> ב-URL. URL שונה = cache miss = פנייה לשרת.
+   טעינה ראשונה: אם אין ?v= ב-URL, נעבור מיד ל-URL עם timestamp. */
+(function(){
+  if(!/[?&]v=/.test(location.search)){
+    location.replace(location.pathname + '?v=' + Date.now() + location.hash);
+  }
+})();
+
+/* ====================== רענון אוטומטי של הדף כל 4 שעות ======================
    מטרה: (1) לקלוט גרסה חדשה של index.html אם עדכנתי קוד בגיטהאב,
          (2) לאפס את ה-JavaScript ולמנוע דליפות זיכרון מצטברות לאחר 12+ שעות,
          (3) להבטיח שכל הרכיבים מתחילים נקיים — כולל Wake Lock,
          (4) אם רענון אחד נכשל (רשת/JSON שגוי), 4 שעות אחרי יש הזדמנות נוספת.
-   הרענון לוקח ~2 שניות של מסך ריק — קבילים בקיוסק. */
-setTimeout(function(){ location.reload(); }, 4 * 60 * 60 * 1000);
+   ניווט ל-URL חדש עם timestamp עוקף לחלוטין את ה-cache של הדפדפן וה-CDN. */
+setTimeout(function(){
+  location.replace(location.pathname + '?v=' + Date.now());
+}, 4 * 60 * 60 * 1000);
 
 function dayOfYear(d){var s=new Date(d.getFullYear(),0,0);return Math.floor((d-s)/86400000);}
 function hhmm(iso){return new Date(iso).toLocaleTimeString('he-IL',{hour:'2-digit',minute:'2-digit'});}
