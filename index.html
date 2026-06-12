@@ -907,6 +907,8 @@ setInterval(tickClock,1000);tickClock();
     var c = window.vaadCandleTime || '—';
     var h = window.vaadHavdalahTime || '—';
     var parshaName = p.replace(/^פרשת\s*/, '').replace(/\s+/g,' ').trim();
+    // הכתיב המקראי של "קורח" הוא "קרח" (בלי ו') — במדבר טז. נכבד את הכתיב המסורתי בתצוגה.
+    var pDisplay = p.replace('קורח', 'קרח');
     // נורמליזציה רב-שלבית: Hebcal לעיתים מחזיר כתיב שונה ממה שיש לנו במפתח.
     // ננסה כמה וריאציות לפני שמוותרים, כך שלא נקבל מסך ריק בגלל אות אחת.
     function lookupParsha(name){
@@ -937,7 +939,7 @@ setInterval(tickClock,1000);tickClock();
         // ===== TOP: שבת שלום + פרשה (shrink-0) =====
         '<div class="shrink-0 flex flex-col items-center gap-0.5">'+
           '<div class="title-grad text-2xl sm:text-3xl lg:text-4xl font-black leading-none">שבת שלום</div>'+
-          (p?'<div class="text-sm sm:text-base font-bold text-brand-200 text-glow">'+p+'</div>':'')+
+          (pDisplay?'<div class="text-sm sm:text-base font-bold text-brand-200 text-glow">'+pDisplay+'</div>':'')+
         '</div>'+
         // ===== MIDDLE: תקציר הפרשה (flex-1, ממלא את כל מה שנשאר) =====
         (summary ? '<div class="min-h-0 flex-1 mt-1 mx-auto max-w-2xl w-full rounded-2xl border border-brand-400/30 bg-brand-400/5 px-4 py-2.5 text-right flex flex-col overflow-hidden">'+
