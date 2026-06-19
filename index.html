@@ -899,10 +899,9 @@ setInterval(tickClock,1000);tickClock();
       var overflow = bio.scrollHeight - wrap.clientHeight;
       if(overflow <= 4) return; // נכנס בלי גלילה
       // משך הסיבוב: 10% השהיה בראש + 40% גלילה מטה + 10% השהיה בתחתית + 40% גלילה מעלה.
-      // ההשהיה קוצרה (22% → 10%) כי הייתה ארוכה מדי לפני שהגלילה התחילה.
-      // ה-divisor הוגדל (0.8 → 1.15) כדי לשמור על אותה מהירות גלילה למרות שאחוז
-      // הגלילה גדל מ-28% ל-40%. מינימום קוצר ל-85 שניות בהתאם.
-      var dur = Math.max(85, Math.round(overflow / 1.15));
+      // ה-divisor הוגדל שוב (1.15 → 1.5) כי הגלילה הייתה איטית מדי.
+      // מינימום קוצר ל-65 שניות בהתאם — קצב נינוח אבל לא משעמם.
+      var dur = Math.max(65, Math.round(overflow / 1.5));
       bio.style.setProperty('--bio-max', '-'+overflow+'px');
       bio.style.animationDuration = dur + 's';
       bio.classList.add('bio-autoscroll');
