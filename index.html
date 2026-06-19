@@ -118,13 +118,16 @@
      נשאר בבהירות מלאה. */
   #appRoot{ transition: filter 8s ease-in-out, opacity 8s ease-in-out; }
   body.night-mode #appRoot{ filter: brightness(0.35) saturate(0.85); }
-  /* גלילה אוטומטית של הביוגרפיה (פינג-פונג עם השהיות קצרות בקצוות) */
+  /* גלילה אוטומטית של הביוגרפיה — אסימטרית:
+     ירידה איטית לקריאה (56% מהמחזור), חזרה מהירה (28% מהמחזור = פי 2 מהר).
+     השהיות קצרות בקצוות. */
   @keyframes bio-pingpong{
     0%   { transform: translateY(0); }
-    10%  { transform: translateY(0); }                       /* השהיה קצרה לקריאת הראש */
-    50%  { transform: translateY(var(--bio-max, 0px)); }
-    60%  { transform: translateY(var(--bio-max, 0px)); }     /* השהיה קצרה בתחתית */
-    100% { transform: translateY(0); }
+    4%   { transform: translateY(0); }                       /* השהיה קצרה לקריאת הראש */
+    60%  { transform: translateY(var(--bio-max, 0px)); }     /* ירידה איטית 56% */
+    64%  { transform: translateY(var(--bio-max, 0px)); }     /* השהיה קצרה בתחתית */
+    92%  { transform: translateY(0); }                       /* חזרה מהירה 28% */
+    100% { transform: translateY(0); }                       /* באפר */
   }
   .bio-autoscroll{ animation: bio-pingpong linear infinite; }
 </style>
@@ -898,10 +901,10 @@ setInterval(tickClock,1000);tickClock();
     requestAnimationFrame(function(){
       var overflow = bio.scrollHeight - wrap.clientHeight;
       if(overflow <= 4) return; // נכנס בלי גלילה
-      // משך הסיבוב: 10% השהיה בראש + 40% גלילה מטה + 10% השהיה בתחתית + 40% גלילה מעלה.
-      // ה-divisor הוגדל שוב (1.15 → 1.5) כי הגלילה הייתה איטית מדי.
-      // מינימום קוצר ל-65 שניות בהתאם — קצב נינוח אבל לא משעמם.
-      var dur = Math.max(65, Math.round(overflow / 1.5));
+      // משך הסיבוב: 4% השהיה ראש + 56% ירידה איטית + 4% השהיה תחתית + 28% חזרה מהירה + 8% באפר.
+      // ה-divisor הוגדל (1.5 → 2.1) כדי לשמור על אותה מהירות קריאה למרות שאחוז
+      // הירידה גדל (40% → 56%). החזרה אוטומטית פי 2 מהר מהירידה.
+      var dur = Math.max(60, Math.round(overflow / 2.1));
       bio.style.setProperty('--bio-max', '-'+overflow+'px');
       bio.style.animationDuration = dur + 's';
       bio.classList.add('bio-autoscroll');
