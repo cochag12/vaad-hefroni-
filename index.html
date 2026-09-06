@@ -62,7 +62,7 @@
   .gradient-pan{background-size:220% 220%;animation:gradient-pan 9s ease infinite}
   @keyframes float-slow{0%,100%{transform:translateY(0)}50%{transform:translateY(-7px)}}
   .float-slow{animation:float-slow 5s ease-in-out infinite}
-  @keyframes marquee-x{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+  @keyframes marquee-x{from{transform:translateX(0)}to{transform:translateX(50%)}}
   .marquee-x{animation:marquee-x linear infinite}
   @keyframes scroll-up{from{transform:translateY(0)}to{transform:translateY(-50%)}}
   .scroll-up{animation:scroll-up linear infinite}
@@ -264,7 +264,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="size-5"><path d="M4 22h16a2 2 0 0 0 2-2V4a1 1 0 0 0-1-1H5a1 1 0 0 0-1 1v16a2 2 0 0 1-2 2 2 2 0 0 1-2-2V9a1 1 0 0 1 1-1h2"/><path d="M18 14h-8M15 18h-5M10 6h8v4h-8V6z"/></svg>
       מבזקים
     </span>
-    <div class="relative flex-1 overflow-hidden" dir="ltr">
+    <div class="relative flex-1 overflow-hidden" dir="rtl">
       <div id="ticker" class="marquee-x flex w-max items-center gap-8 whitespace-nowrap"></div>
     </div>
   </div>
