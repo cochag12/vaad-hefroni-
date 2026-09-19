@@ -1216,11 +1216,28 @@ function loadShabbat(){
   fetch('https://www.hebcal.com/shabbat?cfg=json&latitude='+MODIIN.lat+'&longitude='+MODIIN.lon+'&tzid='+MODIIN.tz+'&b=18&M=on&_='+Date.now())
   .then(function(r){return r.json()}).then(function(j){
   var items=j.items||[],c,h,p,cDate,hDate;
+  // ⚠ Hebcal מחזיר לפעמים כמה זוגות candles/havdalah באותו שבוע — כשחג
+  // נופל סמוך לשבת. למשל יום כיפור שחל ביום ראשון (ספטמבר 2026):
+  // נרות שישי + הבדלה במוצש"ק, וגם נרות ערב כיפור + הבדלה במוצאי כיפור.
+  // לולאת forEach פשוטה דרסה ולקחה את האחרון — כך שחלון "השבת"
+  // הוצב על תאריכי החג, vaadIsShabbatNow() החזיר false בעצם השבת,
+  // ופאנל הפרשה לא נפתח כלל (נשארה הדמות הרבנית).
+  // לכן: בוחרים את הדלקת הנרות של יום שישי, ואת ההבדלה הראשונה שאחריה.
+  var candlesAll=[], havdalahAll=[];
   items.forEach(function(it){
-    if(it.category==='candles'){c=hhmm(it.date);cDate=new Date(it.date);}
-    if(it.category==='havdalah'){h=hhmm(it.date);hDate=new Date(it.date);}
-    if(it.category==='parashat')p=it.hebrew;
+    if(it.category==='candles')  candlesAll.push(new Date(it.date));
+    if(it.category==='havdalah') havdalahAll.push(new Date(it.date));
+    if(it.category==='parashat') p=it.hebrew;
   });
+  cDate = candlesAll.filter(function(d){return d.getDay()===5;})[0] || candlesAll[0];
+  // ההבדלה הראשונה שאחרי הדלקת הנרות — אבל לפחות 12 שעות אחריה.
+  // הסייג הזה מגן מפני הבדלה של חג שמסתיים באותו ערב שבו נכנסת
+  // השבת — אחרת חלון השבת היה נסגר כשעה אחרי שנפתח. שבת אמיתית
+  // אורכת כ-25 שעות, וכשהיא נמשכת ישירות לחג — יותר.
+  var MIN_SHABBAT_MS = 12*60*60*1000;
+  hDate = cDate ? havdalahAll.filter(function(d){return d-cDate > MIN_SHABBAT_MS;})[0] : havdalahAll[0];
+  if(cDate) c = hhmm(cDate);
+  if(hDate) h = hhmm(hDate);
   window.vaadShabbatStart = cDate;
   window.vaadShabbatEnd   = hDate;
   window.vaadCandleTime   = c;
