@@ -546,6 +546,141 @@ var PARSHIYOT = {
   "מטות־מסעי":"שתי הפרשיות החותמות את ספר במדבר. מטות: דיני נדרים — האב מפר את נדר בתו והבעל את אשתו. מלחמת מדין בהנהגת פינחס, הריגת בלעם בן בעור, שביית נשים וטף. משה כועס שמותירים את הנשים שהחטיאו. דיני חלוקת שלל. שבטי ראובן וגד ומחצי מנשה מקבלים נחלה בעבר הירדן המזרחי, בתנאי שיעברו חלוצים למלחמת ארץ ישראל. מסעי: רשימת ארבעים ושניים מסעות בני ישראל ממצרים. גבולות ארץ ישראל. הציווי לתת ללויים ארבעים ושש ערים, מהן שש ערי מקלט לרוצח בשגגה. דיני רוצח בזדון ושוגג. נחלת בנות צלפחד שמתחתנות בשבט אביהן. סוף ספר במדבר על שפת הירדן, ערב הכניסה לארץ.",
   "נצבים־וילך":"שתי פרשיות קצרות בסוף ספר דברים. נצבים: כל העם נצב לפני ה׳ — מגדולים עד שואב מים — לקבל ברית. הברית עם דורות הבאים. אזהרה מחטא חמור — ה׳ לא יסלח. הבטחה: גם אם תוגלו לקצה הארץ, אם תשובו אליו בלב שלם, ישיב אתכם. המצוות לא נסתרות — ״קרוב אליך הדבר מאד״. בחירה חופשית: ״החיים והמות נתתי לפניך... ובחרת בחיים״. וילך: משה בגיל מאה ועשרים, מודיע שלא יכנס לארץ. יהושע מתמנה תחתיו. משה כותב את התורה, מוסר לכוהנים ולזקנים. מצוות הקהל — אחת לשבע שנים בחג הסוכות יקרא המלך את התורה בפני כל העם. ה׳ מודיע שהעם יזנה — ועל כן יש לכתוב שירה לעדות נגדם."
 };
+/* ----- קריאת התורה המיוחדת לחגים ולמועדים -----
+   בחג ובצום אין קוראים את פרשת השבוע אלא קריאה מיוחדת למועד.
+   המפתח נגזר מהשם האנגלי ש-Hebcal מחזיר (ראה holidayKey), כי השם האנגלי
+   יציב יותר מהעברי — Hebcal משנה מדי פעם ניקוד/כתיב בשמות העבריים. */
+/* ----- צומות -----
+   לצומות אין הדלקת נרות, ולכן הם לא נתפסו כלל במנגנון החלונות הישן.
+   Hebcal מספק להם "Fast begins"/"Fast ends" מדויקים (עלות השחר עד צאת
+   הכוכבים; בתשעה באב ובכיפור — משקיעה ועד צאת הכוכבים למחרת). */
+var FAST_READINGS = {
+  'tisha-bav': {
+    figure: { name: 'ירמיהו הנביא', wiki: 'ירמיהו', why: 'נביא החורבן; מגילת איכה שנקראת בליל הצום מיוחסת לו.' },
+    label: 'תשעה באב',
+    text: 'היום האבל בלוח העברי — בו חרבו שני בתי המקדש, הראשון בידי בבל והשני בידי רומי, ובו אירעו לאורך הדורות גזרות קשות נוספות. בליל הצום יושבים על הארץ לאור נרות וקוראים את מגילת איכה: ״איכה ישבה בדד העיר רבתי עם, היתה כאלמנה״. בשחרית קוראים בדברים ד׳ ומפטירים בירמיהו ח׳-ט׳, ובמנחה חוזרים לשמות ל״ב — ״ויחל משה״. נוהגים איסורי אבלות: אין נועלים נעלי עור, אין רוחצים, ואין לומדים תורה מלבד דברים שבאבל. חכמים הסבירו שהבית השני חרב על שנאת חינם — ולכן התיקון הוא אהבת חינם.'
+  },
+  'tzom-gedaliah': {
+    figure: { name: 'גדליה בן אחיקם', wiki: 'גדליה בן אחיקם', why: 'המושל שנרצח — הצום נקרא על שמו ונקבע ליום שלמחרת ראש השנה.' },
+    label: 'צום גדליה',
+    text: 'ג׳ בתשרי, מיד אחרי ראש השנה. אחרי חורבן הבית הראשון מינה נבוכדנצר את גדליה בן אחיקם למושל על שארית היהודים שנותרו בארץ, והוא קרא להם להתיישב ולעבוד את האדמה. ישמעאל בן נתניה, משושלת המלוכה, רצח אותו במצפה יחד עם היהודים והכשדים שהיו עמו. שארית העם נמלטה למצרים מפחד הנקם — וכך כבתה הגחלת היהודית האחרונה בארץ. חכמים קבעו את היום לצום ללמד שמיתתם של צדיקים שקולה כשריפת בית אלוהינו. קוראים ״ויחל משה״ ומפטירים ״דרשו ה׳ בהמצאו״.'
+  },
+  'asara-btevet': {
+    figure: { name: 'צדקיהו המלך', wiki: 'צדקיהו', why: 'בשנה התשיעית למלכותו החל המצור על ירושלים — ובימיו חרב הבית.' },
+    label: 'עשרה בטבת',
+    text: 'היום שבו סמך נבוכדנצר מלך בבל על ירושלים והחל המצור: ״ויהי בשנה התשיעית למלכו, בחדש העשירי בעשור לחדש — בא נבכדנאצר מלך בבל הוא וכל חילו על ירושלם״ (מלכים ב׳ כ״ה). המצור נמשך כשנתיים וחצי, עד שהובקעה החומה בי״ז בתמוז וחרב הבית בתשעה באב. זהו הצום היחיד שאילו חל בשבת היו מתענים בו — מפני החומרה שבתחילת הפורענות. בשנת תשי״א קבעה הרבנות הראשית את היום גם כ״יום הקדיש הכללי״, לאמירת קדיש לזכר נספי השואה שיום מותם ומקום קבורתם לא נודעו. קוראים ״ויחל משה״.'
+  },
+  'taanit-esther': {
+    figure: { name: 'אסתר המלכה', wiki: 'אסתר', why: 'היא שגזרה את הצום לפני שנכנסה אל המלך שלא כדת.' },
+    label: 'תענית אסתר',
+    text: 'י״ג באדר, ערב פורים. זכר לצום שגזרה אסתר על היהודים לפני שנכנסה אל אחשוורוש שלא ברשות — צעד שדינו היה מוות: ״לך כנוס את כל היהודים הנמצאים בשושן, וצומו עלי ואל תאכלו ואל תשתו שלשת ימים לילה ויום... וכאשר אבדתי אבדתי״. הצום הוא גם זכר ליום שבו נלחמו היהודים באויביהם שקמו עליהם והתענו כדי שתישמע תפילתם. הוא קל מן הצומות האחרים — מעוברות, מיניקות וחולים פטורים ממנו. נהוג לתת בו את ״מחצית השקל״ לצדקה לפני קריאת המגילה. קוראים ״ויחל משה״.'
+  },
+  'tzom-tammuz': {
+    figure: { name: 'משה רבנו', wiki: 'משה', why: 'הראשון מחמשת הדברים שאירעו ביום — שבירת הלוחות ברדתו מן ההר.' },
+    label: 'שבעה עשר בתמוז',
+    text: 'חמישה דברים אירעו ביום הזה, ומנתה אותם המשנה (תענית ד,ו): נשתברו הלוחות כשירד משה מן ההר וראה את העגל; בוטל קרבן התמיד בימי המצור על הבית הראשון; הובקעה חומת ירושלים בימי הבית השני; שרף אפוסטמוס את התורה; והועמד צלם בהיכל. ביום זה מתחילים ״שלושת השבועות״ — ימי אבל הולכים ומחמירים עד תשעה באב, שבהם לא נושאים נשים ולא מסתפרים. הצום מן הבוקר ועד צאת הכוכבים. קוראים ״ויחל משה״ — אותה תפילה שבה ביקש משה רחמים על העם אחרי אותה שבירה עצמה.'
+  }
+};
+
+var HOLIDAY_READINGS = {
+  'rosh-hashana': {
+    figure: { name: 'אברהם אבינו', wiki: 'אברהם', why: 'ביום השני של החג קוראים את עקדת יצחק — הניסיון העשירי של אברהם.' },
+   
+    label: 'קריאת התורה לראש השנה',
+    text: 'ביום הראשון קוראים בבראשית כ״א — הולדת יצחק לאברהם ולשרה בזקנתם, ושילוח הגר וישמעאל אל המדבר. ״וה׳ פקד את שרה כאשר אמר״. ההפטרה היא תפילת חנה בשמואל א׳ — אישה עקרה שנפקדת, ושבה ומודה. ביום השני קוראים את עקדת יצחק (בראשית כ״ב), הניסיון העשירי של אברהם, שבסופו נשמע קול השופר של איל האיל. ההפטרה בירמיהו ל״א — ״הבן יקיר לי אפרים״, נחמה וזיכרון. שני הימים עוסקים בזיכרון ובברית, ולכן תוקעים בשופר: זיכרון עקדת יצחק לפני המקום.'
+  },
+  'kippur': {
+    figure: { name: 'יונה הנביא', wiki: 'יונה בן אמיתי', why: 'ספר יונה כולו נקרא כהפטרת מנחה — הנביא שברח, והעיר ששבה בתשובה.' },
+   
+    label: 'קריאת התורה ליום הכיפורים',
+    text: 'בשחרית קוראים בויקרא ט״ז — פרשת אחרי מות, סדר עבודת הכהן הגדול ביום הכיפורים: כניסתו לקודש הקודשים, שני השעירים והגורלות, והווידוי. ״כי ביום הזה יכפר עליכם לטהר אתכם — מכל חטאתיכם לפני ה׳ תטהרו״. ההפטרה בישעיהו נ״ז-נ״ח מעמידה את הצום במבחן: ״הלוא זה צום אבחרהו — פתח חרצבות רשע... הלוא פרוס לרעב לחמך״. במנחה קוראים בויקרא י״ח בעריות, ומפטירים בספר יונה כולו — הנביא שברח, והעיר נינוה ששבה בתשובה ונמחל לה.'
+  },
+  'sukkot': {
+    figure: { name: 'שלמה המלך', wiki: 'שלמה', why: 'חנך את בית המקדש בחג הסוכות, ואת דבריו בקהלת קוראים בשבת חול המועד.' },
+   
+    label: 'קריאת התורה לסוכות',
+    text: 'קוראים בויקרא כ״ב-כ״ג — פרשת המועדות: שבת, פסח, ספירת העומר, ראש השנה, יום הכיפורים, ולבסוף חג הסוכות. ״בסכת תשבו שבעת ימים... למען ידעו דרתיכם כי בסכות הושבתי את בני ישראל בהוציאי אותם מארץ מצרים״. שם גם מצוות ארבעת המינים: ״ולקחתם לכם ביום הראשון פרי עץ הדר, כפת תמרים, וענף עץ עבת, וערבי נחל״. המפטיר בבמדבר כ״ט — קרבנות החג. ההפטרה בזכריה י״ד, חזון אחרית הימים שבו כל הגויים עולים לירושלים לחוג את חג הסוכות.'
+  },
+  'sukkot-chm': {
+    figure: { name: 'יחזקאל הנביא', wiki: 'יחזקאל', why: 'ההפטרה של שבת חול המועד היא חזון מלחמת גוג ומגוג שבספרו.' },
+   
+    label: 'קריאת התורה לשבת חול המועד סוכות',
+    text: 'קוראים בשמות ל״ג-ל״ד — בקשת משה ״הראני נא את כבדך״ שלאחר חטא העגל, והתשובה: ״וראית את אחרי, ופני לא יראו״. שם מתגלות שלוש עשרה מידות הרחמים: ״ה׳ ה׳ אל רחום וחנון, ארך אפים ורב חסד ואמת״. ההפטרה ביחזקאל ל״ח — מלחמת גוג ומגוג באחרית הימים. בשבת זו נוהגים לקרוא גם את מגילת קהלת, ספרו של שלמה המלך: ״הבל הבלים אמר קהלת, הכל הבל״ — ובסופו ״סוף דבר, הכל נשמע: את האלהים ירא ואת מצותיו שמור, כי זה כל האדם״.'
+  },
+  'shmini-atzeret': {
+    figure: { name: 'יהושע בן נון', wiki: 'יהושע בן נון', why: 'ההפטרה היא תחילת ספרו — ההנהגה שעברה אליו ברגע שנחתמה התורה במות משה.' },
+   
+    label: 'קריאת התורה לשמיני עצרת ושמחת תורה',
+    text: 'בארץ ישראל שמיני עצרת ושמחת תורה הם יום אחד. חותמים את התורה בפרשת וזאת הברכה (דברים ל״ג-ל״ד) — ברכת משה לשבטים לפני מותו, עלייתו אל הר נבו, ״וימת שם משה עבד ה׳״, וחתימה: ״ולא קם נביא עוד בישראל כמשה״. ומיד מתחילים מחדש מבראשית א׳ — ״בראשית ברא אלהים את השמים ואת הארץ״ — כדי שלא תיפסק התורה לרגע. העולים נקראים ״חתן תורה״ ו״חתן בראשית״. ההפטרה ביהושע א׳, תחילת ההנהגה אחרי משה: ״חזק ואמץ״. ביום זה גם מתחילים לבקש גשם בתפילת גשם.'
+  },
+  'pesach': {
+    figure: { name: 'משה רבנו', wiki: 'משה', why: 'שליח הגאולה ממצרים; בהגדה שמו כמעט אינו נזכר, כדי שהכול ייזקף לה׳.' },
+   
+    label: 'קריאת התורה לפסח',
+    text: 'קוראים בשמות י״ב — מצוות קרבן הפסח, הדם על המשקוף ושתי המזוזות, מכת בכורות והיציאה החפוזה ממצרים. ״ואמרתם זבח פסח הוא לה׳, אשר פסח על בתי בני ישראל במצרים״. שם גם מקור החובה לספר: ״והיה כי יאמרו אליכם בניכם מה העבדה הזאת לכם״. המפטיר בבמדבר כ״ח. ההפטרה ביהושע ה׳-ו׳ — הפסח הראשון שעשו בני ישראל בארץ, בגלגל, מיד אחרי המילה ומעבר הירדן; באותו יום פסק המן והם אכלו מתבואת הארץ.'
+  },
+  'pesach-chm': {
+    figure: { name: 'שלמה המלך', wiki: 'שלמה', why: 'מגילת שיר השירים שחיבר נקראת בשבת חול המועד פסח.' },
+   
+    label: 'קריאת התורה לשבת חול המועד פסח',
+    text: 'קוראים בשמות ל״ג-ל״ד — ״הראני נא את כבדך״, ושלוש עשרה מידות הרחמים: ״ה׳ ה׳ אל רחום וחנון, ארך אפים ורב חסד ואמת״. ההפטרה ביחזקאל ל״ז, חזון העצמות היבשות: ״הנה אני פתח את קברותיכם, והעליתי אתכם מקברותיכם עמי, והבאתי אתכם אל אדמת ישראל״ — חזון תחייה וגאולה, ההמשך הטבעי ליציאת מצרים. בשבת זו נוהגים לקרוא גם את מגילת שיר השירים, שנדרשה כשיר אהבה בין הקדוש ברוך הוא לכנסת ישראל: ״קול דודי הנה זה בא, מדלג על ההרים״.'
+  },
+  'pesach-7': {
+    figure: { name: 'מרים הנביאה', wiki: 'מרים הנביאה', why: 'אחרי קריעת ים סוף לקחה את התוף ויצאה בשירה ובמחולות עם הנשים.' },
+   
+    label: 'קריאת התורה לשביעי של פסח',
+    text: 'היום שבו נקרע ים סוף. קוראים בשמות י״ג-ט״ו — המסע ממצרים, עמוד הענן ועמוד האש, המצרים הרודפים, ובקיעת הים: ״ויבאו בני ישראל בתוך הים ביבשה, והמים להם חמה מימינם ומשמאלם״. בשיא הקריאה שרים את שירת הים — ״אז ישיר משה ובני ישראל את השירה הזאת לה׳... עזי וזמרת יה ויהי לי לישועה״ — ובה גם ״מי כמכה באלם ה׳״ ו״ה׳ ימלך לעלם ועד״. ההפטרה היא שירת דוד בשמואל ב׳ כ״ב: ״ה׳ סלעי ומצדתי ומפלטי לי״ — שירה כנגד שירה.'
+  },
+  'shavuot': {
+    figure: { name: 'רות המואבייה', wiki: 'רות המואבייה', why: 'מגילתה נקראת בחג — קבלת התורה של יחידה, מול קבלת התורה של עם.' },
+   
+    label: 'קריאת התורה לשבועות',
+    text: 'זמן מתן תורתנו. קוראים בשמות י״ט-כ׳ — ההכנה למעמד הר סיני, שלושת ימי ההגבלה, והבוקר השלישי: ״ויהי ביום השלישי בהית הבקר, ויהי קלת וברקים וענן כבד על ההר, וקל שפר חזק מאד״. ואז עשרת הדיברות: ״אנכי ה׳ אלהיך אשר הוצאתיך מארץ מצרים מבית עבדים״. ההפטרה ביחזקאל א׳, מעשה מרכבה — חזון הכבוד, כנגד ההתגלות שבסיני. בחג זה נוהגים לקרוא גם את מגילת רות: סיפור על נאמנות וחסד, על מואבייה שבחרה בעם ובתורה — ״עמך עמי ואלהיך אלהי״ — וממנה יצא דוד המלך.'
+  }
+};
+
+/* ----- חיפוש תקציר פרשה -----
+   Hebcal ואנחנו לא תמיד כותבים את אותו שם באותה צורה:
+     · Hebcal מפריד פרשות מחוברות במקף עברי (U+05BE): "כי־תצא",
+       ואצלנו המפתח הוא "כי תצא" עם רווח. ההמרה הישנה החליפה מקף במקף
+       ולכן לעולם לא גישרה על הפער הזה.
+     · Hebcal לפעמים בכתיב חסר ("אחרי מות־קדשים") ואנחנו במלא ("קדושים").
+       הניסיון הישן הסיר ו' אחת בלבד ובתחילת השם, ולא תפס ו' באמצע שם מחובר.
+   התוצאה: "כי תצא", "כי תבוא" ו"אחרי מות־קדשים" הציגו תיבת תקציר ריקה —
+   שלוש שבתות בכל שנה. עכשיו מנרמלים את שני הצדדים לפני ההשוואה. */
+function normalizeParsha(x){
+  return String(x || '')
+    .replace(/^פרשת\s*/, '')
+    .replace(/[\u05BE\u2010-\u2015-]/g, ' ')  // כל סוגי המקפים → רווח
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+// "שלד" בלי ו' וי' — מגשר בין כתיב מלא לחסר בכל מקום בשם.
+function parshaSkeleton(x){ return normalizeParsha(x).replace(/[וי]/g, ''); }
+
+var __parshaIdx = null;
+function parshaIndex(){
+  if(__parshaIdx) return __parshaIdx;
+  __parshaIdx = { norm: {}, skel: {} };
+  var collide = {};
+  Object.keys(PARSHIYOT).forEach(function(k){
+    __parshaIdx.norm[normalizeParsha(k)] = PARSHIYOT[k];
+    var sk = parshaSkeleton(k);
+    // שלד שמתנגש בין שתי פרשות שונות פסול — עדיף ריק מאשר תקציר שגוי.
+    if(collide[sk]) { delete __parshaIdx.skel[sk]; return; }
+    collide[sk] = 1;
+    if(sk.length >= 2) __parshaIdx.skel[sk] = PARSHIYOT[k];
+  });
+  return __parshaIdx;
+}
+
+function lookupParsha(name){
+  if(typeof PARSHIYOT === 'undefined' || !name) return '';
+  if(PARSHIYOT[name]) return PARSHIYOT[name];
+  var idx = parshaIndex();
+  return idx.norm[normalizeParsha(name)] || idx.skel[parshaSkeleton(name)] || '';
+}
+
 function sunburstPath(cx, cy, outerR, innerR, spikes){
   var pts = '';
   for (var i = 0; i < spikes * 2; i++){
@@ -918,6 +1053,7 @@ setInterval(tickClock,1000);tickClock();
     return pool[dayOfYear(d) % pool.length];
   }
   function showSilentWave(){
+    var occ = window.vaadOccasion || {};
     var p = window.vaadParsha || '';
     var c = window.vaadCandleTime || '—';
     var h = window.vaadHavdalahTime || '—';
@@ -926,55 +1062,82 @@ setInterval(tickClock,1000);tickClock();
     var pDisplay = p.replace('קורח', 'קרח');
     // נורמליזציה רב-שלבית: Hebcal לעיתים מחזיר כתיב שונה ממה שיש לנו במפתח.
     // ננסה כמה וריאציות לפני שמוותרים, כך שלא נקבל מסך ריק בגלל אות אחת.
-    function lookupParsha(name){
-      if(typeof PARSHIYOT === 'undefined' || !name) return '';
-      if(PARSHIYOT[name]) return PARSHIYOT[name];
-      // נסה להחליף את שני סוגי המקפים (מקף עברי ־ למקף רגיל -)
-      var swap1 = name.replace(/־/g,'-');
-      if(PARSHIYOT[swap1]) return PARSHIYOT[swap1];
-      var swap2 = name.replace(/-/g,'־');
-      if(PARSHIYOT[swap2]) return PARSHIYOT[swap2];
-      // חיפוש "רחב יותר" — אם השם של Hebcal דומה למפתח עד כדי ו' נוספת/חסרה
-      var keys = Object.keys(PARSHIYOT);
-      for(var i=0; i<keys.length; i++){
-        var k = keys[i];
-        // הסר ו' אחרי אות ראשונה ובדוק שוויון (כתיב מלא → כתיב חסר)
-        if(name.replace(/(.)ו/, '$1') === k) return PARSHIYOT[k];
-        // הוסף ו' אחרי אות ראשונה ובדוק שוויון (כתיב חסר → כתיב מלא)
-        if(name === k.replace(/(.)ו/, '$1')) return PARSHIYOT[k];
-      }
-      return '';
+    // בחג ובצום קוראים קריאה מיוחדת ולא את פרשת השבוע — ולכן גם הכותרת
+    // של התיבה משתנה ("קריאת התורה ליום הכיפורים" במקום "תקציר הפרשה").
+    var summary, boxLabel, subtitle;
+    // חג שחל ביום שישי (למשל שבועות תשפ״ז) — ביום השבת שאחריו כבר קוראים את
+    // פרשת השבוע הרגילה, לא את קריאת החג. אחרת היינו מציגים את שבועות גם בשבת.
+    var chagIsOver = false;
+    if(occ.chagDate && parshaName){
+      var t0 = new Date(); t0.setHours(0,0,0,0);
+      var cd = new Date(occ.chagDate); cd.setHours(0,0,0,0);
+      chagIsOver = t0 > cd;
     }
-    var summary = lookupParsha(parshaName);
+    if(occ.reading && !chagIsOver){
+      summary  = occ.reading.text;
+      boxLabel = '📜 ' + occ.reading.label;
+      // בחג שחל בשבת מציגים גם את שם החג וגם את הפרשה, אם יש.
+      subtitle = occ.hebName + (pDisplay ? ' · ' + pDisplay : '');
+    } else {
+      summary  = lookupParsha(parshaName);
+      boxLabel = '📜 תקציר הפרשה';
+      subtitle = pDisplay;
+    }
+    // הדמות מוצגת רק כשיש תוכן מועד (חג/צום) — בשבת רגילה הפרשה עומדת לעצמה.
+    var fig = (occ.reading && occ.reading.figure && !chagIsOver) ? occ.reading.figure : null;
+    var greeting  = occ.greeting  || 'שבת שלום';
+    var startLbl  = occ.startLabel || 'כניסת שבת';
+    var endLbl    = occ.endLabel   || 'צאת שבת';
     // מסיר את ה-padding של ה-section כדי שהפאנל יתמתח לקצוות (יוחזר ב-restoreFigureHTML)
     figSection.classList.remove('p-5');
     figSection.classList.add('p-0');
     figSection.innerHTML =
       '<div class="flex h-full flex-col px-5 pt-4 pb-2 text-center overflow-hidden" data-silent="1">'+
-        // ===== TOP: שבת שלום + פרשה (shrink-0) =====
+        // ===== TOP: ברכת המועד + שם הפרשה/החג (shrink-0) =====
         '<div class="shrink-0 flex flex-col items-center gap-0.5">'+
-          '<div class="title-grad text-2xl sm:text-3xl lg:text-4xl font-black leading-none">שבת שלום</div>'+
-          (pDisplay?'<div class="text-sm sm:text-base font-bold text-brand-200 text-glow">'+pDisplay+'</div>':'')+
+          '<div class="title-grad text-2xl sm:text-3xl lg:text-4xl font-black leading-none">'+greeting+'</div>'+
+          (subtitle?'<div class="text-sm sm:text-base font-bold text-brand-200 text-glow">'+subtitle+'</div>':'')+
         '</div>'+
-        // ===== MIDDLE: תקציר הפרשה (flex-1, ממלא את כל מה שנשאר) =====
+        // ===== MIDDLE: תקציר הקריאה (flex-1, ממלא את כל מה שנשאר) =====
         (summary ? '<div class="min-h-0 flex-1 mt-1 mx-auto max-w-2xl w-full rounded-2xl border border-brand-400/30 bg-brand-400/5 px-4 py-2.5 text-right flex flex-col overflow-hidden">'+
-          '<div class="shrink-0 mb-1 text-[10px] font-extrabold tracking-[0.2em] text-brand-300/70">📜 תקציר הפרשה</div>'+
+          '<div class="shrink-0 mb-1 text-[10px] font-extrabold tracking-[0.2em] text-brand-300/70">'+boxLabel+'</div>'+
           '<div class="parshaSummaryWrap min-h-0 flex-1 overflow-hidden">'+
             '<p class="parshaSummaryText leading-relaxed text-slate-200 text-justify [text-justify:inter-word]" style="font-size:15px">'+summary+'</p>'+
           '</div>'+
         '</div>' : '<div class="flex-1"></div>')+
-        // ===== BOTTOM: זמני שבת (ממורכז, 2 עמודות) + הגל השקט מתחתיהם — בקצה התחתון =====
+        // ===== דמות מקראית/רבנית הקשורה למועד (אם הוגדרה) =====
+        (fig ? '<div class="shrink-0 mt-1.5 mx-auto flex w-full max-w-2xl items-center gap-2.5 rounded-2xl border border-brand-400/20 bg-night-800/60 px-3 py-1.5 text-right">'+
+          '<div id="occFigAvatar" class="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-base font-black text-white shadow">'+fig.name.charAt(0)+'</div>'+
+          '<div class="min-w-0 flex-1">'+
+            '<div class="text-[12px] font-black leading-tight text-brand-200">'+fig.name+'</div>'+
+            '<div class="text-[10px] leading-snug text-slate-300">'+fig.why+'</div>'+
+          '</div>'+
+        '</div>' : '')+
+        // ===== BOTTOM: זמני המועד (ממורכז, 2 עמודות) + הגל השקט מתחתיהם =====
         '<div class="shrink-0 mt-auto pt-1 flex flex-col items-center gap-1">'+
-          // זמני שבת — 2 עמודות: כניסה מימין, יציאה משמאל
+          // זמנים — 2 עמודות: כניסה מימין, יציאה משמאל
           '<div class="grid grid-cols-2 gap-6 sm:gap-10 text-center">'+
-            '<div><div class="text-[8px] sm:text-[9px] text-brand-300/65">כניסת שבת</div><div class="text-base sm:text-lg font-black text-brand-200 text-glow tabular-nums">'+c+'</div></div>'+
-            '<div><div class="text-[8px] sm:text-[9px] text-brand-300/65">צאת שבת</div><div class="text-base sm:text-lg font-black text-brand-200 text-glow tabular-nums">'+h+'</div></div>'+
+            '<div><div class="text-[8px] sm:text-[9px] text-brand-300/65">'+startLbl+'</div><div class="text-base sm:text-lg font-black text-brand-200 text-glow tabular-nums">'+c+'</div></div>'+
+            '<div><div class="text-[8px] sm:text-[9px] text-brand-300/65">'+endLbl+'</div><div class="text-base sm:text-lg font-black text-brand-200 text-glow tabular-nums">'+h+'</div></div>'+
           '</div>'+
           // הגל השקט — מתחתיהם, ממורכז
           '<div class="text-[8px] sm:text-[9px] font-semibold tracking-[0.12em] text-brand-300/45">🟢 הגל השקט · ניטור התרעות פעיל</div>'+
         '</div>'+
       '</div>';
     setTimeout(setupParshaScroll, 100);
+    // דיוקן הדמות מוויקיפדיה העברית. נכשל? נשארת האות הראשונה שכבר מוצגת.
+    if(fig){
+      fetch('https://he.wikipedia.org/w/api.php?action=query&prop=pageimages&piprop=thumbnail&pithumbsize=200&redirects=1&format=json&origin=*&titles='+encodeURIComponent(fig.wiki))
+        .then(function(r){return r.json()}).then(function(d){
+          var pages=d&&d.query&&d.query.pages; if(!pages) return;
+          var pg=pages[Object.keys(pages)[0]]||{};
+          var el=document.getElementById('occFigAvatar');
+          if(el && pg.thumbnail && pg.thumbnail.source){
+            el.textContent='';
+            el.innerHTML='<img src="'+pg.thumbnail.source+'" referrerpolicy="no-referrer" class="size-full object-cover" alt="">';
+          }
+        }).catch(function(){});
+    }
   }
   // התאמת גופן דינמית של תקציר הפרשה — מקטין הדרגתית מ-15px עד שייכנס.
   // לעומת הגרסה הקודמת: בלי גלילה, רק שינוי גודל פונט.
@@ -1185,11 +1348,17 @@ loadSunRiseSet();
 setInterval(loadSunRiseSet, 6*60*60*1000); // כל 6 שעות
 
 // ⏳ זמני שבת כמשתנים גלובליים — לצורך "הגל השקט" שמופעל בכניסת השבת ונכבה ביציאת השבת.
-window.vaadShabbatStart = null; // כניסת שבת (Date)
-window.vaadShabbatEnd   = null; // יציאת שבת (Date)
+// ⏳ חלון המועד הנוכחי/הקרוב — שבת, חג או צום.
+// עד כה הקוד הניח שכל חלון הוא שבת, ולכן בערב יום כיפור הוצג "כניסת שבת"
+// במקום "כניסת הצום", ובחג הוצגה דמות יומית במקום קריאת התורה של החג.
+window.vaadShabbatStart = null; // כניסת המועד (Date) — השם נשמר לתאימות אחורה
+window.vaadShabbatEnd   = null; // יציאת המועד (Date)
 window.vaadCandleTime   = null; // HH:MM
 window.vaadHavdalahTime = null; // HH:MM
-window.vaadParsha       = null; // פרשת השבוע
+window.vaadParsha       = null; // פרשת השבוע (אם יש)
+window.vaadOccasion     = null; // אובייקט המועד המלא (ראה classifyWindow)
+window.vaadNextOccasion = null; // המועד הבא — לתג שבצד כשאנחנו לא בתוך מועד
+
 window.vaadIsShabbatNow = function(){
   return window.vaadShabbatStart && window.vaadShabbatEnd
       && new Date() >= window.vaadShabbatStart
@@ -1206,66 +1375,240 @@ window.vaadYomKippurWindows = [
   ['2030-10-06T17:00:00+02:00', '2030-10-07T18:30:00+02:00'],
 ];
 window.vaadIsYomKippurNow = function(){
+  // מקור ראשון: מנוע המועדים, שמקבל את כיפור מ-Hebcal בכל שנה מחדש —
+  // כך שעצירת המוזיקה לא תלויה ברשימה שמישהו צריך לתחזק.
+  var occ = window.vaadOccasion;
+  if(occ && occ.key === 'kippur') return true;
+  // גיבוי: הרשימה הקשיחה למעלה, למקרה ש-Hebcal לא נענה (אין רשת בלובי).
+  // היא תקפה עד 2030 — ומאותה שנה ואילך הגיבוי פשוט לא יתפוס, בעוד
+  // המקור הראשון ממשיך לעבוד כרגיל.
   var now = new Date();
   return window.vaadYomKippurWindows.some(function(w){
     return now >= new Date(w[0]) && now <= new Date(w[1]);
   });
 };
 
-function loadShabbat(){
-  fetch('https://www.hebcal.com/shabbat?cfg=json&latitude='+MODIIN.lat+'&longitude='+MODIIN.lon+'&tzid='+MODIIN.tz+'&b=18&M=on&_='+Date.now())
-  .then(function(r){return r.json()}).then(function(j){
-  var items=j.items||[],c,h,p,cDate,hDate;
-  // ⚠ Hebcal מחזיר לפעמים כמה זוגות candles/havdalah באותו שבוע — כשחג
-  // נופל סמוך לשבת. למשל יום כיפור שחל ביום ראשון (ספטמבר 2026):
-  // נרות שישי + הבדלה במוצש"ק, וגם נרות ערב כיפור + הבדלה במוצאי כיפור.
-  // לולאת forEach פשוטה דרסה ולקחה את האחרון — כך שחלון "השבת"
-  // הוצב על תאריכי החג, vaadIsShabbatNow() החזיר false בעצם השבת,
-  // ופאנל הפרשה לא נפתח כלל (נשארה הדמות הרבנית).
-  // לכן: בוחרים את הדלקת הנרות של יום שישי, ואת ההבדלה הראשונה שאחריה.
-  var candlesAll=[], havdalahAll=[];
-  items.forEach(function(it){
-    if(it.category==='candles')  candlesAll.push(new Date(it.date));
-    if(it.category==='havdalah') havdalahAll.push(new Date(it.date));
-    if(it.category==='parashat') p=it.hebrew;
+/* ====================== מנוע המועדים ======================
+   Hebcal מחזיר רשימה שטוחה של candles / havdalah / holiday / parashat.
+   אנחנו הופכים אותה לרשימת "חלונות" — מהדלקת נרות עד ההבדלה — ומסווגים כל
+   חלון: שבת, חג, או צום. זה מה שקובע את התוויות ("כניסת שבת" מול "כניסת הצום")
+   ואת מה שמוצג בפאנל המרכזי (תקציר פרשה מול קריאת התורה של החג). */
+
+// המפתח נגזר מהשם האנגלי של Hebcal — יציב יותר מהעברי.
+function holidayKey(title){
+  var t = String(title || '');
+  // תענית בכורות היא לבכורות בלבד ולא צום ציבורי — לא מציגים אותה על הלוח.
+  if(/Ta.?anit Bechorot/i.test(t))          return '';
+  // תשעה באב מתחיל בערבו, ולכן דווקא כאן "Erev" הוא חלק מהצום ולא לפניו.
+  if(/Tish.?a B.?Av/i.test(t))              return 'tisha-bav';
+  if(/^Erev/i.test(t)) return '';                       // ערב-חג אינו החג עצמו
+  if(/Tzom Gedaliah/i.test(t))              return 'tzom-gedaliah';
+  if(/Asara B.?Tevet/i.test(t))             return 'asara-btevet';
+  if(/Ta.?anit Esther/i.test(t))            return 'taanit-esther';
+  if(/Tzom Tammuz|Shiva Asar/i.test(t))     return 'tzom-tammuz';
+  if(/Yom Kippur/i.test(t))                 return 'kippur';
+  if(/Rosh Hashana/i.test(t))               return 'rosh-hashana';
+  if(/Shmini Atzeret|Simchat Torah/i.test(t)) return 'shmini-atzeret';
+  if(/Shavuot/i.test(t))                    return 'shavuot';
+  if(/Sukkot/i.test(t)){
+    if(/\(CH.{0,3}M\)|Hoshana Raba/i.test(t)) return 'sukkot-chm';
+    return 'sukkot';
+  }
+  if(/Pesach/i.test(t)){
+    if(/\(CH.{0,3}M\)/i.test(t))            return 'pesach-chm';
+    if(/Pesach\s+(VII|VIII)\b/i.test(t))    return 'pesach-7';
+    return 'pesach';
+  }
+  return '';
+}
+
+// כותרת הברכה בראש הפאנל, לפי המועד.
+function occasionGreeting(key, isShabbat, isFast){
+  if(key === 'kippur')       return 'גמר חתימה טובה';
+  if(isFast)                 return 'צום קל';
+  if(key === 'rosh-hashana') return 'שנה טובה ומתוקה';
+  if(!key)                   return 'שבת שלום';
+  return isShabbat ? 'שבת שלום וחג שמח' : 'חג שמח';
+}
+
+/* בונה חלונות מתוך פריטי Hebcal. הדלקת נרות פותחת חלון, הבדלה סוגרת אותו.
+   הדלקת נרות נוספת בתוך חלון פתוח (יום שני של ראש השנה, או חג שנכנס לשבת)
+   אינה פותחת חלון חדש — זה אותו רצף אחד. */
+function buildOccasionWindows(items){
+  var evts = items.slice().sort(function(a,b){ return new Date(a.date) - new Date(b.date); });
+  var windows = [], open = null;
+  evts.forEach(function(it){
+    if(it.category === 'candles'){
+      if(!open) open = { start: new Date(it.date), holidays: [], parsha: null };
+    } else if(it.category === 'havdalah'){
+      if(open){ open.end = new Date(it.date); windows.push(open); open = null; }
+    }
   });
-  cDate = candlesAll.filter(function(d){return d.getDay()===5;})[0] || candlesAll[0];
-  // ההבדלה הראשונה שאחרי הדלקת הנרות — אבל לפחות 12 שעות אחריה.
-  // הסייג הזה מגן מפני הבדלה של חג שמסתיים באותו ערב שבו נכנסת
-  // השבת — אחרת חלון השבת היה נסגר כשעה אחרי שנפתח. שבת אמיתית
-  // אורכת כ-25 שעות, וכשהיא נמשכת ישירות לחג — יותר.
-  var MIN_SHABBAT_MS = 12*60*60*1000;
-  hDate = cDate ? havdalahAll.filter(function(d){return d-cDate > MIN_SHABBAT_MS;})[0] : havdalahAll[0];
-  if(cDate) c = hhmm(cDate);
-  if(hDate) h = hhmm(hDate);
-  window.vaadShabbatStart = cDate;
-  window.vaadShabbatEnd   = hDate;
-  window.vaadCandleTime   = c;
-  window.vaadHavdalahTime = h;
-  window.vaadParsha       = p;
-  // אם זה כבר שבת — תרענן את פאנל הדמות ל"הגל השקט" (המוזיקה ממשיכה — רק כיפור עוצר).
-  if(window.vaadIsShabbatNow()){
+  // חלונות צום — מקבילים ונפרדים. Hebcal מסמן אותם כ-zmanim/subcat=fast עם
+  // "Fast begins"/"Fast ends". נבנים בנפרד כי צום יכול לחפוף לשבת (עשרה בטבת
+  // שחל בערב שבת) — ואז שניהם חלונות אמיתיים ואסור לאחד ביניהם.
+  var fastOpen = null, fastWindows = [];
+  var MAX_FAST_MS = 30*60*60*1000; // הצום הארוך ביותר (תשעה באב/כיפור) ~25 שעות
+  evts.forEach(function(it){
+    if(it.category !== 'zmanim' || it.subcat !== 'fast') return;
+    // ⚠ תענית בכורות מקבלת מ-Hebcal "Fast begins" בלי "Fast ends" — כי נהוג
+    // לפדות אותה בסיום מסכת. בלי הסינון הזה החלון נשאר פתוח מערב פסח ועד
+    // "Fast ends" הבא (י״ז בתמוז) — חלון של 92 יום שבולע את כל האביב.
+    // ממילא זו תענית לבכורות בלבד ולא צום ציבורי, ואין לה מקום על הלוח.
+    if(/Bechorot/i.test(it.memo || '')) return;
+    if(/begins/i.test(it.title)){
+      if(!fastOpen) fastOpen = { start: new Date(it.date), holidays: [], parsha: null, fromFast: true };
+    } else if(/ends/i.test(it.title)){
+      if(fastOpen){ fastOpen.end = new Date(it.date); fastWindows.push(fastOpen); fastOpen = null; }
+    }
+  });
+  // רשת ביטחון: אם בכל זאת נותר "Fast begins" יתום, החלון שייווצר יהיה ארוך
+  // מכל צום אפשרי — עדיף לוותר עליו מאשר להשבית את הלוח לחודשים.
+  fastWindows = fastWindows.filter(function(fw){ return (fw.end - fw.start) <= MAX_FAST_MS; });
+  // צום שכולו בתוך חלון נרות (יום כיפור) הוא אותו אירוע — לא מוסיפים אותו פעמיים.
+  fastWindows.forEach(function(fw){
+    var contained = windows.some(function(w){ return fw.start >= w.start && fw.end <= w.end; });
+    if(!contained) windows.push(fw);
+  });
+  windows.sort(function(a,b){ return a.start - b.start; });
+  // שיוך חגים ופרשה לחלון שבתוכו הם נופלים (לפי היום, לא לפי השעה —
+  // פריטי holiday/parashat מגיעים כתאריך בלבד ללא שעה).
+  function dayKey(d){ return d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate(); }
+  evts.forEach(function(it){
+    if(it.category !== 'holiday' && it.category !== 'parashat') return;
+    var d = new Date(it.date);
+    windows.forEach(function(w){
+      // ⚠ אסור לקדם יום בהוספת 86400000 מ״ש: בליל המעבר לשעון קיץ היממה היא
+      // 23 שעות, ואז הקידום "מדלג" מעבר ל-last והיום האחרון נושר. התוצאה הייתה
+      // שבשבת של שינוי השעון הפרשה לא שויכה כלל והפאנל נשאר ריק — כל שנה מחדש.
+      var days = [], cur = new Date(w.start.getFullYear(), w.start.getMonth(), w.start.getDate());
+      var last = new Date(w.end.getFullYear(), w.end.getMonth(), w.end.getDate());
+      while(cur <= last){
+        days.push(dayKey(cur));
+        cur = new Date(cur.getFullYear(), cur.getMonth(), cur.getDate() + 1);
+      }
+      if(days.indexOf(dayKey(d)) === -1) return;
+      if(it.category === 'parashat') w.parsha = it.hebrew || it.title;
+      else w.holidays.push(it);
+    });
+  });
+  windows.forEach(classifyWindow);
+  return windows;
+}
+
+/* מסווג חלון בודד. סדר העדיפויות: צום > חג > שבת. */
+function classifyWindow(w){
+  var yomtov = null, keyed = null;
+  w.holidays.forEach(function(h){
+    var k = holidayKey(h.title);
+    if(!k) return;
+    // "ערב תשעה באב" ו"תשעה באב" מתמפים לאותו מפתח, אבל השם שמוצג צריך
+    // להיות של היום עצמו. לכן יום שאינו "ערב" מנצח תמיד.
+    var isErev = /^Erev/i.test(h.title);
+    if(!keyed || (/^Erev/i.test(keyed.item.title) && !isErev)) keyed = { key: k, item: h };
+    if(h.yomtov && !yomtov) yomtov = { key: k, item: h };
+  });
+  var chosen = yomtov || keyed;
+  // ⚠ חלון שנבנה מהדלקת נרות (שבת/חג) אינו צום, גם אם פריט של צום נופל בתוכו:
+  //   · תשעה באב שחל בשבת נדחה ליום ראשון — ו"ערב תשעה באב" יושב בשבת עצמה.
+  //   · עשרה בטבת הוא הצום היחיד שיכול לחול בערב שבת.
+  // בלי הסינון הזה השבת הייתה מסווגת כ"חג" ומוצג עליה "חג שמח · ערב תשעה באב".
+  // הצום עצמו לא הולך לאיבוד — הוא מיוצג בחלון הצום המקביל שנבנה בנפרד.
+  // יום כיפור הוא היוצא מן הכלל: חלון הנרות שלו הוא הצום עצמו.
+  var FAST_ONLY_KEYS = { 'tisha-bav':1, 'tzom-gedaliah':1, 'asara-btevet':1, 'taanit-esther':1, 'tzom-tammuz':1 };
+  if(!w.fromFast && chosen && FAST_ONLY_KEYS[chosen.key]) chosen = null;
+  // האם החלון כולל שבת? (יום שבת כלשהו בין הכניסה ליציאה)
+  var isShabbat = false;
+  var cur  = new Date(w.start.getFullYear(), w.start.getMonth(), w.start.getDate());
+  var last = new Date(w.end.getFullYear(),   w.end.getMonth(),   w.end.getDate());
+  while(cur <= last){
+    if(cur.getDay() === 6) isShabbat = true;
+    cur = new Date(cur.getFullYear(), cur.getMonth(), cur.getDate() + 1);
+  }
+  if(!chosen && w.parsha) isShabbat = true;
+
+  w.key       = chosen ? chosen.key : '';
+  w.isShabbat = isShabbat;
+  w.isFast    = !!w.fromFast || w.key === 'kippur';
+  // חול המועד אינו יום טוב — זו שבת רגילה (מבחינת תוויות וברכה) שבה קוראים
+  // קריאה מיוחדת. לכן isChag נקבע לפי yomtov בפועל, לא לפי עצם קיום המפתח.
+  w.isCholHaMoed = /-chm$/.test(w.key);
+  w.isChag    = !!w.key && !w.isFast && !w.isCholHaMoed;
+  // Hebcal מחזיר "ראש השנה 5788" — מספר השנה מיותר על הלוח.
+  w.hebName   = chosen ? String(chosen.item.hebrew || chosen.item.title).replace(/\s*\d{4}\s*$/, '') : '';
+  if(w.isCholHaMoed) w.hebName = 'שבת חול המועד ' + (w.key === 'pesach-chm' ? 'פסח' : 'סוכות');
+  w.greeting  = w.isCholHaMoed ? 'שבת שלום' : occasionGreeting(w.key, isShabbat, w.isFast);
+  // תאריך יום טוב — כדי לדעת אם החג כבר עבר והשבת שאחריו היא פרשה רגילה.
+  w.chagDate  = yomtov ? new Date(yomtov.item.date) : null;
+
+  // התוויות שהמשתמש רואה — זה הלב של התיקון.
+  if(w.isFast){        w.startLabel = 'כניסת הצום'; w.endLabel = 'צאת הצום'; w.shortName = w.hebName || 'הצום'; }
+  else if(w.isChag){   w.startLabel = 'כניסת החג';  w.endLabel = 'צאת החג';  w.shortName = w.hebName || 'החג'; }
+  else {               w.startLabel = 'כניסת שבת';  w.endLabel = 'צאת שבת';  w.shortName = w.isCholHaMoed ? w.hebName : 'שבת'; }
+
+  // מה מוצג בפאנל המרכזי: קריאת התורה של החג, או תקציר פרשת השבוע.
+  w.reading = (w.key && (HOLIDAY_READINGS[w.key] || FAST_READINGS[w.key])) || null;
+  return w;
+}
+
+function pad2(n){ return (n<10?'0':'')+n; }
+function isoDate(d){ return d.getFullYear()+'-'+pad2(d.getMonth()+1)+'-'+pad2(d.getDate()); }
+
+function loadShabbat(){
+  // טווח של 40 יום קדימה ו-2 אחורה — מספיק כדי לתפוס חג שכבר התחיל,
+  // ואת המועד הבא גם כשיש רצף ארוך (סוכות → שמיני עצרת).
+  var now = new Date();
+  var from = new Date(now.getTime() - 2*86400000);
+  var to   = new Date(now.getTime() + 40*86400000);
+  // i=on = לוח ארץ ישראל (יום טוב אחד ולא שניים). s=on מחזיר גם את פרשת השבוע.
+  var url = 'https://www.hebcal.com/hebcal?v=1&cfg=json&maj=on&min=off&mf=on&mod=off&nx=off&s=on&c=on'
+          + '&b=18&M=on&geo=pos&latitude='+MODIIN.lat+'&longitude='+MODIIN.lon
+          + '&tzid='+encodeURIComponent(MODIIN.tz)+'&i=on'
+          + '&start='+isoDate(from)+'&end='+isoDate(to)+'&_='+Date.now();
+  fetch(url).then(function(r){return r.json()}).then(function(j){
+    var windows = buildOccasionWindows(j.items || []);
+    var n = new Date();
+    var current = null, next = null;
+    for(var i=0; i<windows.length; i++){
+      if(n >= windows[i].start && n <= windows[i].end){ current = windows[i]; break; }
+    }
+    for(var k=0; k<windows.length; k++){
+      if(windows[k].start > n){ next = windows[k]; break; }
+    }
+    var active = current || next;
+    if(!active) return;
+
+    window.vaadOccasion     = current;
+    window.vaadNextOccasion = next;
+    window.vaadShabbatStart = active.start;
+    window.vaadShabbatEnd   = active.end;
+    window.vaadCandleTime   = hhmm(active.start);
+    window.vaadHavdalahTime = hhmm(active.end);
+    window.vaadParsha       = active.parsha || null;
+
     if(window.vaadRefreshFigure) window.vaadRefreshFigure();
-  }
-  // תג קומפקטי — באמצע השבוע המרכז מציג דמות יומית, ולכן פרשת השבוע + זמני שבת
-  // מוצגים כאן בשורה אחת בלבד. בשבת/ערב שבת המרכז מציג "שבת שלום" בגדול,
-  // והתג כאן נשאר כסיכום זמני (בלי כפילות).
-  var box=document.getElementById('shabbatBox');
-  if(p || c){
-    var dow=new Date().getDay();
-    var label = (dow===5 || dow===6) ? 'שבת' : 'השבת הקרובה';
-    box.innerHTML='<div class="mt-2 rounded-2xl border border-brand-400/20 bg-brand-400/5 px-2.5 py-1.5">'+
-      '<div class="text-[12px] font-bold text-brand-200 truncate">'+label+(p?' · '+p:'')+'</div>'+
-      (c||h ? '<div class="mt-1 flex items-center justify-between gap-2 text-[11px] font-semibold text-brand-300">'+
-        (c?'<span><span class="text-brand-300/70">כניסת שבת</span> <span class="tabular-nums text-brand-200">'+c+'</span></span>':'<span></span>')+
-        (h?'<span><span class="text-brand-300/70">צאת שבת</span> <span class="tabular-nums text-brand-200">'+h+'</span></span>':'<span></span>')+
-      '</div>' : '')+
-    '</div>';
-  } else {
-    box.innerHTML='';
-  }
+
+    // תג קומפקטי בעמודה הימנית — שם המועד + זמני כניסה/יציאה, עם התוויות הנכונות.
+    var box = document.getElementById('shabbatBox');
+    if(!box) return;
+    var inIt = !!current;
+    // בתוך המועד — רק השם. לפניו — "השבת הקרובה", או שם החג עם "בקרוב".
+    var label;
+    if(inIt)                              label = active.shortName;
+    else if(active.isChag || active.isFast) label = active.shortName + ' · בקרוב';
+    else                                  label = 'השבת הקרובה';
+    var sub = active.parsha ? (' · ' + active.parsha) : '';
+    box.innerHTML =
+      '<div class="mt-2 rounded-2xl border border-brand-400/20 bg-brand-400/5 px-2.5 py-1.5">'+
+        '<div class="text-[12px] font-bold text-brand-200 truncate">'+label+sub+'</div>'+
+        '<div class="mt-1 flex items-center justify-between gap-2 text-[11px] font-semibold text-brand-300">'+
+          '<span><span class="text-brand-300/70">'+active.startLabel+'</span> <span class="tabular-nums text-brand-200">'+hhmm(active.start)+'</span></span>'+
+          '<span><span class="text-brand-300/70">'+active.endLabel+'</span> <span class="tabular-nums text-brand-200">'+hhmm(active.end)+'</span></span>'+
+        '</div>'+
+      '</div>';
   }).catch(function(){});
 }
+
 loadShabbat();
 setInterval(loadShabbat, 6*60*60*1000); // כל 6 שעות
 
