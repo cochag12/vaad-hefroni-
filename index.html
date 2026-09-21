@@ -254,6 +254,7 @@
           </div>
         </div>
         <div id="shabbatBox"></div>
+        <div id="omerBox"></div>
       </section>
     </div>
   </div>
@@ -652,6 +653,75 @@ var HOLIDAY_READINGS = {
    בניגוד לשבת/חג/צום, לאלה אין חלון של כניסה ויציאה — הם פשוט היום עצמו.
    לכן הם מנגנון נפרד שרץ ברמת התאריך, ונדחה מפני חלון מועד אם יש כזה
    (שבת חנוכה = פאנל הפרשה, לא פאנל חנוכה). */
+/* ----- חול המועד, הושענא רבה וערבי חג -----
+   כל אלה ימי חול ללא הדלקת נרות והבדלה, ולכן הם אירועי-יום ולא חלונות.
+   עד שנוספו, 64% מימי סוכות ופסח לא הוזכרו כלל על הלוח. */
+var CHM_ORDINAL = ['', 'א׳', 'ב׳', 'ג׳', 'ד׳', 'ה׳', 'ו׳', 'ז׳'];
+
+var CHOL_HAMOED = {
+  'sukkot': {
+    greeting: 'מועדים לשמחה',
+    label: 'חול המועד סוכות',
+    name: 'סוכות',
+    text: 'שבעת ימי החג, שבהם יוצאים מן הבית הקבוע אל הסוכה: ״בסכת תשבו שבעת ימים... למען ידעו דרתיכם כי בסכות הושבתי את בני ישראל בהוציאי אותם מארץ מצרים״. חול המועד אינו יום חג גמור ואינו יום חול — מותרת בו מלאכה שיש בה צורך המועד או שדחייתה תגרום הפסד, ואסורה מלאכה שאפשר להמתין לה. ארבעת המינים ניטלים בכל יום מימי החג חוץ מן השבת, ונוהגים לקרוא את מגילת קהלת. בבית המקדש ניסכו בימים אלה מים על המזבח, ומכאן שמחת בית השואבה שעליה אמרו חכמים: ״מי שלא ראה שמחת בית השואבה — לא ראה שמחה מימיו״.',
+    /* אושפיזין — האורח של כל יום מימי סוכות, לפי סדרם המסורתי.
+       היום הראשון (אברהם) נופל בחג עצמו, שמוצג בפאנל החג. */
+    figures: [
+      null, null,
+      { name: 'יצחק אבינו',  wiki: 'יצחק',  why: 'האושפיז של היום השני; הנעקד שעל שמו נקרא ״פחד יצחק״.' },
+      { name: 'יעקב אבינו',  wiki: 'יעקב',  why: 'האושפיז של היום השלישי; ״ויעקב נסע סכתה ויבן לו בית״ — משם השם סוכות.' },
+      { name: 'משה רבנו',    wiki: 'משה',   why: 'האושפיז של היום הרביעי; בזכותו ירד המן והתקיימו במדבר.' },
+      { name: 'אהרן הכהן',   wiki: 'אהרן',  why: 'האושפיז של היום החמישי; לפי המדרש ענני הכבוד הגנו על ישראל בזכותו.' },
+      { name: 'יוסף הצדיק',  wiki: 'יוסף',  why: 'האושפיז של היום השישי; הפרנס שכלכל את משפחתו בשנות הרעב.' }
+    ],
+    days: [ '', '',
+      'בסוכה אוכלים, שותים ואף ישנים — ״תשבו כעין תדורו״, שתהא הסוכה כבית.',
+      'ארבעת המינים נאגדים יחד: מן האתרוג שיש בו טעם וריח ועד הערבה שאין בה לא זה ולא זה.',
+      'בבית המקדש ניסכו מים על המזבח — טקס שהיה ייחודי לחג הזה בלבד.',
+      'בכל לילה מזמינים אושפיז אחר אל הסוכה — אורח מן האבות.',
+      'מחר הושענא רבה, חותם ימי הדין; נוהגים להישאר ערים וללמוד.'
+    ]
+  },
+  'pesach': {
+    greeting: 'מועדים לשמחה',
+    label: 'חול המועד פסח',
+    name: 'פסח',
+    text: 'ימי הביניים של החג, שבין היום הראשון לשביעי של פסח. החמץ אסור בכל שבעת הימים: ״שבעת ימים מצות תאכלו... ולא יראה לך חמץ ולא יראה לך שאר בכל גבלך״. חול המועד אינו חג גמור ואינו יום חול — מותרת מלאכה שיש בה צורך המועד או שדחייתה תגרום הפסד. מן היום השני של פסח מתחילים לספור את העומר, ארבעים ותשעה ימים מן היציאה ממצרים ועד מתן תורה בשבועות: ״וספרתם לכם ממחרת השבת... שבע שבתות תמימת תהיינה״. בשבת שבתוך החג קוראים את מגילת שיר השירים.',
+    figures: [
+      null, null,
+      { name: 'יוכבד',            wiki: 'יוכבד',            why: 'אמו של משה; הצפינה אותו שלושה חודשים ושמה אותו בתיבה על היאור.' },
+      { name: 'בתיה בת פרעה',     wiki: 'בתיה בת פרעה',     why: 'ירדה לרחוץ ביאור, משתה אותו מן המים וגידלה אותו בארמון אביה.' },
+      { name: 'שפרה ופועה',       wiki: 'שפרה ופועה',       why: 'המיילדות העבריות שסירבו לפקודת פרעה ולא המיתו את הבנים.' },
+      { name: 'אהרן הכהן',        wiki: 'אהרן',             why: 'אחיו ודוברו של משה; עמו ניצב לפני פרעה ובידו החלו המכות.' },
+      { name: 'נחשון בן עמינדב',  wiki: 'נחשון בן עמינדב',  why: 'לפי המדרש קפץ ראשון אל הים — ורק אז נבקעו המים.' }
+    ],
+    days: [ '', '',
+      'היום מתחילה ספירת העומר — ארבעים ותשעה ימים מן היציאה ועד מתן תורה.',
+      '״בכל דור ודור חייב אדם לראות את עצמו כאילו הוא יצא ממצרים.״',
+      'חול המועד: מותרת מלאכה שיש בה צורך המועד או שדחייתה תגרום הפסד.',
+      'המצה נקראת ״לחם עוני״, ובלשון הזוהר ״מיכלא דמהימנותא״ — מאכל האמונה.',
+      'מחר שביעי של פסח, ליל קריעת ים סוף; נוהגים להישאר ערים ולומר שירה.'
+    ]
+  }
+};
+
+var HOSHANA_RABA = {
+  greeting: 'הושענא רבה',
+  subtitle: 'ז׳ דסוכות · חותם ימי הדין',
+  label: 'הושענא רבה',
+  figure: { name: 'דוד המלך', wiki: 'דוד', why: 'האושפיז של היום השביעי; ״הושיעה נא״ שבהקפות לקוח מתהילים שלו.' },
+  text: 'היום השביעי של סוכות, וחותם ימי הדין שנפתחו בראש השנה. נוטלים חמש ערבות אגודות, מקיפים את הבימה שבע הקפות עם ארבעת המינים ואומרים ״הושענא״, ולבסוף חובטים את הערבות בקרקע. על פי המסורת, גזר הדין שנכתב בראש השנה ונחתם ביום הכיפורים נמסר לשליחיו ביום זה — ומכאן הברכה שנוהגים לברך בו: ״פתקא טבא״, פתק טוב. נוהגים להישאר ערים בלילה וללמוד, ובקהילות רבות קוראים את ספר דברים ואת ספר תהילים כולו. למחרת — שמיני עצרת ושמחת תורה.'
+};
+
+/* ערבי חג — שעות היום שלפני כניסת החג. עד כה הוצגה בהן דמות יומית רגילה. */
+var EREV_CHAG = {
+  'rosh-hashana': { name: 'ראש השנה', text: 'היום האחרון של השנה החולפת. נוהגים להשכים לסליחות, לערוך התרת נדרים בפני שלושה, ולטבול לקראת החג. רבים פוקדים את קברי הקרובים ומבקשים מחילה זה מזה — שעבירות שבין אדם לחברו אין יום הכיפורים מכפר עד שירצה את חברו. בערב מסדרים את סימני הראש: תפוח בדבש, רימון, ראש דג, ומברכים על כל אחד ״יהי רצון״.' },
+  'kippur':       { name: 'יום הכיפורים', text: 'היום שלפני הצום. מצווה לאכול בו, ואמרו חכמים שכל האוכל בתשיעי כאילו התענה תשיעי ועשירי. נוהגים בכפרות, בטבילה, ובסעודה מפסקת שנגמרת לפני השקיעה. זהו גם הזמן האחרון לבקש מחילה מכל אדם שנפגע — שעבירות שבין אדם לחברו אינן מתכפרות ביום הכיפורים עד שירצה את חברו. לפני כניסת הצום מברכים את הילדים ומדליקים נר נשמה.' },
+  'sukkot':       { name: 'סוכות', text: 'ארבעה ימים בלבד מפרידים בין יום הכיפורים לסוכות, ונוהגים להתחיל בהקמת הסוכה מיד במוצאי הצום — ״מצווה הבאה לידך אל תחמיצנה״. היום בוחרים ובודקים את ארבעת המינים, מסככים בסכך שגידולו מן הארץ ואינו מקבל טומאה, ומקשטים את הסוכה. מן החג הנורא של הדין עוברים ישירות אל ״זמן שמחתנו״.' },
+  'pesach':       { name: 'פסח', text: 'בבוקר שורפים את החמץ שנותר ומבטלים אותו, והבכורים נוהגים להשתתף בסיום מסכת כדי להיפטר מתענית בכורות. אופים מצות, עורכים את הקערה — זרוע, ביצה, מרור, חרוסת, כרפס וחזרת — ומכינים את הבית לליל הסדר. מחצות היום ואילך אין אוכלים מצה, כדי שתיאכל בלילה לתיאבון.' },
+  'shavuot':      { name: 'שבועות', text: 'היום החמישים לספירת העומר, וסיומה. נוהגים לקשט את הבית ואת בית הכנסת בירק ובפרחים — זכר להר סיני שפרח לקראת מתן תורה. מכינים מאכלי חלב, ורבים נערכים ללילה של לימוד: ״תיקון ליל שבועות״, על שום שישראל ישנו בליל מתן תורה והוצרך משה להעירם.' }
+};
+
 var CHANUKAH_NIGHTS = ['', 'ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שביעי', 'שמיני'];
 
 var DAY_EVENTS = {
@@ -697,11 +767,28 @@ var DAY_EVENTS = {
 /* מזהה אירוע-יום לתאריך הנוכחי מתוך אותה תשובת Hebcal ששימשה לחלונות.
    מדלגים במכוון על: "Erev Purim" (עדיין לא פורים), "Shushan Purim" (ירושלים
    וערים מוקפות חומה — מודיעין אינה כזו), ו-"Chag HaBanot". */
+function romanToInt(r){
+  var map = { I:1, V:5, X:10 }, n = 0, str = String(r).toUpperCase();
+  for(var i=0;i<str.length;i++){
+    var v = map[str[i]] || 0, nxt = map[str[i+1]] || 0;
+    n += (v < nxt) ? -v : v;
+  }
+  return n;
+}
+function erevKey(title){
+  if(/Rosh Hashana/i.test(title)) return 'rosh-hashana';
+  if(/Yom Kippur/i.test(title))   return 'kippur';
+  if(/Sukkot/i.test(title))       return 'sukkot';
+  if(/Pesach/i.test(title))       return 'pesach';
+  if(/Shavuot/i.test(title))      return 'shavuot';
+  return '';
+}
+
 function computeDayEvent(items){
   var now = new Date();
   var todayKey = now.getFullYear()+'-'+now.getMonth()+'-'+now.getDate();
   var found = null;
-  var erevPurimToday = false, nightfallToday = null;
+  var erevPurimToday = false, nightfallToday = null, candlesToday = null;
   items.forEach(function(it){
     var dd = new Date(it.date);
     if(dd.getFullYear()+'-'+dd.getMonth()+'-'+dd.getDate() !== todayKey) return;
@@ -710,11 +797,21 @@ function computeDayEvent(items){
         it.category === 'havdalah'){
       if(!nightfallToday || dd > nightfallToday) nightfallToday = dd;
     }
+    if(it.category === 'candles' && !candlesToday) candlesToday = hhmm(it.date);
     if(it.category !== 'holiday') return;
     var t = String(it.title || '');
     if(/^Erev Purim$/i.test(t)) erevPurimToday = true;
     if(/^Purim$/i.test(t)){
       found = { key:'purim' };                 // פורים גובר אם איכשהו יתנגש
+    } else if(/Hoshana Raba/i.test(t) && !found){
+      found = { key:'hoshana-raba' };
+    } else if(/^(Sukkot|Pesach)\s+([IVX]+)\s*\(CH/i.test(t) && !found){
+      // "Sukkot III (CH''M)" — הספרה הרומית היא היום במניין החג.
+      var m2 = t.match(/^(Sukkot|Pesach)\s+([IVX]+)/i);
+      found = { key: 'chol-hamoed', chag: m2[1].toLowerCase(), day: romanToInt(m2[2]) };
+    } else if(/^Erev (Rosh Hashana|Yom Kippur|Sukkot|Pesach|Shavuot)/i.test(t) && !found){
+      // ערב חג בלבד — לא ערב פורים (מטופל בנפרד) ולא ערב תשעה באב (זה צום).
+      found = { key: 'erev-chag', chag: erevKey(t) };
     } else if(/^Chanukah/i.test(t) && !found){
       var m = t.match(/(\d)\s*Candle/i);
       var night = m ? parseInt(m[1], 10) : null;
@@ -738,6 +835,49 @@ function computeDayEvent(items){
     if(now >= trigger) found = { key:'purim' };
   }
   if(!found) return null;
+
+  // --- הושענא רבה ---
+  if(found.key === 'hoshana-raba'){
+    found.greeting  = HOSHANA_RABA.greeting;
+    found.subtitle  = HOSHANA_RABA.subtitle;
+    found.label     = HOSHANA_RABA.label;
+    found.text      = HOSHANA_RABA.text;
+    found.figure    = HOSHANA_RABA.figure;
+    found.nightNote = '';
+    return found;
+  }
+
+  // --- חול המועד סוכות / פסח ---
+  if(found.key === 'chol-hamoed'){
+    var c = CHOL_HAMOED[found.chag];
+    if(!c) return null;
+    found.greeting  = c.greeting;
+    found.subtitle  = (CHM_ORDINAL[found.day] || found.day) + ' דחול המועד ' + c.name;
+    found.label     = c.label;
+    found.text      = c.text;
+    found.figure    = c.figures[found.day] || c.figures[2];
+    found.nightNote = c.days[found.day] || '';
+    return found;
+  }
+
+  // --- ערב חג ---
+  if(found.key === 'erev-chag'){
+    var e = EREV_CHAG[found.chag];
+    if(!e) return null;
+    // הדמות של החג עצמו, כדי לא לכתוב דמות נוספת לכל ערב.
+    var src = HOLIDAY_READINGS[found.chag] || FAST_READINGS[found.chag];
+    found.greeting  = 'ערב ' + e.name;
+    found.label     = 'לקראת ' + e.name;
+    found.text      = e.text;
+    found.figure    = src ? src.figure : null;
+    found.nightNote = '';
+    // זמן הכניסה נשלף מהדלקת הנרות של אותו יום (נקבע בלולאה למטה).
+    found.lightTime = candlesToday;
+    found.subtitle  = found.lightTime ? ('כניסת החג בשעה ' + found.lightTime) : '';
+    found.lightLabel = 'כניסת החג';
+    return found;
+  }
+
   var content = DAY_EVENTS[found.key];
   if(!content) return null;
   found.greeting = content.greeting;
@@ -1278,7 +1418,7 @@ setInterval(tickClock,1000);tickClock();
       return 'occ:' + (o.key || 'shabbat') + ':' + (o.parsha || '');
     }
     var de = window.vaadDayEvent;
-    if(de) return 'day:' + de.key + ':' + (de.night || (de.eighthDay ? 8 : 0));
+    if(de) return 'day:' + de.key + ':' + (de.night || de.day || (de.eighthDay ? 8 : 0)) + ':' + (de.chag || '');
     return 'figure:' + new Date().toDateString();
   }
   function isSilentNow(){ return !!figSection.querySelector('[data-silent="1"]'); }
@@ -1312,7 +1452,7 @@ setInterval(tickClock,1000);tickClock();
         '</div>' : '')+
         '<div class="shrink-0 mt-auto pt-1 flex flex-col items-center gap-1">'+
           (ev.lightTime ? '<div class="text-center">'+
-            '<div class="text-[8px] sm:text-[9px] text-brand-300/65">הדלקת נרות</div>'+
+            '<div class="text-[8px] sm:text-[9px] text-brand-300/65">'+(ev.lightLabel || 'הדלקת נרות')+'</div>'+
             '<div class="text-base sm:text-lg font-black text-brand-200 text-glow tabular-nums">'+ev.lightTime+'</div>'+
           '</div>' : '')+
           '<div class="text-[8px] sm:text-[9px] font-semibold tracking-[0.12em] text-brand-300/45">🟢 ניטור התרעות פעיל</div>'+
@@ -1751,7 +1891,7 @@ function loadShabbat(){
   var from = new Date(now.getTime() - 2*86400000);
   var to   = new Date(now.getTime() + 40*86400000);
   // i=on = לוח ארץ ישראל (יום טוב אחד ולא שניים). s=on מחזיר גם את פרשת השבוע.
-  var url = 'https://www.hebcal.com/hebcal?v=1&cfg=json&maj=on&min=off&mf=on&mod=off&nx=off&s=on&c=on'
+  var url = 'https://www.hebcal.com/hebcal?v=1&cfg=json&maj=on&min=off&mf=on&o=on&mod=off&nx=off&s=on&c=on'
           + '&b=18&M=on&geo=pos&latitude='+MODIIN.lat+'&longitude='+MODIIN.lon
           + '&tzid='+encodeURIComponent(MODIIN.tz)+'&i=on'
           + '&start='+isoDate(from)+'&end='+isoDate(to)+'&_='+Date.now();
@@ -1787,7 +1927,32 @@ function loadShabbat(){
 
     // תג קומפקטי בעמודה הימנית — שם המועד + זמני כניסה/יציאה, עם התוויות הנכונות.
     renderOccasionBadge(active, !!current);
+    renderOmer(j.items || []);
   }).catch(function(){});
+}
+
+/* ספירת העומר — מ-ט״ז בניסן ועד שבועות. Hebcal מחזיר את נוסח הספירה
+   המלא והמנוקד ב-omer.count.he, וגם את ספירת הספירות (״גבורה שבחסד״),
+   כך שאין צורך לחשב או לנסח כאן דבר. */
+function renderOmer(items){
+  var box = document.getElementById('omerBox');
+  if(!box) return;
+  var now = new Date();
+  var todayKey = now.getFullYear()+'-'+now.getMonth()+'-'+now.getDate();
+  var hit = null;
+  items.forEach(function(it){
+    if(it.category !== 'omer' || hit) return;
+    var d = new Date(it.date);
+    if(d.getFullYear()+'-'+d.getMonth()+'-'+d.getDate() === todayKey) hit = it;
+  });
+  if(!hit || !hit.omer || !hit.omer.count){ box.innerHTML = ''; return; }
+  var sefira = (hit.omer.sefira && hit.omer.sefira.he) ? hit.omer.sefira.he : '';
+  box.innerHTML =
+    '<div class="mt-2 rounded-2xl border border-accent-400/25 bg-accent-500/5 px-2.5 py-1.5">'+
+      '<div class="text-[10px] font-extrabold tracking-[0.18em] text-accent-400/80">ספירת העומר</div>'+
+      '<div class="mt-0.5 text-[12px] font-bold leading-snug text-brand-100">'+hit.omer.count.he+'</div>'+
+      (sefira ? '<div class="mt-0.5 text-[11px] font-semibold text-brand-300/80">'+sefira+'</div>' : '')+
+    '</div>';
 }
 
 /* תג המועד בעמודה הימנית. הוצא לפונקציה נפרדת כדי שגם
