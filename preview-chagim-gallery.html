@@ -27,6 +27,14 @@
   .stage{position:relative;width:100%;aspect-ratio:1280/720;background:#020410;overflow:hidden}
   .stage iframe{position:absolute;top:0;right:0;width:1280px;height:720px;border:0;
                 transform-origin:top right;pointer-events:none}
+  /* שמונה עותקים של הלוח נטענים מהרשת — בלי החיווי הזה נראה כאילו הגלריה שבורה */
+  .stage .loading{position:absolute;inset:0;display:grid;place-items:center;gap:10px;
+                  background:#020410;color:var(--dim);font-size:.85rem;z-index:2;
+                  transition:opacity .4s;text-align:center;padding:12px}
+  .stage.ready .loading{opacity:0;pointer-events:none}
+  .spin{width:26px;height:26px;border:2px solid #1c2a4d;border-top-color:var(--brand);
+        border-radius:50%;animation:sp 1s linear infinite;margin:0 auto 8px}
+  @keyframes sp{to{transform:rotate(360deg)}}
   .status{padding:7px 15px 12px;font-size:.73rem;color:var(--dim);font-family:ui-monospace,monospace}
   .status b{color:var(--brand);font-weight:700}
 </style>
@@ -70,7 +78,8 @@ STATES.forEach(function(st, i){
   card.innerHTML =
     '<div class="head"><span class="n">'+(i+1)+'</span><h2>'+st.t+'</h2>'+
       '<span class="note">'+st.n+'</span></div>'+
-    '<div class="stage"><iframe src="index.html?demo='+i+'" scrolling="no"></iframe></div>'+
+    '<div class="stage"><iframe src="index.html?demo='+i+'" scrolling="no"></iframe>'+
+      '<div class="loading"><div><div class="spin"></div>טוען את הלוח…</div></div></div>'+
     '<div class="status">טוען…</div>';
   grid.appendChild(card);
 
@@ -90,7 +99,7 @@ STATES.forEach(function(st, i){
       try { var a = w.document.getElementById('bgAudio'); if(a){ a.muted = true; a.pause(); } } catch(e){}
     }, 60);
     setTimeout(function(){ clearInterval(mute); }, 8000);
-    drive(w, st, status);
+    drive(w, st, status, stage);
   });
 });
 
@@ -124,11 +133,11 @@ function withFakeToday(w, iso, fn){
   try { return fn(); } finally { w.Date = RD; }
 }
 
-function drive(w, st, status){
+function drive(w, st, status, stage){
   // ממתינים שהסקריפטים של הלוח יסיימו להיטען
   var tries = 0;
   (function ready(){
-    if(tries++ > 120){ status.textContent = '⚠ הלוח לא נטען'; return; }
+    if(tries++ > 120){ status.textContent = '⚠ הלוח לא נטען'; stage.classList.add('ready'); return; }
     if(!w.buildOccasionWindows || !w.vaadRefreshFigure || !w.MODIIN){ return setTimeout(ready, 100); }
     go();
   })();
@@ -182,7 +191,7 @@ function drive(w, st, status){
       if(st.kind === 'occ'){
         var win = null;
         for(var i=0;i<wins.length;i++){ if(d >= wins[i].start && d <= wins[i].end){ win = wins[i]; break; } }
-        if(!win){ status.textContent = '⚠ לא נמצא חלון'; return; }
+        if(!win){ status.textContent = '⚠ לא נמצא חלון'; stage.classList.add('ready'); return; }
         apply = function(){
           w.vaadIsShabbatNow = function(){ return true; };
           w.vaadDayEvent     = null;
@@ -197,7 +206,7 @@ function drive(w, st, status){
                          + ' · <b>'+win.endLabel+'</b> '+w.hhmm(win.end);
       } else {
         var ev = withFakeToday(w, st.when, function(){ return w.computeDayEvent(items); });
-        if(!ev){ status.textContent = '⚠ לא זוהה אירוע יום'; return; }
+        if(!ev){ status.textContent = '⚠ לא זוהה אירוע יום'; stage.classList.add('ready'); return; }
         apply = function(){
           w.vaadIsShabbatNow = function(){ return false; };
           w.vaadDayEvent     = ev;
@@ -209,13 +218,14 @@ function drive(w, st, status){
       }
 
       apply();
+      stage.classList.add('ready');   // הפאנל מוכן — מסירים את מסך הטעינה
       // ⚠ מירוץ: loadShabbat של הלוח עצמו כותב מחדש את vaadOccasion ו-vaadDayEvent
       // כשה-fetch שלו חוזר. אם הוא מסיים אחרינו הוא מוחק את המצב שכפינו, והפאנל
       // מוצג חצי-מיושם: "שבת שלום" עם תיבה ריקה וזמנים של היום האמיתי.
       // החלה חוזרת הייתה מתקנת אבל מהבהבת — לכן נועלים את המצב לצמיתות.
       lockState();
       setTimeout(apply, 2500);   // ביטחון, אם loadShabbat כבר היה באוויר לפני הנעילה
-    }).catch(function(e){ status.textContent = '⚠ ' + e.message; });
+    }).catch(function(e){ status.textContent = '⚠ ' + e.message; stage.classList.add('ready'); });
   }
 }
 </script>
