@@ -1542,6 +1542,10 @@ setInterval(tickClock,1000);tickClock();
       var pages=d&&d.query&&d.query.pages;if(!pages)return;var p=pages[Object.keys(pages)[0]]||{};
       if(p.extract){
         var ex=p.extract.trim();
+        // ⚠ explaintext עם exchars=2000 חוצה את פתיחת הערך וגולש לסעיפים
+        // הבאים — ואז כותרות ה-wiki דולפות לתצוגה כמו "== קורות חייו ==".
+        // נראה במתתיהו החשמונאי, וחל על כל ערך ארוך מספיק.
+        ex = ex.replace(/\s*={2,}[^=]{0,80}={2,}\s*/g, ' ').replace(/\s{2,}/g, ' ').trim();
         if(ex.length>900){
           var cut=ex.slice(0,900);
           var lastDot=cut.lastIndexOf('. ');
