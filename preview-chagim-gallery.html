@@ -102,11 +102,19 @@ STATES.forEach(function(st, i){
 
   frame.addEventListener('load', function(){
     var w = frame.contentWindow;
-    // השתקה אגרסיבית — שמונה עותקים של הלוח, כל אחד עם מוזיקת רקע.
+    // ⚠ לא רק השתקה — ביטול ההורדה. לכל עותק של הלוח יש <audio preload="auto">
+    // על קובץ של 78MB; שנים עשר עותקים ניסו למשוך כמעט ג׳יגה-בייט, והגלריה
+    // נתקעה על "טוען" דקות ארוכות. removeAttribute+load מבטלים את הבקשה.
     var mute = setInterval(function(){
-      try { var a = w.document.getElementById('bgAudio'); if(a){ a.muted = true; a.pause(); } } catch(e){}
-    }, 60);
-    setTimeout(function(){ clearInterval(mute); }, 8000);
+      try {
+        var a = w.document.getElementById('bgAudio');
+        if(a){
+          a.muted = true; a.pause(); a.preload = 'none';
+          if(a.getAttribute('src')){ a.removeAttribute('src'); a.load(); }
+        }
+      } catch(e){}
+    }, 50);
+    setTimeout(function(){ clearInterval(mute); }, 12000);
     drive(w, st, status, stage);
   });
 });
