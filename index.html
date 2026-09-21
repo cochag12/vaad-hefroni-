@@ -1287,6 +1287,21 @@ setInterval(tickClock,1000);tickClock();
     bio.style.removeProperty('animation-duration');
     // נחכה לפריסה לפני שמודדים
     requestAnimationFrame(function(){
+      /* התאמת גודל כלפי מעלה: הביוגרפיה היא הטקסט המרכזי בלוח, ונקראת
+         ממרחק של כמה מטרים בלובי. כשהיא קצרה — למשל כשוויקיפדיה לא ענתה
+         ונשאר רק ה-bio המקובע (45-98 תווים אצל כל 82 הדמויות) — 13px
+         בתוך פאנל של ~280px נראה כמו תקלה. מגדילים עד שימלא, ולא מעבר
+         ל-20px כדי שלא ייראה מנופח. טקסט ארוך נשאר 13px וגולל כרגיל. */
+      bio.style.fontSize = '';
+      if(bio.scrollHeight <= wrap.clientHeight + 4){
+        var SIZES = [20, 19, 18, 17, 16, 15, 14];
+        for(var i = 0; i < SIZES.length; i++){
+          bio.style.fontSize = SIZES[i] + 'px';
+          if(bio.scrollHeight <= wrap.clientHeight - 2) break;
+        }
+        // אם אפילו 14px גולש — חוזרים לברירת המחדל של ה-CSS
+        if(bio.scrollHeight > wrap.clientHeight - 2) bio.style.fontSize = '';
+      }
       var overflow = bio.scrollHeight - wrap.clientHeight;
       if(overflow <= 4) return; // נכנס בלי גלילה
       // משך הסיבוב: 4% השהיה ראש + 56% ירידה איטית + 4% השהיה תחתית + 28% חזרה מהירה + 8% באפר.
