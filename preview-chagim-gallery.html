@@ -149,34 +149,72 @@ function drive(w, st, status){
         if(act && w.renderOccasionBadge) w.renderOccasionBadge(act, !!cur);
         return act;
       }
-      // loadShabbat של הלוח עצמו עשוי לסיים אחרינו ולדרוס את התג — מחילים שוב.
-      setTimeout(badgeForDemoDate, 2500);
-      setTimeout(badgeForDemoDate, 6000);
+
+      var apply;
+
+      // קובע ערך קבוע לשדה: getter שמחזיר אותו, setter שמתעלם בשקט.
+      // כך כתיבה מאוחרת של loadShabbat פשוט לא נכנסת לתוקף.
+      function freeze(name, value){
+        try {
+          Object.defineProperty(w, name, {
+            configurable: true,
+            get: function(){ return value; },
+            set: function(){}
+          });
+        } catch(e){ w[name] = value; }
+      }
+
+      function lockState(){
+        var demoWin = badgeForDemoDate();
+        freeze('vaadIsShabbatNow', w.vaadIsShabbatNow);
+        freeze('vaadOccasion',     w.vaadOccasion);
+        freeze('vaadDayEvent',     w.vaadDayEvent);
+        freeze('vaadParsha',       w.vaadParsha);
+        freeze('vaadCandleTime',   w.vaadCandleTime);
+        freeze('vaadHavdalahTime', w.vaadHavdalahTime);
+        // גם התג: loadShabbat קורא ל-renderOccasionBadge עם החלון האמיתי של היום.
+        var real = w.renderOccasionBadge;
+        w.renderOccasionBadge = function(){
+          if(demoWin) real.call(w, demoWin, demoWin.start <= d && d <= demoWin.end);
+        };
+      }
 
       if(st.kind === 'occ'){
         var win = null;
         for(var i=0;i<wins.length;i++){ if(d >= wins[i].start && d <= wins[i].end){ win = wins[i]; break; } }
         if(!win){ status.textContent = '⚠ לא נמצא חלון'; return; }
-        badgeForDemoDate();
-        w.vaadIsShabbatNow = function(){ return true; };
-        w.vaadDayEvent     = null;
-        w.vaadOccasion     = win;
-        w.vaadParsha       = win.parsha || null;
-        w.vaadCandleTime   = w.hhmm(win.start);
-        w.vaadHavdalahTime = w.hhmm(win.end);
-        w.vaadRefreshFigure();
+        apply = function(){
+          w.vaadIsShabbatNow = function(){ return true; };
+          w.vaadDayEvent     = null;
+          w.vaadOccasion     = win;
+          w.vaadParsha       = win.parsha || null;
+          w.vaadCandleTime   = w.hhmm(win.start);
+          w.vaadHavdalahTime = w.hhmm(win.end);
+          w.vaadRefreshFigure();
+          badgeForDemoDate();
+        };
         status.innerHTML = '<b>'+win.startLabel+'</b> '+w.hhmm(win.start)
                          + ' · <b>'+win.endLabel+'</b> '+w.hhmm(win.end);
       } else {
         var ev = withFakeToday(w, st.when, function(){ return w.computeDayEvent(items); });
         if(!ev){ status.textContent = '⚠ לא זוהה אירוע יום'; return; }
-        badgeForDemoDate();   // בפורים/חנוכה התג מראה את השבת הקרובה — כמו במציאות
-        w.vaadIsShabbatNow = function(){ return false; };
-        w.vaadDayEvent     = ev;
-        w.vaadRefreshFigure();
+        apply = function(){
+          w.vaadIsShabbatNow = function(){ return false; };
+          w.vaadDayEvent     = ev;
+          w.vaadRefreshFigure();
+          badgeForDemoDate();   // בפורים/חנוכה התג מראה את השבת הקרובה — כמו במציאות
+        };
         status.innerHTML = ev.lightTime ? '<b>הדלקת נרות</b> ' + ev.lightTime
                                         : 'אירוע יום · ללא זמני כניסה ויציאה';
       }
+
+      apply();
+      // ⚠ מירוץ: loadShabbat של הלוח עצמו כותב מחדש את vaadOccasion ו-vaadDayEvent
+      // כשה-fetch שלו חוזר. אם הוא מסיים אחרינו הוא מוחק את המצב שכפינו, והפאנל
+      // מוצג חצי-מיושם: "שבת שלום" עם תיבה ריקה וזמנים של היום האמיתי.
+      // החלה חוזרת הייתה מתקנת אבל מהבהבת — לכן נועלים את המצב לצמיתות.
+      lockState();
+      setTimeout(apply, 2500);   // ביטחון, אם loadShabbat כבר היה באוויר לפני הנעילה
     }).catch(function(e){ status.textContent = '⚠ ' + e.message; });
   }
 }
