@@ -648,6 +648,101 @@ var HOLIDAY_READINGS = {
        הניסיון הישן הסיר ו' אחת בלבד ובתחילת השם, ולא תפס ו' באמצע שם מחובר.
    התוצאה: "כי תצא", "כי תבוא" ו"אחרי מות־קדשים" הציגו תיבת תקציר ריקה —
    שלוש שבתות בכל שנה. עכשיו מנרמלים את שני הצדדים לפני ההשוואה. */
+/* ----- אירועי יום: פורים וחנוכה -----
+   בניגוד לשבת/חג/צום, לאלה אין חלון של כניסה ויציאה — הם פשוט היום עצמו.
+   לכן הם מנגנון נפרד שרץ ברמת התאריך, ונדחה מפני חלון מועד אם יש כזה
+   (שבת חנוכה = פאנל הפרשה, לא פאנל חנוכה). */
+var CHANUKAH_NIGHTS = ['', 'ראשון', 'שני', 'שלישי', 'רביעי', 'חמישי', 'שישי', 'שביעי', 'שמיני'];
+
+var DAY_EVENTS = {
+  'purim': {
+    greeting: 'פורים שמח',
+    subtitle: 'מגילת אסתר',
+    label: 'ארבע מצוות היום',
+    figure: { name: 'מרדכי היהודי', wiki: 'מרדכי היהודי', why: 'יושב בשער המלך; הוא שגידל את אסתר וסירב להשתחוות להמן.' },
+    text: 'יום הצלתם של יהודי פרס מגזרת המן בימי אחשוורוש. בלילה ובבוקר קוראים את מגילת אסתר, שכולה היפוך: ״ונהפוך הוא, אשר ישלטו היהודים המה בשנאיהם״. שמו של הקדוש ברוך הוא אינו נזכר במגילה אפילו פעם אחת — הנס מוסתר כולו בתוך שרשרת של מקרים שנראים אקראיים. ארבע מצוות נוהגות ביום: קריאת המגילה, משלוח מנות איש לרעהו, מתנות לאביונים, ומשתה ושמחה. חכמים הדגישו דווקא את מתנות לאביונים — ״כל הפושט יד, נותנים לו״ — שאין שמחה שלמה כשיש מי שחסר לו. נוהגים בתחפושות, ברעשנים ובמשלוחי מנות בין שכנים.'
+  },
+  'chanukah': {
+    greeting: 'חנוכה שמח',
+    label: 'נס פך השמן',
+    figure: { name: 'יהודה המכבי', wiki: 'יהודה המכבי', why: 'מצביא המרד החשמונאי; בימיו שוחרר המקדש וחודשה העבודה בו.' },
+    text: 'שמונה ימים לזכר ניצחון החשמונאים על מלכות יוון וחנוכת המקדש מחדש. היוונים טימאו את כל השמן שבהיכל, ונמצא פך אחד קטן שנותר חתום בחותמו של הכהן הגדול — ובו שמן למאור ליום אחד בלבד. נעשה בו נס והוא דלק שמונה ימים, עד שהספיקו לסחוט ולהביא שמן טהור. מדליקים נרות בפתח הבית או בחלון ״להודיע הנס״, ומוסיפים נר בכל לילה — מהמעט אל המרובה, כדעת בית הלל. מוסיפים ״על הניסים״ בתפילה ובברכת המזון, גומרים את ההלל בכל שמונת הימים, ונוהגים במאכלי שמן ובסביבון.',
+    /* שורה משתנה לכל לילה — כדי שהפאנל לא ייראה זהה שמונה ימים ברציפות */
+    nights: [
+      '',
+      'בית שמאי סברו להתחיל בשמונה ולפחות — והלכה כבית הלל: מוסיפים והולכים.',
+      'הנר הנוסף, ה״שמש״, אינו ממניין הנרות; בו מדליקים ובאורו מותר להשתמש.',
+      'זמן ההדלקה מצאת הכוכבים, ויש שממתינים ״עד שתכלה רגל מן השוק״.',
+      'בערב שבת מדליקים נר חנוכה לפני נרות שבת, ובמוצאי שבת אחרי ההבדלה.',
+      '״הנרות הללו קודש הם, ואין לנו רשות להשתמש בהם אלא לראותם בלבד.״',
+      'מוסיפים ״על הניסים״ בתפילה ובברכת המזון — אך אין מזכירים אותו בקידוש.',
+      'גומרים את ההלל בכל שמונת הימים — מן המועדים הבודדים שבהם נוהג כך.',
+      'בלילה השמיני החנוכייה מלאה, ורמזו בכך על אור שהולך וגדל ואינו נפסק.'
+    ]
+  }
+};
+
+/* מזהה אירוע-יום לתאריך הנוכחי מתוך אותה תשובת Hebcal ששימשה לחלונות.
+   מדלגים במכוון על: "Erev Purim" (עדיין לא פורים), "Shushan Purim" (ירושלים
+   וערים מוקפות חומה — מודיעין אינה כזו), ו-"Chag HaBanot". */
+function computeDayEvent(items){
+  var now = new Date();
+  var todayKey = now.getFullYear()+'-'+now.getMonth()+'-'+now.getDate();
+  var found = null;
+  var erevPurimToday = false, nightfallToday = null;
+  items.forEach(function(it){
+    var dd = new Date(it.date);
+    if(dd.getFullYear()+'-'+dd.getMonth()+'-'+dd.getDate() !== todayKey) return;
+    // סוף הצום או ההבדלה של היום = צאת הכוכבים, ובו מתחיל פורים.
+    if((it.category === 'zmanim' && it.subcat === 'fast' && /ends/i.test(it.title || '')) ||
+        it.category === 'havdalah'){
+      if(!nightfallToday || dd > nightfallToday) nightfallToday = dd;
+    }
+    if(it.category !== 'holiday') return;
+    var t = String(it.title || '');
+    if(/^Erev Purim$/i.test(t)) erevPurimToday = true;
+    if(/^Purim$/i.test(t)){
+      found = { key:'purim' };                 // פורים גובר אם איכשהו יתנגש
+    } else if(/^Chanukah/i.test(t) && !found){
+      var m = t.match(/(\d)\s*Candle/i);
+      var night = m ? parseInt(m[1], 10) : null;
+      found = {
+        key: 'chanukah',
+        night: night,
+        eighthDay: /8th\s*Day/i.test(t),
+        // לפריט של הדלקה יש שעה; ליום השמיני יש תאריך בלבד.
+        lightTime: (night && String(it.date).length > 10) ? hhmm(it.date) : null
+      };
+    }
+  });
+  // ליל פורים — מצאת הכוכבים של ערב פורים ואילך.
+  // בשנה שבה פורים חל ביום ראשון, תענית אסתר מוקדמת ליום חמישי וערב פורים
+  // הוא שבת; אז צאת הכוכבים מגיעה מההבדלה. אם אין אף אחד מהם — 18:30 כברירת מחדל.
+  if(!found && erevPurimToday){
+    var trigger = nightfallToday;
+    if(!trigger){
+      trigger = new Date(now.getFullYear(), now.getMonth(), now.getDate(), 18, 30, 0);
+    }
+    if(now >= trigger) found = { key:'purim' };
+  }
+  if(!found) return null;
+  var content = DAY_EVENTS[found.key];
+  if(!content) return null;
+  found.greeting = content.greeting;
+  found.label    = content.label;
+  found.text     = content.text;
+  found.figure   = content.figure;
+  if(found.key === 'chanukah'){
+    found.subtitle = found.eighthDay ? 'יום שמיני של חנוכה'
+                   : (found.night ? 'נר ' + (CHANUKAH_NIGHTS[found.night] || found.night) + ' של חנוכה' : 'חנוכה');
+    found.nightNote = (found.night && content.nights[found.night]) ? content.nights[found.night] : '';
+  } else {
+    found.subtitle = content.subtitle;
+    found.nightNote = '';
+  }
+  return found;
+}
+
 function normalizeParsha(x){
   return String(x || '')
     .replace(/^פרשת\s*/, '')
@@ -1158,14 +1253,82 @@ setInterval(tickClock,1000);tickClock();
       // אם אפילו 9.5px לא מספיק (כמעט בלתי אפשרי) — נשאר 9.5
     });
   }
+  var renderedMode = null;
+  function modeSignature(){
+    if(window.vaadIsShabbatNow && window.vaadIsShabbatNow()){
+      var o = window.vaadOccasion || {};
+      return 'occ:' + (o.key || 'shabbat') + ':' + (o.parsha || '');
+    }
+    var de = window.vaadDayEvent;
+    if(de) return 'day:' + de.key + ':' + (de.night || (de.eighthDay ? 8 : 0));
+    return 'figure:' + new Date().toDateString();
+  }
   function isSilentNow(){ return !!figSection.querySelector('[data-silent="1"]'); }
+
+  /* פאנל אירוע-יום. אותו שלד של פאנל המועד, אבל בלי כניסה/יציאה —
+     בפורים אין זמנים, ובחנוכה מוצגת שעת ההדלקה של הערב. */
+  function showDayEvent(ev){
+    var fig = ev.figure;
+    figSection.classList.remove('p-5');
+    figSection.classList.add('p-0');
+    figSection.innerHTML =
+      '<div class="flex h-full flex-col px-5 pt-4 pb-2 text-center overflow-hidden" data-silent="1">'+
+        '<div class="shrink-0 flex flex-col items-center gap-0.5">'+
+          '<div class="title-grad text-2xl sm:text-3xl lg:text-4xl font-black leading-none">'+ev.greeting+'</div>'+
+          (ev.subtitle?'<div class="text-sm sm:text-base font-bold text-brand-200 text-glow">'+ev.subtitle+'</div>':'')+
+        '</div>'+
+        '<div class="min-h-0 flex-1 mt-1 mx-auto max-w-2xl w-full rounded-2xl border border-brand-400/30 bg-brand-400/5 px-4 py-2.5 text-right flex flex-col overflow-hidden">'+
+          '<div class="shrink-0 mb-1 text-[10px] font-extrabold tracking-[0.2em] text-brand-300/70">📜 '+ev.label+'</div>'+
+          '<div class="parshaSummaryWrap min-h-0 flex-1 overflow-hidden">'+
+            '<p class="parshaSummaryText leading-relaxed text-slate-200 text-justify [text-justify:inter-word]" style="font-size:15px">'+ev.text+
+              (ev.nightNote?'<span class="block mt-1.5 font-bold text-brand-100">'+ev.nightNote+'</span>':'')+
+            '</p>'+
+          '</div>'+
+        '</div>'+
+        (fig ? '<div class="shrink-0 mt-1.5 mx-auto flex w-full max-w-2xl items-center gap-2.5 rounded-2xl border border-brand-400/20 bg-night-800/60 px-3 py-1.5 text-right">'+
+          '<div id="occFigAvatar" class="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-xl bg-gradient-to-br from-indigo-500 to-violet-600 text-base font-black text-white shadow">'+fig.name.charAt(0)+'</div>'+
+          '<div class="min-w-0 flex-1">'+
+            '<div class="text-[12px] font-black leading-tight text-brand-200">'+fig.name+'</div>'+
+            '<div class="text-[10px] leading-snug text-slate-300">'+fig.why+'</div>'+
+          '</div>'+
+        '</div>' : '')+
+        '<div class="shrink-0 mt-auto pt-1 flex flex-col items-center gap-1">'+
+          (ev.lightTime ? '<div class="text-center">'+
+            '<div class="text-[8px] sm:text-[9px] text-brand-300/65">הדלקת נרות</div>'+
+            '<div class="text-base sm:text-lg font-black text-brand-200 text-glow tabular-nums">'+ev.lightTime+'</div>'+
+          '</div>' : '')+
+          '<div class="text-[8px] sm:text-[9px] font-semibold tracking-[0.12em] text-brand-300/45">🟢 ניטור התרעות פעיל</div>'+
+        '</div>'+
+      '</div>';
+    setTimeout(setupParshaScroll, 100);
+    if(fig){
+      fetch('https://he.wikipedia.org/w/api.php?action=query&prop=pageimages&piprop=thumbnail&pithumbsize=200&redirects=1&format=json&origin=*&titles='+encodeURIComponent(fig.wiki))
+        .then(function(r){return r.json()}).then(function(d){
+          var pages=d&&d.query&&d.query.pages; if(!pages) return;
+          var pg=pages[Object.keys(pages)[0]]||{};
+          var el=document.getElementById('occFigAvatar');
+          if(el && pg.thumbnail && pg.thumbnail.source){
+            el.textContent='';
+            el.innerHTML='<img src="'+pg.thumbnail.source+'" referrerpolicy="no-referrer" class="size-full object-cover" alt="">';
+          }
+        }).catch(function(){});
+    }
+  }
   function restoreFigureHTML(){ if(isSilentNow()){ figSection.innerHTML = figOriginalHTML; figSection.classList.remove('p-0'); figSection.classList.add('p-5'); } }
   function showFigure(){
-    // בזמן השבת — מציגים "הגל השקט" במקום הדמות, ועוצרים את המוזיקה.
+    // סדר קדימויות: חלון מועד (שבת/חג/צום) ← אירוע יום (פורים/חנוכה) ← דמות יומית.
+    // כך ששבת חנוכה מציגה את הפרשה, ולא את פאנל חנוכה.
     if(window.vaadIsShabbatNow && window.vaadIsShabbatNow()){
+      renderedMode = modeSignature();
       showSilentWave();
       return;
     }
+    if(window.vaadDayEvent){
+      renderedMode = modeSignature();
+      showDayEvent(window.vaadDayEvent);
+      return;
+    }
+    renderedMode = modeSignature();
     // הוצאנו מהשבת — מחזירים את מבנה פאנל הדמות, ואז ממלאים אותו.
     restoreFigureHTML();
     var f=pickFigure();
@@ -1212,11 +1375,10 @@ setInterval(tickClock,1000);tickClock();
   // חשיפה גלובלית כדי שה-Hebcal fetch יוכל לרענן מיד כשמגיעים זמני שבת.
   window.vaadRefreshFigure = showFigure;
   showFigure();
-  // בדיקה דקתית: אם נכנסת/יצאת מהשבת — מחליפים את הפאנל.
+  // בדיקה דקתית. הבוליאן הישן ידע רק "שבת או לא"; עכשיו יש שלושה מצבים,
+  // ובתוך חנוכה גם מספר הנר משתנה — ולכן משווים חתימת מצב מלאה.
   setInterval(function(){
-    var silent = isSilentNow();
-    var shouldBeSilent = !!(window.vaadIsShabbatNow && window.vaadIsShabbatNow());
-    if(silent !== shouldBeSilent) showFigure();
+    if(renderedMode !== modeSignature()) showFigure();
   }, 60000);
   // החלפה אוטומטית ב-00:00 (לפי שעון המחשב), ואז כל יום.
   (function scheduleMidnight(){
@@ -1358,6 +1520,7 @@ window.vaadHavdalahTime = null; // HH:MM
 window.vaadParsha       = null; // פרשת השבוע (אם יש)
 window.vaadOccasion     = null; // אובייקט המועד המלא (ראה classifyWindow)
 window.vaadNextOccasion = null; // המועד הבא — לתג שבצד כשאנחנו לא בתוך מועד
+window.vaadDayEvent     = null; // פורים / חנוכה — אירוע יום, לא חלון
 
 window.vaadIsShabbatNow = function(){
   return window.vaadShabbatStart && window.vaadShabbatEnd
@@ -1576,10 +1739,17 @@ function loadShabbat(){
       if(windows[k].start > n){ next = windows[k]; break; }
     }
     var active = current || next;
-    if(!active) return;
+    if(!active){
+      // אין חלון בטווח (נדיר) — אבל אירוע יום עדיין יכול להיות היום.
+      window.vaadDayEvent = computeDayEvent(j.items || []);
+      if(window.vaadRefreshFigure) window.vaadRefreshFigure();
+      return;
+    }
 
     window.vaadOccasion     = current;
     window.vaadNextOccasion = next;
+    // פורים/חנוכה מחושבים מאותה תשובה — בלי בקשת רשת נוספת.
+    window.vaadDayEvent     = computeDayEvent(j.items || []);
     window.vaadShabbatStart = active.start;
     window.vaadShabbatEnd   = active.end;
     window.vaadCandleTime   = hhmm(active.start);

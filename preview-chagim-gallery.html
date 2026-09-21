@@ -1,0 +1,166 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>דוגמאות — מנוע המועדים · לוח עפרוני 18</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800;900&display=swap" rel="stylesheet">
+<style>
+  :root{ --bg:#050814; --card:#0b1226; --line:#1c2a4d; --ink:#e6ecf8; --dim:#8fa0c2; --brand:#22d3ee; }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:'Heebo',system-ui,sans-serif;
+       padding:26px 16px 60px;line-height:1.55}
+  .wrap{max-width:1400px;margin:0 auto}
+  h1{font-size:1.45rem;margin:0 0 4px;font-weight:900}
+  .lead{color:var(--dim);margin:0 0 6px;font-size:.9rem}
+  .hint{color:var(--dim);font-size:.8rem;margin:0 0 24px;
+        border-right:3px solid var(--brand);padding:8px 12px;background:#0b1226;border-radius:0 10px 10px 0}
+  .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(340px,1fr));gap:20px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;overflow:hidden}
+  .head{display:flex;align-items:baseline;gap:9px;padding:12px 15px 9px;flex-wrap:wrap}
+  .n{background:var(--brand);color:#04121a;width:22px;height:22px;border-radius:7px;
+     display:grid;place-items:center;font-weight:900;font-size:.72rem;flex:0 0 auto}
+  .head h2{margin:0;font-size:1rem;font-weight:800;flex:1 1 auto;min-width:0}
+  .head .note{color:var(--dim);font-size:.75rem;width:100%;padding-right:31px}
+  .stage{position:relative;width:100%;aspect-ratio:1280/720;background:#020410;overflow:hidden}
+  .stage iframe{position:absolute;top:0;right:0;width:1280px;height:720px;border:0;
+                transform-origin:top right;pointer-events:none}
+  .status{padding:7px 15px 12px;font-size:.73rem;color:var(--dim);font-family:ui-monospace,monospace}
+  .status b{color:var(--brand);font-weight:700}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h1>מנוע המועדים — שמונה מצבים</h1>
+  <p class="lead">כל ריבוע הוא <b>הלוח האמיתי</b> שנטען מ-<code>index.html</code> ונדחף למצב אחר. לא צילומי מסך.</p>
+  <p class="hint">התאריכים מזויפים לצורך ההדגמה בלבד — הלוגיקה, הזמנים, הטקסטים והדיוקנאות הם האמיתיים, ומגיעים חיים מ-Hebcal ומוויקיפדיה.</p>
+  <div class="grid" id="grid"></div>
+</div>
+
+<script>
+// כל מצב: כותרת, הערה, וסקריפט שמריצים בתוך ה-iframe אחרי שנטען.
+var STATES = [
+  { t:'שבת רגילה', n:'פרשת השבוע — ברירת המחדל',
+    kind:'occ', f:'2026-10-08', to:'2026-10-12', when:'2026-10-10T10:00:00+03:00' },
+  { t:'חג · סוכות א׳', n:'חג שחל בשבת — שתי הברכות יחד',
+    kind:'occ', f:'2026-09-23', to:'2026-09-30', when:'2026-09-26T10:00:00+03:00' },
+  { t:'צום · יום כיפור', n:'כניסת ויציאת הצום + ברכה ייעודית',
+    kind:'occ', f:'2026-09-18', to:'2026-09-24', when:'2026-09-21T10:00:00+03:00' },
+  { t:'צום · תשעה באב', n:'צום מלא שמתחיל בערב — ללא הדלקת נרות',
+    kind:'occ', f:'2027-08-09', to:'2027-08-15', when:'2027-08-12T10:00:00+03:00' },
+  { t:'שבת חול המועד פסח', n:'תוויות שבת, אבל קריאה מיוחדת',
+    kind:'occ', f:'2027-04-22', to:'2027-04-27', when:'2027-04-24T10:00:00+03:00' },
+  { t:'שמיני עצרת ושמחת תורה', n:'בארץ ישראל — יום אחד',
+    kind:'occ', f:'2026-10-01', to:'2026-10-06', when:'2026-10-03T10:00:00+03:00' },
+  { t:'חנוכה · נר חמישי', n:'מנגנון אירוע-יום + שעת ההדלקה של הערב',
+    kind:'day', f:'2026-12-01', to:'2026-12-16', when:'2026-12-08T10:00:00+02:00' },
+  { t:'פורים', n:'מנגנון אירוע-יום, בלי זמני כניסה ויציאה',
+    kind:'day', f:'2027-03-20', to:'2027-03-26', when:'2027-03-23T11:00:00+02:00' }
+];
+
+var grid = document.getElementById('grid');
+
+STATES.forEach(function(st, i){
+  var card = document.createElement('div');
+  card.className = 'card';
+  card.innerHTML =
+    '<div class="head"><span class="n">'+(i+1)+'</span><h2>'+st.t+'</h2>'+
+      '<span class="note">'+st.n+'</span></div>'+
+    '<div class="stage"><iframe src="index.html?demo='+i+'" scrolling="no"></iframe></div>'+
+    '<div class="status">טוען…</div>';
+  grid.appendChild(card);
+
+  var stage  = card.querySelector('.stage');
+  var frame  = card.querySelector('iframe');
+  var status = card.querySelector('.status');
+
+  // הלוח נבנה ל-1280×720; מקטינים אותו לרוחב הכרטיס.
+  function fit(){ frame.style.transform = 'scale(' + (stage.clientWidth / 1280) + ')'; }
+  fit();
+  addEventListener('resize', fit);
+
+  frame.addEventListener('load', function(){
+    var w = frame.contentWindow;
+    // השתקה אגרסיבית — שמונה עותקים של הלוח, כל אחד עם מוזיקת רקע.
+    var mute = setInterval(function(){
+      try { var a = w.document.getElementById('bgAudio'); if(a){ a.muted = true; a.pause(); } } catch(e){}
+    }, 60);
+    setTimeout(function(){ clearInterval(mute); }, 8000);
+    drive(w, st, status);
+  });
+});
+
+function hebcalUrl(w, f, t){
+  var M = w.MODIIN;
+  return 'https://www.hebcal.com/hebcal?v=1&cfg=json&maj=on&min=off&mf=on&mod=off&nx=off'
+       + '&s=on&c=on&b=18&M=on&geo=pos&latitude='+M.lat+'&longitude='+M.lon
+       + '&tzid='+encodeURIComponent(M.tz)+'&i=on&start='+f+'&end='+t;
+}
+
+// מזייף את "היום" בתוך ה-iframe, כדי ש-computeDayEvent יחשוב שהיום הוא התאריך המבוקש.
+function withFakeToday(w, iso, fn){
+  var RD = w.Date, t = new RD(iso).getTime();
+  // חובה לשמר את מספר הארגומנטים: new Date("2026-12-08", undefined) נקרא
+  // כ-(שנה, חודש) ומחזיר Invalid Date. לכן switch ולא העברה עיוורת.
+  function FD(){
+    var a = arguments;
+    switch(a.length){
+      case 0:  return new RD(t);
+      case 1:  return new RD(a[0]);
+      case 2:  return new RD(a[0], a[1]);
+      case 3:  return new RD(a[0], a[1], a[2]);
+      case 4:  return new RD(a[0], a[1], a[2], a[3]);
+      case 5:  return new RD(a[0], a[1], a[2], a[3], a[4]);
+      case 6:  return new RD(a[0], a[1], a[2], a[3], a[4], a[5]);
+      default: return new RD(a[0], a[1], a[2], a[3], a[4], a[5], a[6]);
+    }
+  }
+  FD.now = function(){ return t; }; FD.parse = RD.parse; FD.UTC = RD.UTC; FD.prototype = RD.prototype;
+  w.Date = FD;
+  try { return fn(); } finally { w.Date = RD; }
+}
+
+function drive(w, st, status){
+  // ממתינים שהסקריפטים של הלוח יסיימו להיטען
+  var tries = 0;
+  (function ready(){
+    if(tries++ > 120){ status.textContent = '⚠ הלוח לא נטען'; return; }
+    if(!w.buildOccasionWindows || !w.vaadRefreshFigure || !w.MODIIN){ return setTimeout(ready, 100); }
+    go();
+  })();
+
+  function go(){
+    fetch(hebcalUrl(w, st.f, st.to)).then(function(r){ return r.json(); }).then(function(j){
+      var items = j.items || [];
+      if(st.kind === 'occ'){
+        var wins = w.buildOccasionWindows(items);
+        var d = new Date(st.when);
+        var win = null;
+        for(var i=0;i<wins.length;i++){ if(d >= wins[i].start && d <= wins[i].end){ win = wins[i]; break; } }
+        if(!win){ status.textContent = '⚠ לא נמצא חלון'; return; }
+        w.vaadIsShabbatNow = function(){ return true; };
+        w.vaadDayEvent     = null;
+        w.vaadOccasion     = win;
+        w.vaadParsha       = win.parsha || null;
+        w.vaadCandleTime   = w.hhmm(win.start);
+        w.vaadHavdalahTime = w.hhmm(win.end);
+        w.vaadRefreshFigure();
+        status.innerHTML = '<b>'+win.startLabel+'</b> '+w.hhmm(win.start)
+                         + ' · <b>'+win.endLabel+'</b> '+w.hhmm(win.end);
+      } else {
+        var ev = withFakeToday(w, st.when, function(){ return w.computeDayEvent(items); });
+        if(!ev){ status.textContent = '⚠ לא זוהה אירוע יום'; return; }
+        w.vaadIsShabbatNow = function(){ return false; };
+        w.vaadDayEvent     = ev;
+        w.vaadRefreshFigure();
+        status.innerHTML = ev.lightTime ? '<b>הדלקת נרות</b> ' + ev.lightTime
+                                        : 'אירוע יום · ללא זמני כניסה ויציאה';
+      }
+    }).catch(function(e){ status.textContent = '⚠ ' + e.message; });
+  }
+}
+</script>
+</body>
+</html>
