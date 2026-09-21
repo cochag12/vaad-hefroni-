@@ -1759,24 +1759,30 @@ function loadShabbat(){
     if(window.vaadRefreshFigure) window.vaadRefreshFigure();
 
     // תג קומפקטי בעמודה הימנית — שם המועד + זמני כניסה/יציאה, עם התוויות הנכונות.
-    var box = document.getElementById('shabbatBox');
-    if(!box) return;
-    var inIt = !!current;
-    // בתוך המועד — רק השם. לפניו — "השבת הקרובה", או שם החג עם "בקרוב".
-    var label;
-    if(inIt)                              label = active.shortName;
-    else if(active.isChag || active.isFast) label = active.shortName + ' · בקרוב';
-    else                                  label = 'השבת הקרובה';
-    var sub = active.parsha ? (' · ' + active.parsha) : '';
-    box.innerHTML =
-      '<div class="mt-2 rounded-2xl border border-brand-400/20 bg-brand-400/5 px-2.5 py-1.5">'+
-        '<div class="text-[12px] font-bold text-brand-200 truncate">'+label+sub+'</div>'+
-        '<div class="mt-1 flex items-center justify-between gap-2 text-[11px] font-semibold text-brand-300">'+
-          '<span><span class="text-brand-300/70">'+active.startLabel+'</span> <span class="tabular-nums text-brand-200">'+hhmm(active.start)+'</span></span>'+
-          '<span><span class="text-brand-300/70">'+active.endLabel+'</span> <span class="tabular-nums text-brand-200">'+hhmm(active.end)+'</span></span>'+
-        '</div>'+
-      '</div>';
+    renderOccasionBadge(active, !!current);
   }).catch(function(){});
+}
+
+/* תג המועד בעמודה הימנית. הוצא לפונקציה נפרדת כדי שגם
+   preview-chagim-gallery.html יוכל להציג אותו לפי התאריך המודגם —
+   אחרת הגלריה מראה פאנל מרכזי של פורים לצד תג של "סוכות בקרוב". */
+function renderOccasionBadge(active, inIt){
+  var box = document.getElementById('shabbatBox');
+  if(!box || !active) return;
+  // בתוך המועד — רק השם. לפניו — "השבת הקרובה", או שם החג עם "בקרוב".
+  var label;
+  if(inIt)                                label = active.shortName;
+  else if(active.isChag || active.isFast) label = active.shortName + ' · בקרוב';
+  else                                    label = 'השבת הקרובה';
+  var sub = active.parsha ? (' · ' + active.parsha) : '';
+  box.innerHTML =
+    '<div class="mt-2 rounded-2xl border border-brand-400/20 bg-brand-400/5 px-2.5 py-1.5">'+
+      '<div class="text-[12px] font-bold text-brand-200 truncate">'+label+sub+'</div>'+
+      '<div class="mt-1 flex items-center justify-between gap-2 text-[11px] font-semibold text-brand-300">'+
+        '<span><span class="text-brand-300/70">'+active.startLabel+'</span> <span class="tabular-nums text-brand-200">'+hhmm(active.start)+'</span></span>'+
+        '<span><span class="text-brand-300/70">'+active.endLabel+'</span> <span class="tabular-nums text-brand-200">'+hhmm(active.end)+'</span></span>'+
+      '</div>'+
+    '</div>';
 }
 
 loadShabbat();

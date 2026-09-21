@@ -56,8 +56,10 @@ var STATES = [
     kind:'occ', f:'2026-10-01', to:'2026-10-06', when:'2026-10-03T10:00:00+03:00' },
   { t:'חנוכה · נר חמישי', n:'מנגנון אירוע-יום + שעת ההדלקה של הערב',
     kind:'day', f:'2026-12-01', to:'2026-12-16', when:'2026-12-08T10:00:00+02:00' },
+  // הטווח חייב להימשך אחרי ההבדלה של השבת הבאה — חלון נוצר רק כשהוא נסגר,
+  // ובלעדיו התג הימני נשאר על המועד האמיתי של היום.
   { t:'פורים', n:'מנגנון אירוע-יום, בלי זמני כניסה ויציאה',
-    kind:'day', f:'2027-03-20', to:'2027-03-26', when:'2027-03-23T11:00:00+02:00' }
+    kind:'day', f:'2027-03-20', to:'2027-03-29', when:'2027-03-23T11:00:00+02:00' }
 ];
 
 var grid = document.getElementById('grid');
@@ -134,12 +136,28 @@ function drive(w, st, status){
   function go(){
     fetch(hebcalUrl(w, st.f, st.to)).then(function(r){ return r.json(); }).then(function(j){
       var items = j.items || [];
+      var wins  = w.buildOccasionWindows(items);
+      var d     = new Date(st.when);
+
+      // התג בעמודה הימנית חייב להתאים לתאריך המודגם. בלי זה הכרטיס של פורים
+      // הראה "סוכות א׳ · בקרוב" — המועד הבא לפי התאריך האמיתי של היום.
+      function badgeForDemoDate(){
+        var cur = null, nxt = null;
+        for(var i=0;i<wins.length;i++){ if(d >= wins[i].start && d <= wins[i].end){ cur = wins[i]; break; } }
+        for(var k=0;k<wins.length;k++){ if(wins[k].start > d){ nxt = wins[k]; break; } }
+        var act = cur || nxt;
+        if(act && w.renderOccasionBadge) w.renderOccasionBadge(act, !!cur);
+        return act;
+      }
+      // loadShabbat של הלוח עצמו עשוי לסיים אחרינו ולדרוס את התג — מחילים שוב.
+      setTimeout(badgeForDemoDate, 2500);
+      setTimeout(badgeForDemoDate, 6000);
+
       if(st.kind === 'occ'){
-        var wins = w.buildOccasionWindows(items);
-        var d = new Date(st.when);
         var win = null;
         for(var i=0;i<wins.length;i++){ if(d >= wins[i].start && d <= wins[i].end){ win = wins[i]; break; } }
         if(!win){ status.textContent = '⚠ לא נמצא חלון'; return; }
+        badgeForDemoDate();
         w.vaadIsShabbatNow = function(){ return true; };
         w.vaadDayEvent     = null;
         w.vaadOccasion     = win;
@@ -152,6 +170,7 @@ function drive(w, st, status){
       } else {
         var ev = withFakeToday(w, st.when, function(){ return w.computeDayEvent(items); });
         if(!ev){ status.textContent = '⚠ לא זוהה אירוע יום'; return; }
+        badgeForDemoDate();   // בפורים/חנוכה התג מראה את השבת הקרובה — כמו במציאות
         w.vaadIsShabbatNow = function(){ return false; };
         w.vaadDayEvent     = ev;
         w.vaadRefreshFigure();
