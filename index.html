@@ -1285,8 +1285,13 @@ setInterval(tickClock,1000);tickClock();
     bio.classList.remove('bio-autoscroll');
     bio.style.removeProperty('--bio-max');
     bio.style.removeProperty('animation-duration');
-    // נחכה לפריסה לפני שמודדים
-    requestAnimationFrame(function(){
+    /* ⚠ requestAnimationFrame אינו נורה כשהלשונית מוסתרת או ממוזערת.
+       על הסטרימר הדף תמיד גלוי ולכן זה עבד, אבל אם Chrome עולה
+       ממוזער או קלט הטלוויזיה מוחלף — הגופן לעולם לא יותאם.
+       לכן גיבוי ב-setTimeout, והפונקציה אידמפוטנטית כך שהרצה כפולה לא מזיקה. */
+    var ranFit = false;
+    function runFit(){
+      if(ranFit) return; ranFit = true;
       /* התאמת גודל כלפי מעלה: הביוגרפיה היא הטקסט המרכזי בלוח, ונקראת
          ממרחק של כמה מטרים בלובי. כשהיא קצרה — למשל כשוויקיפדיה לא ענתה
          ונשאר רק ה-bio המקובע (45-98 תווים אצל כל 82 הדמויות) — 13px
@@ -1297,8 +1302,13 @@ setInterval(tickClock,1000);tickClock();
         var SIZES = [20, 19, 18, 17, 16, 15, 14];
         for(var i = 0; i < SIZES.length; i++){
           bio.style.fontSize = SIZES[i] + 'px';
+          // ⚠ חובה לאלץ reflow: בלי זה scrollHeight מחזיר את הערך מלפני
+          // שינוי הגופן, הלולאה "מצליחה" כבר ב-20px, והשומר מיד אחריה
+          // מזהה גלישה ומאפס — והגופן נשאר 13px לנצח.
+          void bio.offsetHeight;
           if(bio.scrollHeight <= wrap.clientHeight - 2) break;
         }
+        void bio.offsetHeight;
         // אם אפילו 14px גולש — חוזרים לברירת המחדל של ה-CSS
         if(bio.scrollHeight > wrap.clientHeight - 2) bio.style.fontSize = '';
       }
@@ -1311,7 +1321,9 @@ setInterval(tickClock,1000);tickClock();
       bio.style.setProperty('--bio-max', '-'+overflow+'px');
       bio.style.animationDuration = dur + 's';
       bio.classList.add('bio-autoscroll');
-    });
+    }
+    requestAnimationFrame(runFit);
+    setTimeout(runFit, 250);
   }
   // חשיפה גלובלית — שגם עדכון ויקיפדיה האסינכרוני יוכל להפעיל מחדש
   window.vaadSetupBioAutoScroll = setupBioAutoScroll;
@@ -1326,23 +1338,66 @@ setInterval(tickClock,1000);tickClock();
      בתחתית בלוק טקסט. מספיק להלביש את הדמות במבנה ש-pickFigure מחזיר.
      החגים עצמם, הצומות, הושענא רבה ופורים ממשיכים בפאנל התוכן, כי שם
      הקריאה או הסיפור הם העיקר ולא הדמות. */
-  function festivalFigure(){
+  /* הדמות של המועד הנוכחי — בין אם מאירוע יום ובין אם מחלון מועד. */
+  function occasionFigureSource(){
     var de = window.vaadDayEvent;
-    if(!de || !de.figure) return null;
-    if(de.key !== 'chol-hamoed' && de.key !== 'chanukah') return null;
-    var badge2 = de.lightTime ? ('הדלקה ' + de.lightTime)
-               : (de.chag === 'pesach' ? 'פסח' : 'סוכות');
+    if(de && de.figure) return { fig: de.figure, label: de.subtitle,
+      badge2: de.lightTime ? ('הדלקה ' + de.lightTime)
+            : (de.chag === 'pesach' ? 'פסח' : (de.chag === 'sukkot' ? 'סוכות' : (de.label || ''))) };
+    var occ = window.vaadOccasion;
+    if(occ && occ.reading && occ.reading.figure){
+      return { fig: occ.reading.figure, label: occ.shortName || occ.hebName || '',
+               badge2: occ.startLabel ? (occ.startLabel + ' ' + hhmm(occ.start)) : '' };
+    }
+    return null;
+  }
+
+  function festivalFigure(){
+    var src = occasionFigureSource();
+    if(!src) return null;
+    var de = window.vaadDayEvent;
+    var badge2 = src.badge2;
+    var fig_ = src.fig;
     return {
-      name:    de.figure.name,
-      initial: de.figure.name.charAt(0),
-      field:   de.subtitle,      // "ג׳ דחול המועד סוכות" / "נר חמישי של חנוכה"
+      name:    fig_.name,
+      initial: fig_.name.charAt(0),
+      field:   src.label,        // "ג׳ דחול המועד סוכות" / "נר חמישי" / "יום כיפור"
       years:   badge2,
       grad:    'from-amber-500 to-orange-600',
-      bio:     de.figure.why,    // ממלא מקום עד שוויקיפדיה עונה
-      facts:   de.nightNote ? [de.nightNote] : [],
-      quote:   de.figure.why,    // הקשר לחג, בתיבה המודגשת בתחתית
-      wiki:    de.figure.wiki
+      bio:     fig_.why,         // ממלא מקום עד שוויקיפדיה עונה
+      facts:   (de && de.nightNote) ? [de.nightNote] : [],
+      quote:   fig_.why,         // הקשר למועד, בתיבה המודגשת בתחתית
+      wiki:    fig_.wiki
     };
+  }
+
+  /* ----- החלפה בין תוכן לדמות -----
+     במועד שיש לו גם טקסט (קריאת התורה / סיפור היום) וגם דמות, שניהם
+     ראויים לפאנל מלא. במקום לדחוס את הדמות לרצועה בת 56px בתחתית —
+     הפאנל מתחלף ביניהם, כמו שכללי הבית והכותרות כבר מתחלפים.
+     תוכן מקבל יותר זמן מהדמות כי הוא ארוך יותר לקריאה. */
+  var PANEL_CONTENT_MS = 60000, PANEL_FIGURE_MS = 40000;
+  var panelPhase = 0;            // 0 = תוכן, 1 = דמות
+  var panelTimer = null;
+  function hasBothPanels(){
+    if(!occasionFigureSource()) return false;
+    var de = window.vaadDayEvent;
+    if(de) return !!de.text;                       // אירוע יום עם טקסט
+    var occ = window.vaadOccasion;
+    return !!(occ && occ.reading && occ.reading.text);
+  }
+  /* וו-בדיקה, ברוח window.vaadTestAlert: מחליף מיד בין תוכן לדמות.
+     window.vaadPanelPhase() מחזיר את השלב הנוכחי. */
+  window.vaadSwapPanel = function(){ panelPhase = panelPhase ? 0 : 1; showFigure(); return panelPhase; };
+  window.vaadPanelPhase = function(){ return { phase: panelPhase, hasBoth: hasBothPanels() }; };
+
+  function schedulePanelSwap(){
+    clearTimeout(panelTimer);
+    if(!hasBothPanels()){ panelPhase = 0; return; }
+    panelTimer = setTimeout(function(){
+      panelPhase = panelPhase ? 0 : 1;
+      showFigure();
+    }, panelPhase ? PANEL_FIGURE_MS : PANEL_CONTENT_MS);
   }
   function showSilentWave(){
     var occ = window.vaadOccasion || {};
@@ -1452,6 +1507,7 @@ setInterval(tickClock,1000);tickClock();
   }
   var renderedMode = null;
   function modeSignature(){
+    // panelPhase נכלל כדי שהבדיקה הדקתית לא תרנדר מחדש סתם באמצע החלפה
     if(window.vaadIsShabbatNow && window.vaadIsShabbatNow()){
       var o = window.vaadOccasion || {};
       return 'occ:' + (o.key || 'shabbat') + ':' + (o.parsha || '');
@@ -1513,19 +1569,26 @@ setInterval(tickClock,1000);tickClock();
   }
   function restoreFigureHTML(){ if(isSilentNow()){ figSection.innerHTML = figOriginalHTML; figSection.classList.remove('p-0'); figSection.classList.add('p-5'); } }
   function showFigure(){
-    // סדר קדימויות: חלון מועד (שבת/חג/צום) ← אירוע יום (פורים/חנוכה) ← דמות יומית.
+    // סדר קדימויות: חלון מועד (שבת/חג/צום) ← אירוע יום ← דמות יומית.
     // כך ששבת חנוכה מציגה את הפרשה, ולא את פאנל חנוכה.
+    // בתוך מועד שיש לו גם תוכן וגם דמות — panelPhase קובע מה מוצג כעת.
+    var both = hasBothPanels();
+    var showFig = both && panelPhase === 1;
+
     if(window.vaadIsShabbatNow && window.vaadIsShabbatNow()){
+      if(!showFig){
+        renderedMode = modeSignature();
+        showSilentWave();
+        schedulePanelSwap();
+        return;
+      }
+    } else if(window.vaadDayEvent && !showFig){
       renderedMode = modeSignature();
-      showSilentWave();
+      showDayEvent(window.vaadDayEvent);
+      schedulePanelSwap();
       return;
     }
     var ff = festivalFigure();
-    if(window.vaadDayEvent && !ff){
-      renderedMode = modeSignature();
-      showDayEvent(window.vaadDayEvent);
-      return;
-    }
     renderedMode = modeSignature();
     // הוצאנו מהשבת — מחזירים את מבנה פאנל הדמות, ואז ממלאים אותו.
     restoreFigureHTML();
@@ -1550,6 +1613,7 @@ setInterval(tickClock,1000);tickClock();
       '<li class="text-[12px] font-medium leading-snug text-brand-100/95 min-w-0">'+factsInline+'</li>';
     var q=document.getElementById('figQuote');
     if(f.quote){q.textContent='״'+f.quote+'״';q.classList.remove('hidden');} else {q.classList.add('hidden');}
+    schedulePanelSwap();
     // explaintext=טקסט נקי. exchars=2000 מבטיח טקסט עשיר גם לדמויות שהפתיחה שלהן בויקיפדיה קצרה
     // (כמו רמב״ן — exintro לבד היה מחזיר 139 תווים בלבד).
     var url='https://he.wikipedia.org/w/api.php?action=query&prop=extracts|pageimages&exchars=2000&explaintext&piprop=thumbnail&pithumbsize=400&redirects=1&format=json&origin=*&titles='+encodeURIComponent(f.wiki);
