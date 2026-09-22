@@ -1376,8 +1376,11 @@ setInterval(tickClock,1000);tickClock();
      ראויים לפאנל מלא. במקום לדחוס את הדמות לרצועה בת 56px בתחתית —
      הפאנל מתחלף ביניהם, כמו שכללי הבית והכותרות כבר מתחלפים.
      תוכן מקבל יותר זמן מהדמות כי הוא ארוך יותר לקריאה. */
-  var PANEL_CONTENT_MS = 60000, PANEL_FIGURE_MS = 40000;
-  var panelPhase = 0;            // 0 = תוכן, 1 = דמות
+  /* הדמות היא התצוגה הראשית ומקבלת את רוב הזמן — "לימוד יומי"
+     הוא הפיצ׳ר המרכזי בלוח, ודייר שעובר בלובי אמור לראות אותו.
+     תוכן המועד מתחלף פנימה לפרק זמן קצר יותר. */
+  var PANEL_FIGURE_MS = 60000, PANEL_CONTENT_MS = 40000;
+  var panelPhase = 1;            // 0 = תוכן, 1 = דמות (ברירת המחדל)
   var panelTimer = null;
   function hasBothPanels(){
     if(!occasionFigureSource()) return false;
@@ -1393,7 +1396,7 @@ setInterval(tickClock,1000);tickClock();
 
   function schedulePanelSwap(){
     clearTimeout(panelTimer);
-    if(!hasBothPanels()){ panelPhase = 0; return; }
+    if(!hasBothPanels()){ panelPhase = 1; return; }
     panelTimer = setTimeout(function(){
       panelPhase = panelPhase ? 0 : 1;
       showFigure();
